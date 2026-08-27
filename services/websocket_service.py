@@ -206,6 +206,8 @@ class WebSocketManager:
                 "muted": muted,
                 "channels": channel_vols,
                 "current_device": current_dev,
+                "channel_count": self.backend.channel_count,
+                "is_stereo": (self.backend.channel_count <= 2),
                 "media": media_data,
                 "active_profile": self.config_manager.get("active_profile", "User"),
                 "calibration_enabled": self.config_manager.get("calibration_enabled", False)
@@ -237,10 +239,7 @@ class WebSocketManager:
     # -------------------------------------------------------------------------
 
     async def _audio_peak_loop(self):
-        """
-        Streams real-time audio peak values (~33 fps) to connected clients
-        for zero-latency oscilloscope and spectrum visualizer rendering.
-        """
+        """Broadcasts real-time audio output meter peak ~33fps for oscilloscope visualization."""
         while self.running:
             try:
                 with self.clients_lock:
@@ -257,7 +256,7 @@ class WebSocketManager:
             except asyncio.CancelledError:
                 break
             except Exception:
-                await asyncio.sleep(0.05)
+                await asyncio.sleep(0.1)
 
     async def _media_sync_loop(self):
         """
@@ -294,11 +293,24 @@ class WebSocketManager:
 
     async def _volume_sync_loop(self):
         """
-        Broadcasts hardware volume changes (master, mute state, channels)
-        when modified externally or via other sessions.
+        Broadcasts hardware volume changes (master, mute state, channels, and active output device changes)
+        when modified externally or via Windows settings.
         """
         while self.running:
             try:
+                # 1. Check if default audio output device changed in Windows
+                current_default = self.backend.get_default_device_name()
+                if current_default and current_default != self.backend.current_device_name:
+                    print(f"[WebSocket] Windows default output device changed: {current_default}")
+                    self.backend.activate_device(current_default)
+                    is_stereo = (self.backend.channel_count <= 2)
+                    await self.broadcast({
+                        "type": "device_changed",
+                        "device_name": current_default,
+                        "channel_count": self.backend.channel_count,
+                        "is_stereo": is_stereo
+                    })
+
                 with self.clients_lock:
                     has_clients = bool(self.clients)
 
@@ -306,14 +318,17 @@ class WebSocketManager:
                     master_vol, muted = self.backend.get_master_volume()
                     channel_vols = self.backend.get_channel_volumes()
 
-                    snap = (master_vol, muted, tuple(channel_vols.items()))
+                    snap = (master_vol, muted, tuple(channel_vols.items()), self.backend.current_device_name)
                     if snap != self._last_volume_snapshot:
                         self._last_volume_snapshot = snap
                         await self.broadcast({
                             "type": "volume_status",
                             "master": master_vol,
                             "muted": muted,
-                            "channels": channel_vols
+                            "channels": channel_vols,
+                            "device_name": self.backend.current_device_name,
+                            "channel_count": self.backend.channel_count,
+                            "is_stereo": (self.backend.channel_count <= 2)
                         })
                 await asyncio.sleep(0.3)
             except asyncio.CancelledError:

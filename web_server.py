@@ -156,8 +156,8 @@ def main():
 
         threading.Thread(target=smooth_reveal, daemon=True).start()
 
-    # Launch background silent Dolby check
-    dolby_service.async_check_dolby(on_dolby_ready)
+    # Launch background silent Dolby check on currently selected device
+    dolby_service.async_check_dolby(on_dolby_ready, target_device_name=backend.current_device_name)
 
     # 6. Initialize and run PyWebview GUI on the main thread (hidden until splash completes)
     try:

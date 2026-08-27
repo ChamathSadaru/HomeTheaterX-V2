@@ -205,6 +205,16 @@ export async function toggleDdlMode(suppressNotification = false) {
 export function updateDdlButtonUI() {
   const btn = document.getElementById("ddl-btn");
   if (btn) {
+    if (state.channelCount <= 2) {
+      btn.disabled = true;
+      btn.classList.remove("ddl-active");
+      btn.classList.add("opacity-30", "pointer-events-none", "cursor-not-allowed");
+      btn.title = "Dolby Digital Live (Unavailable for Stereo/Headphones)";
+      return;
+    }
+    btn.disabled = false;
+    btn.classList.remove("opacity-30", "pointer-events-none", "cursor-not-allowed");
+    btn.title = "Toggle Dolby Digital Live";
     if (state.ddlActive) {
       btn.classList.add("ddl-active");
     } else {

@@ -167,6 +167,17 @@ class AudioBackend:
                 print(f"Could not activate peak meter for device {device_name}: {meter_err}")
                 self.meter_interface = None
 
+            # Only engage 100% Master Volume Auto-Lock for Multi-channel 5.1 setups
+            # If the device is Stereo (<= 2 channels, e.g. Headphones/Laptop), leave volume unlocked for user control
+            if self.channel_count > 2:
+                try:
+                    self.volume_interface.SetMasterVolumeLevelScalar(1.0, None)
+                except Exception:
+                    pass
+                self.start_master_volume_lock()
+            else:
+                self.stop_master_volume_lock()
+
             return True
         except Exception as e:
             print(f"Error activating device {device_name}: {e}")
@@ -174,6 +185,34 @@ class AudioBackend:
             self.meter_interface = None
             self.channel_count = 0
             return False
+
+    def start_master_volume_lock(self):
+        """Runs a background loop to keep Windows Endpoint Master Volume pinned at 100% on multi-channel setups."""
+        if getattr(self, 'channel_count', 0) <= 2:
+            self._master_lock_running = False
+            return
+
+        self._master_lock_running = True
+        if hasattr(self, '_master_lock_thread') and self._master_lock_thread and self._master_lock_thread.is_alive():
+            return
+
+        def _lock_loop():
+            safe_coinit()
+            while getattr(self, '_master_lock_running', True) and getattr(self, 'channel_count', 0) > 2:
+                try:
+                    if self.volume_interface:
+                        val = self.volume_interface.GetMasterVolumeLevelScalar()
+                        if val < 0.999:
+                            self.volume_interface.SetMasterVolumeLevelScalar(1.0, None)
+                except Exception:
+                    pass
+                time.sleep(0.15)
+
+        self._master_lock_thread = threading.Thread(target=_lock_loop, daemon=True)
+        self._master_lock_thread.start()
+
+    def stop_master_volume_lock(self):
+        self._master_lock_running = False
 
     def get_master_volume(self):
         """Gets master volume scalar (0 to 100) and mute state."""

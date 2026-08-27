@@ -162,8 +162,36 @@ html, body {
     animation-play-state: paused !important;
 }
 
-.player-progress-bar {
-    transition: width 0.15s linear;
+/* --- Mini Equalizer Bar Animation --- */
+.mini-eq-container {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 12px;
+}
+
+.mini-eq-bar {
+    width: 2.5px;
+    background: #f59e0b;
+    border-radius: 2px;
+    animation: miniEqAnim 1.1s ease-in-out infinite alternate;
+}
+
+.mini-eq-bar:nth-child(1) { height: 4px; animation-delay: 0.1s; }
+.mini-eq-bar:nth-child(2) { height: 11px; animation-delay: 0.35s; }
+.mini-eq-bar:nth-child(3) { height: 7px; animation-delay: 0.2s; }
+.mini-eq-bar:nth-child(4) { height: 12px; animation-delay: 0.5s; }
+
+.paused-eq .mini-eq-bar {
+    animation-play-state: paused !important;
+    height: 3px !important;
+    opacity: 0.45;
+}
+
+@keyframes miniEqAnim {
+    0% { height: 3px; }
+    50% { height: 12px; }
+    100% { height: 5px; }
 }
 
 /* --- 8D Active Rotating State --- */

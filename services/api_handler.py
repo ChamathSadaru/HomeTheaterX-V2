@@ -492,7 +492,8 @@ class AudioControlHandler(BaseHTTPRequestHandler):
                 ddl_active = self.get_ddl_state() if self.get_ddl_state else False
                 if cal_enabled and ddl_active:
                     ddl_was_on = True
-                    success_ddl, new_ddl = dolby_service.toggle_dolby_in_system()
+                    dev_target = getattr(self.backend, "current_device_name", None)
+                    success_ddl, new_ddl = dolby_service.toggle_dolby_in_system(target_device_name=dev_target)
                     if success_ddl:
                         if self.set_ddl_state:
                             self.set_ddl_state(new_ddl)
@@ -781,7 +782,8 @@ class AudioControlHandler(BaseHTTPRequestHandler):
                     status_code = 500
 
             elif path_only == "/api/apo/toggle_ddl":
-                success, new_state = dolby_service.toggle_dolby_in_system()
+                dev_target = getattr(self.backend, "current_device_name", None)
+                success, new_state = dolby_service.toggle_dolby_in_system(target_device_name=dev_target)
                 if success:
                     if self.set_ddl_state:
                         self.set_ddl_state(new_state)
@@ -846,8 +848,9 @@ class AudioControlHandler(BaseHTTPRequestHandler):
                     config_manager.set("preset_prev_state", prev_state)
                     
                     # 3. Disable active systems
+                    dev_target = getattr(self.backend, "current_device_name", None)
                     if ddl_active:
-                        dolby_service.toggle_dolby_in_system()
+                        dolby_service.toggle_dolby_in_system(target_device_name=dev_target)
                         if self.set_ddl_state:
                             self.set_ddl_state(False)
                             
@@ -882,8 +885,9 @@ class AudioControlHandler(BaseHTTPRequestHandler):
                     eightd_restored = False
                     cal_restored = False
                     
+                    dev_target = getattr(self.backend, "current_device_name", None)
                     if prev.get("ddl"):
-                        dolby_service.toggle_dolby_in_system()
+                        dolby_service.toggle_dolby_in_system(target_device_name=dev_target)
                         if self.set_ddl_state:
                             self.set_ddl_state(True)
                         ddl_restored = True

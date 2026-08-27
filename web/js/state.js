@@ -20,7 +20,7 @@ export const state = {
     "center": 85,
     "towerR": 80,
     "surroundR": 75,
-    "master": 85
+    "master": 100
   },
   isSystemMuted: false,
   isUserDragging: false,

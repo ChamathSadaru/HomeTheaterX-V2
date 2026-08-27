@@ -92,6 +92,10 @@ export async function initWebSocket(handlers = {}) {
         if (handlers.onVolumeUpdate && !state.isUserDragging) {
           handlers.onVolumeUpdate(payload);
         }
+      } else if (payload.type === "device_changed") {
+        if (handlers.onDeviceChanged) {
+          handlers.onDeviceChanged(payload);
+        }
       } else if (payload.type === "full_status") {
         if (handlers.onFullStatus) {
           handlers.onFullStatus(payload);

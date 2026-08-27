@@ -686,15 +686,34 @@ async function updateAppStatus() {
 window.mediaPlayerIsPlaying = false;
 let windowsMediaActive = false;
 let lastWindowsMediaB64 = "";
+let currentMediaDuration = 0;
+let currentMediaTitle = "";
+let mediaTrackStartTime = Date.now();
+let mediaElapsedOffset = 0;
 
 function initMediaPlayer() {
   const playBtn = document.getElementById("player-play-btn");
   const prevBtn = document.getElementById("player-prev-btn");
   const nextBtn = document.getElementById("player-next-btn");
+  const progressContainer = document.getElementById("player-progress-container");
 
   if (playBtn) playBtn.addEventListener("click", togglePlay);
   if (prevBtn) prevBtn.addEventListener("click", playPrev);
   if (nextBtn) nextBtn.addEventListener("click", playNext);
+
+  if (progressContainer) {
+    progressContainer.addEventListener("click", (e) => {
+      if (currentMediaDuration > 0 && windowsMediaActive) {
+        const rect = progressContainer.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const ratio = Math.max(0, Math.min(1, clickX / rect.width));
+        const seekSeconds = ratio * currentMediaDuration;
+        if (!sendWsMessage({ type: "media_control", action: "seek", position: seekSeconds })) {
+          apiPost("/api/media/control", { action: "seek", position: seekSeconds });
+        }
+      }
+    });
+  }
 
   resetPlayerUI();
   setInterval(pollWindowsMedia, 800);
@@ -745,6 +764,8 @@ function resetPlayerUI() {
 
   if (playIcon) playIcon.className = "fa-solid fa-play text-xs ml-0.5";
   if (record) record.classList.add("paused-animation");
+  const eq = document.getElementById("player-eq-container");
+  if (eq) eq.classList.add("paused-eq");
   if (progressBar) progressBar.style.width = "0%";
   if (currentTimeEl) currentTimeEl.innerText = "0:00";
   if (durationTimeEl) durationTimeEl.innerText = "0:00";
@@ -755,6 +776,8 @@ function resetPlayerUI() {
 
   window.mediaPlayerIsPlaying = false;
   lastWindowsMediaB64 = "";
+  currentMediaDuration = 0;
+  currentMediaTitle = "";
 }
 
 export function applyMediaStatus(data) {
@@ -767,15 +790,23 @@ export function applyMediaStatus(data) {
     const artistEl = document.getElementById("player-artist");
     const badgeEl = document.getElementById("player-badge");
 
-    if (titleEl) titleEl.innerText = data.title || "Unknown Title";
+    const trackTitle = data.title || "Unknown Title";
+    if (titleEl) titleEl.innerText = trackTitle;
+    
+    // Track title change to reset local timeline timer
+    if (trackTitle !== currentMediaTitle) {
+      currentMediaTitle = trackTitle;
+      mediaTrackStartTime = Date.now();
+      mediaElapsedOffset = data.position || 0;
+    }
+
     if (artistEl) {
-      const sourceName = data.source ? data.source.split('.').pop() : "System";
-      artistEl.innerText = `${data.artist || "Unknown Artist"} • ${sourceName}`;
+      artistEl.innerText = data.artist || "Streaming Audio";
     }
 
     if (badgeEl) {
       badgeEl.innerText = "SYSTEM";
-      badgeEl.className = "text-[7px] font-mono text-blue-400 bg-blue-500/10 px-1 py-0.2 rounded border border-blue-500/20 font-bold flex-shrink-0";
+      badgeEl.className = "text-[7px] font-mono text-amber-500 bg-amber-500/10 px-1 py-0.2 rounded border border-amber-500/20 font-bold flex-shrink-0";
     }
 
     const isPlaying = data.playback_status === 4;
@@ -799,14 +830,21 @@ export function applyMediaStatus(data) {
       }
     }
 
+    const eq = document.getElementById("player-eq-container");
+    if (eq) {
+      if (isPlaying) {
+        eq.classList.remove("paused-eq");
+      } else {
+        eq.classList.add("paused-eq");
+      }
+    }
+
     const progressBar = document.getElementById("player-progress");
     const currentTimeEl = document.getElementById("player-current-time");
     const durationTimeEl = document.getElementById("player-duration");
 
-    const pos = data.position || 0;
-    const dur = data.duration || 1;
-    const percent = (pos / dur) * 100;
-    if (progressBar) progressBar.style.width = Math.min(100, Math.max(0, percent)) + "%";
+    const dur = data.duration || 0;
+    currentMediaDuration = dur;
 
     const formatTime = (seconds) => {
       const m = Math.floor(seconds / 60);
@@ -814,8 +852,25 @@ export function applyMediaStatus(data) {
       return `${m}:${s}`;
     };
 
-    if (currentTimeEl) currentTimeEl.innerText = formatTime(pos);
-    if (durationTimeEl) durationTimeEl.innerText = formatTime(dur);
+    if (dur > 0) {
+      const pos = data.position || 0;
+      const percent = (pos / dur) * 100;
+      if (progressBar) progressBar.style.width = Math.min(100, Math.max(0, percent)) + "%";
+      if (currentTimeEl) currentTimeEl.innerText = formatTime(pos);
+      if (durationTimeEl) durationTimeEl.innerText = formatTime(dur);
+    } else {
+      // For streaming without explicit duration (e.g. YouTube/Browser tabs)
+      if (isPlaying) {
+        const elapsed = Math.floor((Date.now() - mediaTrackStartTime) / 1000) + mediaElapsedOffset;
+        if (currentTimeEl) currentTimeEl.innerText = formatTime(elapsed);
+        if (durationTimeEl) durationTimeEl.innerText = "LIVE";
+        if (progressBar) progressBar.style.width = "100%";
+      } else {
+        if (currentTimeEl) currentTimeEl.innerText = "PAUSED";
+        if (durationTimeEl) durationTimeEl.innerText = "LIVE";
+        if (progressBar) progressBar.style.width = "0%";
+      }
+    }
 
     const artImg = document.getElementById("player-art-img");
     if (artImg) {
@@ -1145,6 +1200,81 @@ function initTabsNavigation() {
   });
 }
 
+export function applyDeviceTopology(isStereo, deviceName) {
+  state.channelCount = isStereo ? 2 : 6;
+  if (deviceName) state.currentDeviceName = deviceName;
+
+  const surroundL = document.getElementById("card-surroundL");
+  const sub = document.getElementById("card-subwoofer");
+  const center = document.getElementById("card-center");
+  const surroundR = document.getElementById("card-surroundR");
+  const towerL = document.getElementById("card-towerL");
+  const towerR = document.getElementById("card-towerR");
+  const grid = document.getElementById("speakers-grid");
+
+  const lblStage = document.getElementById("lbl-stage-monitor");
+  const lblTowerL = document.getElementById("lbl-towerL");
+  const lblTowerR = document.getElementById("lbl-towerR");
+  const sysMode = document.getElementById("systemMode");
+
+  if (isStereo) {
+    // Gracefully hide 5.1 surround-only baffles
+    if (surroundL) surroundL.classList.add("hidden");
+    if (sub) sub.classList.add("hidden");
+    if (center) center.classList.add("hidden");
+    if (surroundR) surroundR.classList.add("hidden");
+
+    // Re-layout grid into a centered stereo pair
+    if (grid) {
+      grid.className = "relative z-10 w-full flex justify-center items-end gap-16 max-w-2xl mx-auto transition-all duration-300";
+    }
+
+    if (lblStage) lblStage.innerText = "Acoustic Stage Monitor (Stereo 2.0)";
+    if (lblTowerL) lblTowerL.innerText = "Left (L)";
+    if (lblTowerR) lblTowerR.innerText = "Right (R)";
+    if (sysMode) sysMode.innerText = "Stereo 2.0 Mode";
+
+    // Disable Dolby button & kill animations
+    const ddlBtn = document.getElementById("ddl-btn");
+    if (ddlBtn) {
+      ddlBtn.disabled = true;
+      ddlBtn.classList.remove("ddl-active");
+      ddlBtn.classList.add("opacity-30", "pointer-events-none", "cursor-not-allowed");
+      ddlBtn.title = "Dolby Digital Live (Unavailable for Stereo/Headphones)";
+    }
+
+  } else {
+    // Reveal all 6 speakers
+    if (surroundL) surroundL.classList.remove("hidden");
+    if (sub) sub.classList.remove("hidden");
+    if (center) center.classList.remove("hidden");
+    if (surroundR) surroundR.classList.remove("hidden");
+    if (towerL) towerL.classList.remove("hidden");
+    if (towerR) towerR.classList.remove("hidden");
+
+    // Restore 6-column surround grid
+    if (grid) {
+      grid.className = "relative z-10 w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-y-12 gap-x-6 items-end justify-center max-w-5xl mx-auto transition-all duration-300";
+    }
+
+    if (lblStage) lblStage.innerText = "Acoustic Stage Monitor";
+    if (lblTowerL) lblTowerL.innerText = "Tower L";
+    if (lblTowerR) lblTowerR.innerText = "Tower R";
+    if (sysMode) sysMode.innerText = "Dolby Digital for a Hometheater";
+
+    // Re-enable Dolby button on 5.1 Surround devices
+    const ddlBtn = document.getElementById("ddl-btn");
+    if (ddlBtn) {
+      ddlBtn.disabled = false;
+      ddlBtn.classList.remove("opacity-30", "pointer-events-none", "cursor-not-allowed");
+      ddlBtn.title = "Toggle Dolby Digital Live";
+      if (state.ddlActive) {
+        ddlBtn.classList.add("ddl-active");
+      }
+    }
+  }
+}
+
 function initWindowsAudioSync() {
   // Initialize real-time WebSocket connection
   initWebSocket({
@@ -1153,6 +1283,13 @@ function initWindowsAudioSync() {
     },
     onVolumeUpdate: (volData) => {
       applyVolumeStatus(volData);
+      if (typeof volData.is_stereo === "boolean") {
+        applyDeviceTopology(volData.is_stereo, volData.device_name);
+      }
+    },
+    onDeviceChanged: (devData) => {
+      applyDeviceTopology(devData.is_stereo, devData.device_name);
+      showToast("Output Device Switched", `${devData.device_name} (${devData.is_stereo ? "Stereo 2.0" : "5.1 Surround"})`, "brand-blue");
     },
     onFullStatus: (fullData) => {
       if (fullData.media) {
@@ -1163,6 +1300,9 @@ function initWindowsAudioSync() {
         muted: fullData.muted,
         channels: fullData.channels
       });
+      if (typeof fullData.is_stereo === "boolean") {
+        applyDeviceTopology(fullData.is_stereo, fullData.current_device);
+      }
     }
   });
 

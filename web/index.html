@@ -15,7 +15,9 @@
     <link rel="stylesheet" href="style.css">
 
     <style>
-        *, *::before, *::after {
+        *,
+        *::before,
+        *::after {
             -webkit-font-smoothing: antialiased !important;
             -moz-osx-font-smoothing: grayscale !important;
             text-rendering: optimizeLegibility !important;
@@ -219,8 +221,8 @@
                     class="relative speaker-deck-stage w-full rounded-2xl border border-[#14141d]/80 pt-20 pb-8 px-6 mb-4 flex flex-col items-center justify-end min-h-[410px]">
 
                     <!-- Stage Monitoring Text Left Corner -->
-                    <div
-                        class="absolute top-6 left-6 z-20 font-mono text-[9px] text-zinc-555 tracking-widest uppercase">
+                    <div id="lbl-stage-monitor"
+                        class="absolute top-6 left-6 z-20 font-mono text-[9px] text-zinc-555 tracking-widest uppercase transition-all duration-200">
                         Acoustic Stage Monitor
                     </div>
 
@@ -231,31 +233,36 @@
                         <button id="btn-preset-bassboosted"
                             class="preset-filter-btn w-10 h-10 rounded-full bg-zinc-950 hover:bg-zinc-900 border border-zinc-850 text-zinc-400 hover:text-amber-500 flex items-center justify-center shadow-lg transition-all cursor-pointer"
                             title="Bass Boosted Preset" data-preset="bassboosted" data-name="Bass Boosted">
-                            <i class="preset-spinner fa-solid fa-circle-notch fa-spin text-xs hidden text-amber-500"></i>
+                            <i
+                                class="preset-spinner fa-solid fa-circle-notch fa-spin text-xs hidden text-amber-500"></i>
                             <i class="preset-icon fa-solid fa-drum text-xs"></i>
                         </button>
                         <button id="btn-preset-tightbass"
                             class="preset-filter-btn w-10 h-10 rounded-full bg-zinc-950 hover:bg-zinc-900 border border-zinc-850 text-zinc-400 hover:text-amber-500 flex items-center justify-center shadow-lg transition-all cursor-pointer"
                             title="Tight Bass Preset" data-preset="tightbass" data-name="Tight Bass">
-                            <i class="preset-spinner fa-solid fa-circle-notch fa-spin text-xs hidden text-amber-500"></i>
+                            <i
+                                class="preset-spinner fa-solid fa-circle-notch fa-spin text-xs hidden text-amber-500"></i>
                             <i class="preset-icon fa-solid fa-bolt text-xs"></i>
                         </button>
                         <button id="btn-preset-hallvibe"
                             class="preset-filter-btn w-10 h-10 rounded-full bg-zinc-950 hover:bg-zinc-900 border border-zinc-850 text-zinc-400 hover:text-amber-500 flex items-center justify-center shadow-lg transition-all cursor-pointer"
                             title="Hall Vibe Preset" data-preset="hallvibe" data-name="Hall Vibe">
-                            <i class="preset-spinner fa-solid fa-circle-notch fa-spin text-xs hidden text-amber-500"></i>
+                            <i
+                                class="preset-spinner fa-solid fa-circle-notch fa-spin text-xs hidden text-amber-500"></i>
                             <i class="preset-icon fa-solid fa-building-columns text-xs"></i>
                         </button>
                         <button id="btn-preset-echo"
                             class="preset-filter-btn w-10 h-10 rounded-full bg-zinc-950 hover:bg-zinc-900 border border-zinc-850 text-zinc-400 hover:text-amber-500 flex items-center justify-center shadow-lg transition-all cursor-pointer"
                             title="Echo Preset" data-preset="echo" data-name="Echo">
-                            <i class="preset-spinner fa-solid fa-circle-notch fa-spin text-xs hidden text-amber-500"></i>
+                            <i
+                                class="preset-spinner fa-solid fa-circle-notch fa-spin text-xs hidden text-amber-500"></i>
                             <i class="preset-icon fa-solid fa-rss text-xs"></i>
                         </button>
                         <button id="btn-preset-upmixing"
                             class="preset-filter-btn w-10 h-10 rounded-full bg-zinc-950 hover:bg-zinc-900 border border-zinc-850 text-zinc-400 hover:text-amber-500 flex items-center justify-center shadow-lg transition-all cursor-pointer"
                             title="Up Mixing Preset" data-preset="upmixing" data-name="Up Mixing">
-                            <i class="preset-spinner fa-solid fa-circle-notch fa-spin text-xs hidden text-amber-500"></i>
+                            <i
+                                class="preset-spinner fa-solid fa-circle-notch fa-spin text-xs hidden text-amber-500"></i>
                             <i class="preset-icon fa-solid fa-diagram-project text-xs"></i>
                         </button>
                         <button id="eightd-btn"
@@ -297,9 +304,9 @@
                         class="absolute top-0 left-1/2 -translate-x-1/2 w-[85%] h-[340px] bg-[radial-gradient(circle_at_center_top,rgba(245,158,11,0.07),transparent_70%)] pointer-events-none rounded-full blur-3xl">
                     </div>
 
-                    <!-- Speakers Grid (6 channels) + Vertical Master Fader (Far Right) -->
-                    <div
-                        class="relative z-10 w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-y-12 gap-x-6 items-end justify-center">
+                    <!-- Speakers Grid (6 channels centered) -->
+                    <div id="speakers-grid"
+                        class="relative z-10 w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-y-12 gap-x-6 items-end justify-center max-w-5xl mx-auto transition-all duration-300">
 
                         <!-- Channel 1: Surround L -->
                         <div id="card-surroundL"
@@ -441,7 +448,7 @@
                                 </svg>
                             </div>
                             <div class="font-mono text-center">
-                                <span class="text-sm font-semibold text-zinc-400 tracking-wider block uppercase">Tower
+                                <span id="lbl-towerL" class="text-sm font-semibold text-zinc-400 tracking-wider block uppercase">Tower
                                     L</span>
                             </div>
                             <div
@@ -735,7 +742,7 @@
                                 </svg>
                             </div>
                             <div class="font-mono text-center">
-                                <span class="text-sm font-semibold text-zinc-400 tracking-wider block uppercase">Tower
+                                <span id="lbl-towerR" class="text-sm font-semibold text-zinc-400 tracking-wider block uppercase">Tower
                                     R</span>
                             </div>
                             <div
@@ -844,55 +851,17 @@
                             </div>
                         </div>
 
-                        <!-- Channel 7: Master Volume Column (Far Right Corner of Grid) -->
-                        <div
-                            class="flex flex-col items-center justify-end gap-5 text-center group transition-all duration-300">
-
-                            <!-- Vertical Slider Component -->
-                            <div class="relative h-[192px] w-6 flex items-center justify-center my-2">
-                                <!-- Background Track -->
-                                <div class="absolute w-[5px] top-0 bottom-0 bg-[#14141e] rounded-full"></div>
-                                <!-- Active Track -->
-                                <div id="track-master"
-                                    class="absolute w-[5px] bottom-0 bg-gradient-to-t from-amber-600 to-amber-400 rounded-full"
-                                    style="height: 85%"></div>
-                                <!-- Thumb -->
-                                <div id="thumb-master"
-                                    class="absolute w-3.5 h-3.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)] pointer-events-none -translate-x-1/2 left-1/2"
-                                    style="bottom: 85%; margin-bottom: -7px;"></div>
-                                <!-- Transparent Slider Input -->
-                                <input type="range" min="0" max="100" value="85"
-                                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" id="slider-master"
-                                    style="writing-mode: vertical-lr; direction: rtl;">
-                            </div>
-
-                            <div class="font-mono text-center">
-                                <span
-                                    class="text-sm font-semibold text-zinc-400 tracking-wider block uppercase">MASTER</span>
-                            </div>
-
-                            <div
-                                class="fader-card w-full max-w-[150px] bg-[#09090d]/90 border border-[#181822]/90 px-3.5 py-2 rounded-2xl flex flex-col gap-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.6)]">
-                                <div class="flex items-center justify-between font-mono">
-                                    <span class="text-[9px] font-bold tracking-widest text-zinc-505">GAIN</span>
-                                    <span id="val-master"
-                                        class="text-xs font-black tracking-wider text-amber-500">85%</span>
-                                </div>
-                            </div>
-                        </div>
-
                     </div>
 
-                    <!-- Diagnostic Scope and Mini Player side-by-side -->
-                    <div class="flex flex-col md:flex-row gap-6 items-stretch w-full max-w-4xl mt-4 relative z-20">
+                    <!-- Diagnostic Scope and Mini Player side-by-side (50/50 Equal Balance) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch w-full max-w-5xl mt-4 relative z-20">
 
-                        <!-- Diagnostic Scope (60% width on md screens) -->
+                        <!-- Diagnostic Scope (50% Width) -->
                         <div
-                            class="flex-[3] min-w-0 grid grid-cols-12 gap-4 p-4 bg-zinc-950/40 rounded-2xl border border-zinc-900/60 shadow-inner h-[112px]">
+                            class="w-full min-w-0 grid grid-cols-12 gap-3.5 p-3.5 bg-zinc-950/40 rounded-2xl border border-zinc-900/60 shadow-inner h-[112px]">
                             <div class="col-span-5 flex flex-col justify-center font-mono text-left gap-1">
                                 <div class="flex flex-col gap-1.5 items-start">
-                                    <span
-                                        class="text-xs font-bold text-zinc-100 uppercase tracking-wider">Diagnostic
+                                    <span class="text-xs font-bold text-zinc-100 uppercase tracking-wider">Diagnostic
                                         Scope</span>
                                     <span id="systemMode"
                                         class="text-[9.5px] text-zinc-200 font-semibold border border-zinc-800 px-2 py-1 rounded bg-zinc-950/80 uppercase leading-none truncate max-w-full">Dolby
@@ -919,75 +888,77 @@
                             </div>
                         </div>
 
-                        <!-- Mini Media Player (40% width on md screens) -->
+                        <!-- Mini Media Player (50% Width) -->
                         <div
-                            class="flex-[2] min-w-0 flex items-center gap-4 p-4 bg-zinc-950/40 rounded-2xl border border-zinc-900/60 shadow-inner h-[112px]">
-                            <!-- Album Art Thumbnail (spinning neon disc) -->
+                            class="w-full min-w-0 flex items-center justify-between gap-4 p-3.5 bg-zinc-950/40 rounded-2xl border border-zinc-900/60 shadow-inner h-[112px] relative overflow-hidden">
+                            
+                            <!-- Left: Album Art / Vinyl Disc with Ambient Glow -->
                             <div
-                                class="w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-850 relative flex-shrink-0 flex items-center justify-center overflow-hidden shadow-md">
-                                <!-- Glowing backdrop -->
-                                <div class="absolute inset-0 bg-gradient-to-tr from-amber-500/10 to-transparent"></div>
-                                <!-- Spinning CD/Record shape -->
+                                class="w-18 h-18 rounded-2xl bg-zinc-950 border border-zinc-800 relative flex-shrink-0 flex items-center justify-center overflow-hidden shadow-lg group">
+                                <div class="absolute inset-0 bg-gradient-to-tr from-amber-500/15 to-transparent"></div>
+                                <!-- Spinning Vinyl Disc (Fallback) -->
                                 <div id="player-record"
-                                    class="w-12 h-12 rounded-full border border-zinc-800 bg-[#0f0f15] flex items-center justify-center animate-spin-slow paused-animation relative">
-                                    <!-- Grooves -->
-                                    <div class="absolute inset-1 rounded-full border border-zinc-900/50"></div>
-                                    <div class="absolute inset-2.5 rounded-full border border-zinc-900/50"></div>
-                                    <!-- Center label -->
+                                    class="w-14 h-14 rounded-full border border-zinc-800 bg-[#0c0c12] flex items-center justify-center animate-spin-slow paused-animation relative">
+                                    <div class="absolute inset-1 rounded-full border border-zinc-900/60"></div>
+                                    <div class="absolute inset-2.5 rounded-full border border-zinc-900/60"></div>
                                     <div
-                                        class="w-4.5 h-4.5 rounded-full bg-amber-500 border border-black flex items-center justify-center shadow-inner">
+                                        class="w-4 h-4 rounded-full bg-amber-500 border border-black flex items-center justify-center shadow-inner">
                                         <div class="w-1.5 h-1.5 rounded-full bg-black"></div>
                                     </div>
                                 </div>
-                                <!-- Windows album art image overlay -->
+                                <!-- Real Album Artwork Overlay -->
                                 <img id="player-art-img"
-                                    class="absolute inset-0 w-full h-full object-cover hidden transition-all duration-300"
+                                    class="absolute inset-0 w-full h-full object-cover hidden transition-all duration-300 rounded-2xl"
                                     src="" alt="Album Art" />
                             </div>
 
-                            <!-- Track Details & Audio Controls -->
-                            <div class="flex-1 flex flex-col justify-between h-full py-0.5 min-w-0">
-                                <div>
-                                    <div class="flex items-center justify-between gap-2 min-w-0">
-                                        <span id="player-title"
-                                            class="text-[11px] font-bold text-zinc-100 truncate tracking-wide flex-1 min-w-0">Hyperdrive
-                                            Loop</span>
-                                        <span id="player-badge"
-                                            class="text-[7px] font-mono text-amber-500 bg-amber-500/10 px-1 py-0.2 rounded border border-amber-500/20 font-bold flex-shrink-0">SYNTH</span>
+                            <!-- Center: Track Title, Artist, Live Equalizer -->
+                            <div class="flex-1 flex flex-col justify-between h-full py-1 min-w-0 pr-2">
+                                <!-- Top Status Header -->
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <div id="player-eq-container" class="mini-eq-container paused-eq">
+                                        <div class="mini-eq-bar"></div>
+                                        <div class="mini-eq-bar"></div>
+                                        <div class="mini-eq-bar"></div>
+                                        <div class="mini-eq-bar"></div>
                                     </div>
-                                    <p id="player-artist" class="text-[9px] text-zinc-500 font-mono truncate">Virtual
-                                        Studio Synth • 5.1 LFE</p>
+                                    <span class="text-[8px] font-mono font-bold tracking-widest text-amber-500/90 uppercase">NOW PLAYING</span>
+                                    <span id="player-badge"
+                                        class="text-[7px] font-mono text-zinc-500 bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800 font-bold ml-auto flex-shrink-0">IDLE</span>
                                 </div>
 
-                                <!-- Mini Progress Bar -->
-                                <div class="w-full flex flex-col gap-1">
-                                    <div class="w-full h-1 bg-zinc-900 rounded-full overflow-hidden">
-                                        <div id="player-progress" class="player-progress-bar h-full bg-amber-500 w-0">
-                                        </div>
-                                    </div>
-                                    <div class="flex justify-between font-mono text-[7px] text-zinc-550 leading-none">
-                                        <span id="player-current-time">0:00</span>
-                                        <span id="player-duration">1:30</span>
-                                    </div>
+                                <!-- Song Title & Artist -->
+                                <div class="flex flex-col min-w-0">
+                                    <span id="player-title"
+                                        class="text-[13px] font-bold text-zinc-100 truncate tracking-wide leading-tight">No Active Media</span>
+                                    <span id="player-artist"
+                                        class="text-[10px] text-zinc-400 font-mono truncate leading-normal mt-0.5">Play audio on Windows</span>
                                 </div>
 
-                                <!-- Playback Controls -->
-                                <div class="flex items-center justify-center gap-6 mt-0.5">
-                                    <button id="player-prev-btn"
-                                        class="text-zinc-500 hover:text-zinc-200 transition-all p-1"
-                                        title="Previous Track">
-                                        <i class="fa-solid fa-backward text-[10px]"></i>
-                                    </button>
-                                    <button id="player-play-btn"
-                                        class="w-7 h-7 rounded-full bg-amber-500 hover:bg-amber-400 text-black flex items-center justify-center transition-all shadow-md shadow-amber-950/20"
-                                        title="Play / Pause">
-                                        <i id="player-play-icon" class="fa-solid fa-play text-xs ml-0.5"></i>
-                                    </button>
-                                    <button id="player-next-btn"
-                                        class="text-zinc-500 hover:text-zinc-200 transition-all p-1" title="Next Track">
-                                        <i class="fa-solid fa-forward text-[10px]"></i>
-                                    </button>
+                                <!-- Studio Matrix Tag -->
+                                <div class="flex items-center gap-1.5 font-mono text-[7.5px] text-zinc-550 uppercase tracking-widest">
+                                    <span class="text-amber-500 font-bold">5.1</span> 
+                                    <span>SURROUND ACOUSTIC STREAM</span>
                                 </div>
+                            </div>
+
+                            <!-- Right: Sleek Floating Glassmorphic Transport Controls -->
+                            <div class="flex items-center gap-1.5 flex-shrink-0 bg-zinc-950/70 p-1.5 rounded-2xl border border-zinc-850/80 shadow-md">
+                                <button id="player-prev-btn"
+                                    class="w-8 h-8 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-white flex items-center justify-center transition-all cursor-pointer"
+                                    title="Previous Track">
+                                    <i class="fa-solid fa-backward-step text-[11px]"></i>
+                                </button>
+                                <button id="player-play-btn"
+                                    class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-400 hover:brightness-110 text-black shadow-lg shadow-amber-500/25 flex items-center justify-center transition-all cursor-pointer"
+                                    title="Play / Pause">
+                                    <i id="player-play-icon" class="fa-solid fa-play text-xs ml-0.5"></i>
+                                </button>
+                                <button id="player-next-btn"
+                                    class="w-8 h-8 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-white flex items-center justify-center transition-all cursor-pointer"
+                                    title="Next Track">
+                                    <i class="fa-solid fa-forward-step text-[11px]"></i>
+                                </button>
                             </div>
                         </div>
 
@@ -1049,12 +1020,16 @@
                             </button>
                         </div>
 
-                        <!-- Developer Watermark Signature -->
-                        <div class="flex items-center justify-center gap-2 pt-1.5 pb-0.5 text-[9px] font-mono tracking-widest text-zinc-600 uppercase select-none">
-                            <span class="w-8 h-[1px] bg-zinc-850"></span>
-                            <span>Developed by <span class="text-zinc-400 font-bold hover:text-amber-400 transition-colors">ChamathZ</span></span>
-                            <span class="w-8 h-[1px] bg-zinc-850"></span>
-                        </div>
+
+                    </div>
+
+                    <!-- Developer Watermark Signature (Equal Top/Bottom Margins Centered) -->
+                    <div
+                        class="flex items-center justify-center gap-2.5 my-3.5 text-[9px] font-mono tracking-widest text-zinc-600 uppercase select-none">
+                        <span class="w-12 h-[1px] bg-zinc-850"></span>
+                        <span>Developed by <span
+                                class="text-zinc-400 font-bold hover:text-amber-400 transition-colors">ChamathZ</span></span>
+                        <span class="w-12 h-[1px] bg-zinc-850"></span>
                     </div>
 
                 </div>
@@ -1083,11 +1058,13 @@
                         <button id="toggle-calibration"
                             class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-950 border border-zinc-800 hover:border-amber-500/40 text-xs font-mono font-bold uppercase transition-all duration-300 cursor-pointer">
                             <!-- Spinner (hidden by default, shown during API call) -->
-                            <i id="cal-spinner" class="fa-solid fa-circle-notch fa-spin text-amber-500 hidden text-[9px]"></i>
+                            <i id="cal-spinner"
+                                class="fa-solid fa-circle-notch fa-spin text-amber-500 hidden text-[9px]"></i>
                             <!-- Status dot (hidden when spinner is visible) -->
                             <span id="calibration-indicator"
                                 class="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.7)] transition-all duration-300"></span>
-                            <span id="calibration-btn-text" class="text-zinc-400 transition-colors duration-300">OFF</span>
+                            <span id="calibration-btn-text"
+                                class="text-zinc-400 transition-colors duration-300">OFF</span>
                         </button>
                         <!-- Center Reset button -->
                         <button id="btn-cal-center-reset"
@@ -1098,7 +1075,8 @@
                     </div>
 
                     <!-- Segmented Calibration Modes Selection -->
-                    <div id="calibration-modes-container" class="flex items-center justify-center p-0.5 bg-zinc-950 border border-zinc-900 rounded-xl max-w-xs mx-auto w-full">
+                    <div id="calibration-modes-container"
+                        class="flex items-center justify-center p-0.5 bg-zinc-950 border border-zinc-900 rounded-xl max-w-xs mx-auto w-full">
                         <button id="btn-calmode-sweetspot" class="cal-mode-btn active" data-mode="sweetspot">
                             Sweet-Spot
                         </button>
@@ -1129,7 +1107,8 @@
                                     </feMerge>
                                 </filter>
                                 <filter id="node-shadow" x="-30%" y="-30%" width="160%" height="160%">
-                                    <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#f59e0b" flood-opacity="0.25" />
+                                    <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#f59e0b"
+                                        flood-opacity="0.25" />
                                 </filter>
                                 <linearGradient id="speaker-body-grad" x1="0%" y1="0%" x2="100%" y2="100%">
                                     <stop offset="0%" stop-color="#24252e" />
@@ -1159,57 +1138,78 @@
                             <!-- Speaker Node Symbols -->
                             <!-- Tower L -->
                             <g>
-                                <rect x="88" y="60" width="24" height="40" rx="4" fill="url(#speaker-body-grad)" stroke="rgba(245,158,11,0.5)" stroke-width="1.2" filter="url(#node-shadow)" />
-                                <circle cx="100" cy="70" r="6" fill="#000" stroke="rgba(245,158,11,0.3)" stroke-width="1" />
+                                <rect x="88" y="60" width="24" height="40" rx="4" fill="url(#speaker-body-grad)"
+                                    stroke="rgba(245,158,11,0.5)" stroke-width="1.2" filter="url(#node-shadow)" />
+                                <circle cx="100" cy="70" r="6" fill="#000" stroke="rgba(245,158,11,0.3)"
+                                    stroke-width="1" />
                                 <circle cx="100" cy="70" r="2" fill="#ffb020" class="speaker-pulse" />
-                                <circle cx="100" cy="86" r="6" fill="#000" stroke="rgba(245,158,11,0.3)" stroke-width="1" />
+                                <circle cx="100" cy="86" r="6" fill="#000" stroke="rgba(245,158,11,0.3)"
+                                    stroke-width="1" />
                                 <circle cx="100" cy="86" r="2.5" fill="#ffb020" class="speaker-pulse" />
-                                <text x="100" y="52" text-anchor="middle" font-size="8" fill="#a1a1aa" font-weight="bold" font-family="monospace">TWR L</text>
+                                <text x="100" y="52" text-anchor="middle" font-size="8" fill="#a1a1aa"
+                                    font-weight="bold" font-family="monospace">TWR L</text>
                             </g>
 
                             <!-- Tower R -->
                             <g>
-                                <rect x="288" y="60" width="24" height="40" rx="4" fill="url(#speaker-body-grad)" stroke="rgba(245,158,11,0.5)" stroke-width="1.2" filter="url(#node-shadow)" />
-                                <circle cx="300" cy="70" r="6" fill="#000" stroke="rgba(245,158,11,0.3)" stroke-width="1" />
+                                <rect x="288" y="60" width="24" height="40" rx="4" fill="url(#speaker-body-grad)"
+                                    stroke="rgba(245,158,11,0.5)" stroke-width="1.2" filter="url(#node-shadow)" />
+                                <circle cx="300" cy="70" r="6" fill="#000" stroke="rgba(245,158,11,0.3)"
+                                    stroke-width="1" />
                                 <circle cx="300" cy="70" r="2" fill="#ffb020" class="speaker-pulse" />
-                                <circle cx="300" cy="86" r="6" fill="#000" stroke="rgba(245,158,11,0.3)" stroke-width="1" />
+                                <circle cx="300" cy="86" r="6" fill="#000" stroke="rgba(245,158,11,0.3)"
+                                    stroke-width="1" />
                                 <circle cx="300" cy="86" r="2.5" fill="#ffb020" class="speaker-pulse" />
-                                <text x="300" y="52" text-anchor="middle" font-size="8" fill="#a1a1aa" font-weight="bold" font-family="monospace">TWR R</text>
+                                <text x="300" y="52" text-anchor="middle" font-size="8" fill="#a1a1aa"
+                                    font-weight="bold" font-family="monospace">TWR R</text>
                             </g>
 
                             <!-- Center -->
                             <g>
-                                <rect x="176" y="44" width="48" height="24" rx="4" fill="url(#speaker-body-grad)" stroke="rgba(245,158,11,0.5)" stroke-width="1.2" filter="url(#node-shadow)" />
-                                <circle cx="188" cy="56" r="5" fill="#000" stroke="rgba(245,158,11,0.3)" stroke-width="1" />
+                                <rect x="176" y="44" width="48" height="24" rx="4" fill="url(#speaker-body-grad)"
+                                    stroke="rgba(245,158,11,0.5)" stroke-width="1.2" filter="url(#node-shadow)" />
+                                <circle cx="188" cy="56" r="5" fill="#000" stroke="rgba(245,158,11,0.3)"
+                                    stroke-width="1" />
                                 <circle cx="188" cy="56" r="1.8" fill="#ffb020" />
                                 <circle cx="200" cy="56" r="2.5" fill="#ffb020" class="speaker-pulse" />
-                                <circle cx="212" cy="56" r="5" fill="#000" stroke="rgba(245,158,11,0.3)" stroke-width="1" />
+                                <circle cx="212" cy="56" r="5" fill="#000" stroke="rgba(245,158,11,0.3)"
+                                    stroke-width="1" />
                                 <circle cx="212" cy="56" r="1.8" fill="#ffb020" />
-                                <text x="200" y="36" text-anchor="middle" font-size="8" fill="#a1a1aa" font-weight="bold" font-family="monospace">CEN</text>
+                                <text x="200" y="36" text-anchor="middle" font-size="8" fill="#a1a1aa"
+                                    font-weight="bold" font-family="monospace">CEN</text>
                             </g>
 
                             <!-- Subwoofer -->
                             <g>
-                                <rect x="254" y="44" width="32" height="32" rx="4" fill="url(#speaker-body-grad)" stroke="rgba(245,158,11,0.6)" stroke-width="1.2" filter="url(#node-shadow)" />
-                                <circle cx="270" cy="60" r="9" fill="#000" stroke="rgba(245,158,11,0.4)" stroke-width="1" />
+                                <rect x="254" y="44" width="32" height="32" rx="4" fill="url(#speaker-body-grad)"
+                                    stroke="rgba(245,158,11,0.6)" stroke-width="1.2" filter="url(#node-shadow)" />
+                                <circle cx="270" cy="60" r="9" fill="#000" stroke="rgba(245,158,11,0.4)"
+                                    stroke-width="1" />
                                 <circle cx="270" cy="60" r="4.5" fill="#ffb020" class="speaker-pulse" />
-                                <text x="270" y="36" text-anchor="middle" font-size="8" fill="#a1a1aa" font-weight="bold" font-family="monospace">SUB</text>
+                                <text x="270" y="36" text-anchor="middle" font-size="8" fill="#a1a1aa"
+                                    font-weight="bold" font-family="monospace">SUB</text>
                             </g>
 
                             <!-- Surround L -->
                             <g>
-                                <rect x="58" y="280" width="24" height="28" rx="4" fill="url(#speaker-body-grad)" stroke="rgba(245,158,11,0.5)" stroke-width="1.2" filter="url(#node-shadow)" />
-                                <circle cx="70" cy="294" r="6" fill="#000" stroke="rgba(245,158,11,0.3)" stroke-width="1" />
+                                <rect x="58" y="280" width="24" height="28" rx="4" fill="url(#speaker-body-grad)"
+                                    stroke="rgba(245,158,11,0.5)" stroke-width="1.2" filter="url(#node-shadow)" />
+                                <circle cx="70" cy="294" r="6" fill="#000" stroke="rgba(245,158,11,0.3)"
+                                    stroke-width="1" />
                                 <circle cx="70" cy="294" r="2.5" fill="#ffb020" class="speaker-pulse" />
-                                <text x="70" y="322" text-anchor="middle" font-size="8" fill="#a1a1aa" font-weight="bold" font-family="monospace">SUR L</text>
+                                <text x="70" y="322" text-anchor="middle" font-size="8" fill="#a1a1aa"
+                                    font-weight="bold" font-family="monospace">SUR L</text>
                             </g>
 
                             <!-- Surround R -->
                             <g>
-                                <rect x="318" y="280" width="24" height="28" rx="4" fill="url(#speaker-body-grad)" stroke="rgba(245,158,11,0.5)" stroke-width="1.2" filter="url(#node-shadow)" />
-                                <circle cx="330" cy="294" r="6" fill="#000" stroke="rgba(245,158,11,0.3)" stroke-width="1" />
+                                <rect x="318" y="280" width="24" height="28" rx="4" fill="url(#speaker-body-grad)"
+                                    stroke="rgba(245,158,11,0.5)" stroke-width="1.2" filter="url(#node-shadow)" />
+                                <circle cx="330" cy="294" r="6" fill="#000" stroke="rgba(245,158,11,0.3)"
+                                    stroke-width="1" />
                                 <circle cx="330" cy="294" r="2.5" fill="#ffb020" class="speaker-pulse" />
-                                <text x="330" y="322" text-anchor="middle" font-size="8" fill="#a1a1aa" font-weight="bold" font-family="monospace">SUR R</text>
+                                <text x="330" y="322" text-anchor="middle" font-size="8" fill="#a1a1aa"
+                                    font-weight="bold" font-family="monospace">SUR R</text>
                             </g>
 
                             <!-- Listener Couch Position -->
@@ -1219,18 +1219,24 @@
                                 <rect x="5" y="10" width="50" height="15" rx="3" fill="#0b0b0f" stroke="#4b5563"
                                     stroke-width="1" />
                                 <!-- Cushions -->
-                                <rect x="8" y="14" width="20" height="11" rx="1.5" fill="#14151a" stroke="rgba(245,158,11,0.06)" />
-                                <rect x="32" y="14" width="20" height="11" rx="1.5" fill="#14151a" stroke="rgba(245,158,11,0.06)" />
+                                <rect x="8" y="14" width="20" height="11" rx="1.5" fill="#14151a"
+                                    stroke="rgba(245,158,11,0.06)" />
+                                <rect x="32" y="14" width="20" height="11" rx="1.5" fill="#14151a"
+                                    stroke="rgba(245,158,11,0.06)" />
                             </g>
                             <text x="200" y="278" text-anchor="middle" font-size="8" fill="#52525b"
                                 font-family="monospace" font-weight="bold" tracking-wider>LISTENING ZONE</text>
 
                             <!-- Glowing Focus Point Target (Sweet spot) -->
                             <g id="grp-focus">
-                                <circle id="focus-glow-circle-outer" cx="200" cy="240" r="28" fill="none" stroke="rgba(245, 158, 11, 0.08)" stroke-width="2" class="animate-pulse" />
-                                <circle id="focus-glow-circle" cx="200" cy="240" r="16" fill="rgba(245, 158, 11, 0.18)" class="animate-ping" style="transform-origin: 200px 240px;" />
-                                <circle cx="200" cy="240" r="10" fill="none" stroke="#f59e0b" stroke-width="0.8" stroke-dasharray="2,2" />
-                                <circle id="focus-point" cx="200" cy="240" r="6" fill="#ffffff" filter="url(#cal-glow)" stroke="#f59e0b" stroke-width="2" />
+                                <circle id="focus-glow-circle-outer" cx="200" cy="240" r="28" fill="none"
+                                    stroke="rgba(245, 158, 11, 0.08)" stroke-width="2" class="animate-pulse" />
+                                <circle id="focus-glow-circle" cx="200" cy="240" r="16" fill="rgba(245, 158, 11, 0.18)"
+                                    class="animate-ping" style="transform-origin: 200px 240px;" />
+                                <circle cx="200" cy="240" r="10" fill="none" stroke="#f59e0b" stroke-width="0.8"
+                                    stroke-dasharray="2,2" />
+                                <circle id="focus-point" cx="200" cy="240" r="6" fill="#ffffff" filter="url(#cal-glow)"
+                                    stroke="#f59e0b" stroke-width="2" />
                             </g>
                         </svg>
                     </div>
@@ -1304,12 +1310,14 @@
                                     <div class="flex items-center gap-3 w-full">
                                         <span id="avr-disp-current-time"
                                             class="text-[8px] font-mono text-amber-500/70 select-none">0:00</span>
-                                        <div id="avr-progress-container" class="flex-1 h-1 bg-zinc-900 rounded overflow-hidden flex gap-0.5">
+                                        <div id="avr-progress-container"
+                                            class="flex-1 h-1 bg-zinc-900 rounded overflow-hidden flex gap-0.5">
                                             <!-- Glowing audio blocks representation -->
                                             <div id="avr-disp-progress"
                                                 class="h-full bg-amber-500 shadow-[0_0_4px_#f59e0b] w-0"></div>
                                         </div>
-                                        <canvas id="avr-vis-canvas" class="hidden flex-1 h-3 bg-transparent" width="220" height="12"></canvas>
+                                        <canvas id="avr-vis-canvas" class="hidden flex-1 h-3 bg-transparent" width="220"
+                                            height="12"></canvas>
                                         <span id="avr-disp-duration"
                                             class="text-[8px] font-mono text-amber-500/70 select-none">0:00</span>
                                     </div>
