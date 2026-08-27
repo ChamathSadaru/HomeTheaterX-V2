@@ -106,6 +106,11 @@ class AudioControlHandler(BaseHTTPRequestHandler):
                 self._send_json({"status": "success", "ws_port": ws_port}, 200)
                 return
 
+            if path_only == "/api/window/screens":
+                count = self.ui_manager.get_screen_count() if self.ui_manager else 1
+                self._send_json({"status": "success", "screen_count": count}, 200)
+                return
+
             if path_only == "/api/status":
                 master_vol, muted = self.backend.get_master_volume()
                 channel_vols = self.backend.get_channel_volumes()
@@ -433,6 +438,15 @@ class AudioControlHandler(BaseHTTPRequestHandler):
                     response = {"status": "error", "message": "No active GUI window"}
                     status_code = 400
 
+            elif path_only == "/api/window/switch_screen":
+                if self.ui_manager:
+                    result = self.ui_manager.move_to_next_screen()
+                    response = result
+                    status_code = 200 if result.get("status") == "success" else 400
+                else:
+                    response = {"status": "error", "message": "No active GUI manager"}
+                    status_code = 400
+
             elif path_only == "/api/test_channel":
                 ch = data.get("channel")
                 if ch is not None:
@@ -521,7 +535,9 @@ class AudioControlHandler(BaseHTTPRequestHandler):
                         "surroundR": {"x": 330, "y": 300}
                     }
                     
-                    mode = config_manager.get("calibration_mode", "sweetspot")
+                    mode = data.get("mode") or config_manager.get("calibration_mode", "sweetspot")
+                    if data.get("mode"):
+                        config_manager.update({"calibration_mode": mode})
                     
                     delays = {}
                     distances = {}

@@ -63,7 +63,7 @@ export function applyCalibrationUI() {
   }
 
   const delayGrid = document.querySelector("#view-room-cal .grid");
-  const eqGrid = document.querySelector("#view-room-cal .flex-col.gap-3.5");
+  const eqGrid = document.getElementById("cal-eq-container");
   const calSvg = document.getElementById("cal-svg");
   const centerBtn = document.getElementById("btn-cal-center-reset");
   const optBtn = document.getElementById("btnAcousticCorrection");
@@ -147,15 +147,15 @@ export function applyCalibrationUI() {
   }
 
   // Update Segmented calibration mode buttons styles
-  const activeMode = settings.calibration_mode || "sweetspot";
+  const activeMode = (settings && settings.calibration_mode) ? settings.calibration_mode : (state.settings.calibration_mode || "sweetspot");
   const modes = ["sweetspot", "steering", "levelonly"];
   modes.forEach(m => {
     const btn = document.getElementById(`btn-calmode-${m}`);
     if (btn) {
       if (activeMode === m) {
-        btn.className = "flex-1 text-center py-1 rounded-lg text-[9px] font-mono font-bold uppercase transition-all cursor-pointer text-amber-500 bg-amber-500/10 border border-amber-500/50 shadow-[0_0_12px_rgba(245,158,11,0.15)]";
+        btn.classList.add("active");
       } else {
-        btn.className = "flex-1 text-center py-1 rounded-lg text-[9px] font-mono font-bold uppercase transition-all cursor-pointer text-zinc-500 hover:text-zinc-300 border border-transparent bg-transparent";
+        btn.classList.remove("active");
       }
     }
   });
@@ -381,37 +381,42 @@ export function initRoomCalibrations() {
   modes.forEach(m => {
     const btn = document.getElementById(`btn-calmode-${m}`);
     if (btn) {
-      btn.addEventListener("click", async () => {
-        if (state.settings.calibration_enabled === false) {
-          return;
+      btn.addEventListener("click", async (e) => {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
         }
-        const resSettings = await apiPost("/api/settings/update", { calibration_mode: m });
-        if (resSettings && resSettings.status === "success") {
-          state.settings.calibration_mode = m;
-          
-          const x = state.settings.calibration_focus_x !== undefined ? state.settings.calibration_focus_x : 200;
-          const y = state.settings.calibration_focus_y !== undefined ? state.settings.calibration_focus_y : 200;
-          
-          const res = await apiPost("/api/calibration/optimize", { x, y });
-          if (res && res.status === "success") {
-            state.settings.calibration_delays = res.delays;
-            state.settings.calibration_gains = res.gains;
-            applyCalibrationUI();
-            
-            let modeTitle = "";
-            let modeDesc = "";
-            if (m === "sweetspot") {
-              modeTitle = "Sweet-Spot Active";
-              modeDesc = "Timing alignment and soundstage balance prioritized.";
-            } else if (m === "steering") {
-              modeTitle = "Sound Steering Active";
-              modeDesc = "Pure sound volume focus directed towards sweet spot.";
-            } else {
-              modeTitle = "Level-Only Active";
-              modeDesc = "Equalized loudness without timing phase delays.";
-            }
-            showToast(modeTitle, modeDesc, "brand-blue");
-          }
+
+        // Instantly switch active button glow & styling
+        state.settings.calibration_mode = m;
+        applyCalibrationUI();
+
+        let modeTitle = "";
+        let modeDesc = "";
+        if (m === "sweetspot") {
+          modeTitle = "Sweet-Spot Active";
+          modeDesc = "Timing alignment and soundstage balance prioritized.";
+        } else if (m === "steering") {
+          modeTitle = "Sound Steering Active";
+          modeDesc = "Pure sound volume focus directed towards sweet spot.";
+        } else {
+          modeTitle = "Level-Only Active";
+          modeDesc = "Equalized loudness without timing phase delays.";
+        }
+        showToast(modeTitle, modeDesc, "brand-blue");
+
+        // Save setting
+        await apiPost("/api/settings/update", { calibration_mode: m });
+        
+        // Recalculate delays and gains
+        const x = state.settings.calibration_focus_x !== undefined ? state.settings.calibration_focus_x : 200;
+        const y = state.settings.calibration_focus_y !== undefined ? state.settings.calibration_focus_y : 200;
+        
+        const res = await apiPost("/api/calibration/optimize", { x, y, mode: m });
+        if (res && res.status === "success") {
+          state.settings.calibration_delays = res.delays;
+          state.settings.calibration_gains = res.gains;
+          applyCalibrationUI();
         }
       });
     }

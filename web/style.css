@@ -1,6 +1,19 @@
 /* Samsung HT-F4B3 Custom Styling overrides */
 /* Tailwinds utility classes are the primary design framework. Add custom classes here if necessary. */
 
+*, *::before, *::after {
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+    text-rendering: optimizeLegibility !important;
+}
+
+html, body {
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+    text-rendering: optimizeLegibility !important;
+    font-feature-settings: "liga" 1, "calt" 1;
+}
+
 /* --- Speaker Solo / Isolate ("check speakers one by one") --- */
 .speaker-solo-active {
     filter: drop-shadow(0 0 14px rgba(245, 158, 11, 0.85)) drop-shadow(0 0 28px rgba(245, 158, 11, 0.45));
@@ -222,6 +235,35 @@
 body {
     opacity: 1;
     transition: opacity 0.25s ease-in-out;
+}
+
+.cal-mode-btn {
+    flex: 1 1 0%;
+    text-align: center;
+    padding: 0.35rem 0.5rem;
+    border-radius: 0.5rem;
+    font-size: 9px;
+    font-family: monospace;
+    font-weight: 700;
+    text-transform: uppercase;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    color: #71717a !important;
+    background-color: transparent !important;
+    border: 1px solid transparent !important;
+    box-shadow: none !important;
+    user-select: none;
+}
+
+.cal-mode-btn:hover {
+    color: #d4d4d8 !important;
+}
+
+.cal-mode-btn.active {
+    color: #f59e0b !important;
+    background-color: rgba(245, 158, 11, 0.15) !important;
+    border: 1px solid rgba(245, 158, 11, 0.6) !important;
+    box-shadow: 0 0 14px rgba(245, 158, 11, 0.25) !important;
 }
 
 .eightd-mode-active .fader-card {

@@ -196,7 +196,6 @@ class UIManager:
             background_color='#050508'
         )
         self.backend.window = self.window
-        
         # Capture close requests
         try:
             self.window.events.closing += self.on_window_closing
@@ -204,3 +203,52 @@ class UIManager:
             pass
             
         return self.window
+
+    def get_screen_count(self):
+        try:
+            screens = webview.screens
+            return len(screens) if screens else 1
+        except Exception:
+            return 1
+
+    def move_to_next_screen(self):
+        """Moves the window to the center of the next monitor in circular sequence."""
+        if not self.window:
+            return {"status": "error", "message": "No active window"}
+
+        try:
+            screens = webview.screens
+            if not screens or len(screens) <= 1:
+                return {"status": "error", "message": "Single screen configuration"}
+
+            # Get current window position and size
+            win_x = getattr(self.window, "x", 0) or 0
+            win_y = getattr(self.window, "y", 0) or 0
+            win_w = getattr(self.window, "width", 1152) or 1152
+            win_h = getattr(self.window, "height", 870) or 870
+
+            # Determine which screen the window center is currently on
+            center_x = win_x + win_w / 2
+            center_y = win_y + win_h / 2
+
+            current_screen_idx = 0
+            for idx, scr in enumerate(screens):
+                if scr.x <= center_x < scr.x + scr.width and scr.y <= center_y < scr.y + scr.height:
+                    current_screen_idx = idx
+                    break
+
+            next_screen_idx = (current_screen_idx + 1) % len(screens)
+            target_screen = screens[next_screen_idx]
+
+            new_x = int(target_screen.x + (target_screen.width - win_w) / 2)
+            new_y = int(target_screen.y + (target_screen.height - win_h) / 2)
+
+            self.window.move(new_x, new_y)
+            return {
+                "status": "success",
+                "screen_index": next_screen_idx,
+                "total_screens": len(screens)
+            }
+        except Exception as e:
+            print(f"[UIManager] Failed to move window between screens: {e}")
+            return {"status": "error", "message": str(e)}

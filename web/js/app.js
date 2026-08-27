@@ -478,33 +478,38 @@ async function refreshDevices() {
   if (!data) return;
 
   const selector = document.getElementById("deviceSelector");
-  selector.innerHTML = "";
+  if (selector) {
+    selector.innerHTML = "";
 
-  if (data.devices && data.devices.length > 0) {
-    data.devices.forEach(dev => {
+    if (data.devices && data.devices.length > 0) {
+      data.devices.forEach(dev => {
+        const opt = document.createElement("option");
+        opt.value = dev;
+        opt.textContent = dev;
+        if (dev === data.active_device) {
+          opt.selected = true;
+        }
+        selector.appendChild(opt);
+      });
+      showToast("Audio Devices Loaded", "System output hardware configurations synced.", "brand-blue");
+      updateAppStatus();
+    } else {
       const opt = document.createElement("option");
-      opt.value = dev;
-      opt.textContent = dev;
-      if (dev === data.active_device) {
-        opt.selected = true;
-      }
+      opt.value = "";
+      opt.textContent = "No Devices Detected";
+      opt.disabled = true;
+      opt.selected = true;
       selector.appendChild(opt);
-    });
-    showToast("Audio Devices Loaded", "System output hardware configurations synced.", "brand-blue");
-    updateAppStatus();
+      showToast("Hardware Warning", "No active output devices found.", "brand-amber");
+    }
   } else {
-    const opt = document.createElement("option");
-    opt.value = "";
-    opt.textContent = "No Devices Detected";
-    opt.disabled = true;
-    opt.selected = true;
-    selector.appendChild(opt);
-    showToast("Hardware Warning", "No active output devices found.", "brand-amber");
+    updateAppStatus();
   }
 }
 
 async function onDeviceSelected() {
   const selector = document.getElementById("deviceSelector");
+  if (!selector) return;
   const res = await apiPost("/api/select_device", { device: selector.value });
   if (res && res.status === "success") {
     showToast("Output Updated", `Active output device set to ${selector.value}`, "brand-blue");
@@ -1212,8 +1217,15 @@ document.addEventListener("DOMContentLoaded", () => {
   updateAppStatus();
   setInterval(pollVolumeChanges, 600);
 
-  document.getElementById("deviceSelector").addEventListener("change", onDeviceSelected);
-  document.getElementById("btnRefresh").addEventListener("click", refreshDevices);
+  const devSelector = document.getElementById("deviceSelector");
+  if (devSelector) {
+    devSelector.addEventListener("change", onDeviceSelected);
+  }
+
+  const btnRef = document.getElementById("btnRefresh");
+  if (btnRef) {
+    btnRef.addEventListener("click", refreshDevices);
+  }
 
   const testBtn = document.getElementById("test-btn");
   if (testBtn) {
@@ -1304,6 +1316,33 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   initSpeakerChannelMuting();
+
+  const screenBtn = document.getElementById("win-screen-btn");
+  if (screenBtn) {
+    screenBtn.addEventListener("click", async () => {
+      const res = await apiPost("/api/window/switch_screen");
+      if (res && res.status === "success") {
+        showToast("Screen Switched", `Moved window to Display ${res.screen_index + 1} of ${res.total_screens}`, "brand-blue");
+      }
+    });
+  }
+
+  async function checkScreenCount() {
+    try {
+      const res = await apiGet("/api/window/screens");
+      if (res && res.status === "success" && res.screen_count > 1) {
+        if (screenBtn) {
+          screenBtn.classList.remove("hidden");
+        }
+      } else {
+        if (screenBtn) {
+          screenBtn.classList.add("hidden");
+        }
+      }
+    } catch (e) {}
+  }
+
+  checkScreenCount();
 
   const minBtn = document.getElementById("win-min-btn");
   if (minBtn) {

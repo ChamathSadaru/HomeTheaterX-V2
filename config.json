@@ -5,30 +5,30 @@
   "crossover_hz": 80,
   "minimize_to_tray_on_close": true,
   "calibration_enabled": false,
-  "calibration_focus_x": 197.64705882352942,
-  "calibration_focus_y": 239.41176470588235,
+  "calibration_focus_x": 200,
+  "calibration_focus_y": 200,
   "calibration_delays": {
-    "towerL": 0,
-    "towerR": 0,
+    "towerL": 6,
+    "towerR": 6,
     "center": 0,
-    "subwoofer": 0,
-    "surroundL": 0,
-    "surroundR": 0
+    "subwoofer": 6,
+    "surroundL": 9,
+    "surroundR": 9
   },
   "calibration_gains": {
-    "towerL": -2.4,
-    "towerR": -2.5,
-    "center": -2.0,
-    "subwoofer": -2.7,
+    "towerL": -0.4,
+    "towerR": -0.4,
+    "center": -1.4,
+    "subwoofer": -0.4,
     "surroundL": -0.0,
-    "surroundR": -0.2
+    "surroundR": -0.0
   },
   "calibration_eq": {
     "bass": 2.0,
     "mid": 0.0,
     "treble": 1.5
   },
-  "calibration_mode": "steering",
+  "calibration_mode": "sweetspot",
   "active_preset": null,
   "preset_prev_state": {
     "ddl": false,
