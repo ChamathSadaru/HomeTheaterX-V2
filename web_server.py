@@ -1,6 +1,7 @@
 import os
 import sys
 import threading
+import time
 from http.server import ThreadingHTTPServer
 
 from audio_backend import AudioBackend
@@ -67,7 +68,6 @@ def get_local_ip():
 
 def init_server():
     global PORT, server_instance, ws_manager
-    dolby_service.async_check_dolby(update_ddl_callback)
     
     # Initialize and start WebSocket server on PORT + 10 (e.g. 5010)
     ws_manager = WebSocketManager(backend, config_manager, host="0.0.0.0", port=PORT + 10)
@@ -95,7 +95,7 @@ def init_server():
 
 
 def main():
-    global ui_manager
+    global ui_manager, cached_ddl_state
 
     # Explicitly set AppUserModelID to make Windows display the custom taskbar icon
     try:
@@ -107,10 +107,6 @@ def main():
     # Initialize UI Service manager
     ui_manager = ui_service.UIManager(backend, config_manager, startup_manager, notify_if_enabled)
     AudioControlHandler.ui_manager = ui_manager
-
-    # Start native splash screen in a background thread to overlap PyWebview setup latency
-    splash_thread = threading.Thread(target=ui_manager.run_splash_screen_thread, args=(BASE_DIR,), daemon=True)
-    splash_thread.start()
 
     # 1. Bind HTTP server in main thread to ensure port is selected before creating webview
     if not init_server():
@@ -135,21 +131,40 @@ def main():
         dedupe_key="app_started",
     )
 
-    # 5. Initialize and run PyWebview GUI on the main thread
+    # 5. Check Dolby state silently first, then show 2-second splash screen and reveal GUI
+    window_loaded_event = threading.Event()
+
+    def on_dolby_ready(is_on):
+        global cached_ddl_state
+        cached_ddl_state = is_on
+        print(f"[Startup] Dolby verification complete (DDL: {'ON' if is_on else 'OFF'}). Displaying splash screen...")
+        
+        # Display splash screen
+        splash_thread = threading.Thread(target=ui_manager.run_splash_screen_thread, args=(BASE_DIR,), daemon=True)
+        splash_thread.start()
+
+        # Hold splash screen for ~2 seconds for a sleek introduction, then reveal GUI
+        def smooth_reveal():
+            time.sleep(2.0)
+            window_loaded_event.wait(timeout=5.0)
+            try:
+                if ui_manager.window:
+                    ui_manager.window.show()
+            except Exception:
+                pass
+            ui_manager.destroy_splash()
+
+        threading.Thread(target=smooth_reveal, daemon=True).start()
+
+    # Launch background silent Dolby check
+    dolby_service.async_check_dolby(on_dolby_ready)
+
+    # 6. Initialize and run PyWebview GUI on the main thread (hidden until splash completes)
     try:
         window = ui_manager.create_gui_window(PORT)
 
-        # Define loaded callback to perform a seamless transition once the page paints
         def on_window_loaded():
-            def reveal_and_clear_splash():
-                try:
-                    window.show()
-                except Exception:
-                    pass
-                ui_manager.destroy_splash()
-            
-            # 150ms timer to allow WebView2 first-paint to complete in background
-            threading.Timer(0.15, reveal_and_clear_splash).start()
+            window_loaded_event.set()
 
         window.events.loaded += on_window_loaded
         
