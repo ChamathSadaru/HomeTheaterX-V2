@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Samsung Virtual Acoustics Studio</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome Icons for high-fidelity audio controls -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #07070a;
+            color: #e4e4e7;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #09090b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3f3f46;
+        }
+
+        /* Custom ranges */
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #ffffff;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        /* Orientation vertical for faders */
+        .vertical-range {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 6px;
+            background: #18181b;
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .vertical-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ffffff;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        }
+
+        .mesh-pattern {
+            background-image: radial-gradient(#27272a 1px, transparent 1px);
+            background-size: 16px 16px;
+        }
+
+        .speaker-deck-stage {
+            background-color: #050508;
+            background-image: radial-gradient(#14141e 1.5px, transparent 1.5px);
+            background-size: 10px 10px;
+        }
+
+        @keyframes pulse-slow {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+
+            50% {
+                transform: scale(1.05);
+                opacity: 1;
+            }
+        }
+
+        .pulse-glow {
+            animation: pulse-slow 3s infinite ease-in-out;
+        }
+    </style>
+    <script>
+        // Configure tailwind theme extensions
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            amber: '#f59e0b',
+                            blue: '#3b82f6',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="min-h-screen p-4 sm:p-8 flex flex-col justify-between select-none">
+
+
+
+    <!-- Immersive Mixer Console Container -->
+    <div
+        class="relative w-full max-w-6xl mx-auto bg-[#050508] border border-zinc-900 rounded-3xl p-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] flex flex-col gap-6 z-10">
+
+        <!-- Header Row -->
+        <div
+            class="flex flex-col md:flex-row items-start md:items-center justify-between pb-4 border-b border-zinc-900 gap-4 flex-shrink-0">
+            <div>
+                <div class="flex items-center gap-3">
+                    <div class="p-2 rounded-lg bg-zinc-950 border border-zinc-900">
+                        <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z">
+                            </path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-light tracking-wider text-white font-mono flex items-center gap-2">
+                            SAMSUNG
+                        </h2>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Selector, Refresh & Window Controls -->
+            <div class="flex items-center gap-3 w-full md:w-auto">
+                <select id="deviceSelector"
+                    class="bg-zinc-950 border border-zinc-850 px-3 py-2 rounded-xl text-xs font-mono text-zinc-300 focus:outline-none cursor-pointer h-[38px] w-full md:w-auto min-w-[220px]">
+                    <option value="" disabled selected>Detecting devices...</option>
+                </select>
+                <!-- <select id="formatSelector"
+                    class="bg-zinc-950 border border-zinc-850 px-3 py-2 rounded-xl text-xs font-mono text-zinc-300 focus:outline-none cursor-pointer h-[38px] w-full md:w-auto min-w-[220px]">
+                    <option value="16-32000">16 bit, 32000 Hz (FM Radio Quality)</option>
+                    <option value="16-44100">16 bit, 44100 Hz (CD Quality)</option>
+                    <option value="16-48000">16 bit, 48000 Hz (DVD Quality)</option>
+                    <option value="24-44100">24 bit, 44100 Hz (Studio Quality)</option>
+                    <option value="24-48000" selected>24 bit, 48000 Hz (Studio Quality)</option>
+                    <option value="dolby-digital">Dolby Digital Live 5.1</option>
+                </select> -->
+                <button id="btnRefresh"
+                    class="flex items-center justify-center p-2 bg-zinc-950 hover:bg-zinc-900 border border-zinc-850 rounded-xl text-zinc-300 text-xs h-[38px] w-[38px] transition-all flex-shrink-0"
+                    title="Refresh Output Devices">
+                    <i id="iconRefresh" class="fa-solid fa-arrows-rotate"></i>
+                </button>
+                <!-- Window Chrome Controls -->
+                <div class="flex items-center gap-2 ml-2 pl-4 border-l border-zinc-900 flex-shrink-0">
+                    <button id="win-min-btn"
+                        class="flex items-center justify-center rounded-xl bg-zinc-950 hover:bg-zinc-900 border border-zinc-850 text-zinc-400 hover:text-white transition-all h-[38px] w-[38px]"
+                        title="Minimize">
+                        <i class="fa-solid fa-minus text-[11px]"></i>
+                    </button>
+                    <button id="win-close-btn"
+                        class="flex items-center justify-center rounded-xl bg-red-950/20 hover:bg-red-900/40 border border-red-900/30 hover:border-red-500/50 text-red-400 hover:text-red-200 transition-all h-[38px] w-[38px]"
+                        title="Close (Minimize to Tray)">
+                        <i class="fa-solid fa-xmark text-[11px]"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tab Bar -->
+        <div class="flex items-center gap-2 border-b border-zinc-900 pb-2 mb-1 flex-shrink-0">
+            <button id="tab-studio"
+                class="px-4 py-2 rounded-xl text-xs font-bold tracking-wider font-mono uppercase bg-amber-500 text-black hover:bg-amber-400 transition-all flex items-center gap-2">
+                <i class="fa-solid fa-sliders text-[11px]"></i>
+                <span>Surround Mixer</span>
+            </button>
+            <button id="tab-room-cal"
+                class="px-4 py-2 rounded-xl text-xs font-bold tracking-wider font-mono uppercase bg-zinc-950 border border-zinc-850 text-zinc-400 hover:text-white transition-all flex items-center gap-2">
+                <i class="fa-solid fa-microphone-lines text-[11px]"></i>
+                <span>Room Calibrations</span>
+            </button>
+            <button id="tab-receiver"
+                class="px-4 py-2 rounded-xl text-xs font-bold tracking-wider font-mono uppercase bg-zinc-950 border border-zinc-850 text-zinc-400 hover:text-white transition-all flex items-center gap-2">
+                <i class="fa-solid fa-circle-play text-[11px]"></i>
+                <span>Receiver Console</span>
+            </button>
+            <button id="tab-settings"
+                class="px-4 py-2 rounded-xl text-xs font-bold tracking-wider font-mono uppercase bg-zinc-950 border border-zinc-850 text-zinc-400 hover:text-white transition-all flex items-center gap-2">
+                <i class="fa-solid fa-gears text-[11px]"></i>
+                <span>Settings</span>
+            </button>
+        </div>
+
+        <!-- VIEW 1: Surround Mixer Page (Studio) -->
+        <div id="page-studio" class="flex flex-col gap-6 flex-1">
+
+            <!-- Sub-View 1: Speakers Grid + Master Volume + Diagnostic Scope -->
+            <div id="view-mixer" class="flex flex-col items-center w-full">
+
+                <!-- Symmetrical Speaker Deck Stage -->
+                <div
+                    class="relative speaker-deck-stage w-full rounded-[32px] border border-[#14141d]/80 py-16 px-6 mb-8 flex flex-col items-center justify-center min-h-[460px]">
+
+                    <!-- Stage Monitoring Text Left Corner -->
+                    <div
+                        class="absolute top-6 left-6 z-20 font-mono text-[9px] text-zinc-555 tracking-widest uppercase">
+                        Acoustic Stage Monitor
+                    </div>
+
+
+
+                    <!-- Fully Rounded Control Buttons Top Right Corner -->
+                    <div class="absolute top-4 right-4 z-20 flex items-center gap-2">
+                        <button id="test-btn"
+                            class="w-10 h-10 rounded-full bg-zinc-950 hover:bg-zinc-900 border border-zinc-850 text-blue-500 hover:text-blue-400 flex items-center justify-center shadow-lg transition-all cursor-pointer"
+                            title="Test Soundstage / Speakers">
+                            <i id="testIcon" class="fa-solid fa-volume-high text-xs"></i>
+                        </button>
+                        <button id="mute-btn"
+                            class="w-10 h-10 rounded-full bg-red-600 hover:bg-red-500 text-white flex items-center justify-center shadow-lg shadow-red-950/40 border border-red-500/20 transition-all cursor-pointer"
+                            title="Mute System">
+                            <i id="muteIcon" class="fa-solid fa-volume-xmark text-xs"></i>
+                        </button>
+                        <button id="reset-btn"
+                            class="w-10 h-10 rounded-full bg-zinc-950 hover:bg-zinc-900 border border-zinc-850 text-zinc-300 flex items-center justify-center shadow-lg transition-all cursor-pointer"
+                            title="Reset Channels to 100%">
+                            <i class="fa-solid fa-rotate text-xs"></i>
+                        </button>
+                    </div>
+
+                    <!-- Spotlight Top Glow -->
+                    <div
+                        class="absolute top-0 left-1/2 -translate-x-1/2 w-[85%] h-[340px] bg-[radial-gradient(circle_at_center_top,rgba(245,158,11,0.07),transparent_70%)] pointer-events-none rounded-full blur-3xl">
+                    </div>
+
+                    <!-- Speakers Grid (6 channels) + Vertical Master Fader (Far Right) -->
+                    <div
+                        class="relative z-10 w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-y-12 gap-x-6 items-end justify-center">
+
+                        <!-- Channel 1: Surround L -->
+                        <div id="card-surroundL"
+                            class="flex flex-col items-center justify-end gap-5 text-center group transition-all duration-300">
+                            <div id="speaker-wrapper-surroundL"
+                                class="transition-all duration-100 flex items-center justify-center relative cursor-pointer"
+                                style="width: 80px; height: 112px;">
+                                <div
+                                    class="speaker-visual-bg absolute inset-0 -z-10 flex items-center justify-center pointer-events-none overflow-visible">
+                                    <div id="glow-light-surroundL"
+                                        class="speaker-glow-light absolute rounded-full bg-gradient-to-r from-amber-500/30 to-amber-600/30 filter blur-xl opacity-0 transition-opacity duration-300">
+                                    </div>
+                                    <div id="waves-surroundL"
+                                        class="speaker-waves absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300">
+                                        <div class="speaker-wave-ring ring-1"></div>
+                                        <div class="speaker-wave-ring ring-2"></div>
+                                        <div class="speaker-wave-ring ring-3"></div>
+                                    </div>
+                                </div>
+                                <svg viewBox="0 0 100 130" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                                    <defs>
+                                        <pattern id="mesh-pattern-surroundL" width="4" height="4"
+                                            patternUnits="userSpaceOnUse">
+                                            <circle cx="2" cy="2" r="1" fill="#3f3f46" />
+                                        </pattern>
+                                        <filter id="audio-glow-surroundL" x="-20%" y="-20%" width="140%" height="140%">
+                                            <feGaussianBlur stdDeviation="5.4" result="blur" />
+                                            <feMerge>
+                                                <feMergeNode in="blur" />
+                                                <feMergeNode in="SourceGraphic" />
+                                            </feMerge>
+                                        </filter>
+                                    </defs>
+                                    <path d="M 12,109 L 20,115 L 80,115 L 88,109 L 88,112 L 80,118 L 20,118 L 12,112 Z"
+                                        fill="#040405" stroke="#52525b" stroke-width="2" />
+                                    <path d="M 20,40 L 12,34 L 12,109 L 20,115 Z" fill="rgba(20,20,25,0.95)"
+                                        stroke="#52525b" stroke-width="2" />
+                                    <path d="M 80,40 L 88,34 L 88,109 L 80,115 Z" fill="rgba(20,20,25,0.95)"
+                                        stroke="#52525b" stroke-width="2" />
+                                    <rect x="20" y="40" width="60" height="75" fill="#0c0c10" stroke="#52525b"
+                                        stroke-width="2" />
+                                    <rect x="22" y="42" width="56" height="71" rx="1"
+                                        fill="url(#mesh-pattern-surroundL)" stroke="#52525b" stroke-width="1.4" />
+                                    <circle cx="50" cy="65" r="20" fill="rgba(10,10,12,0.95)"
+                                        stroke="rgba(255,255,255,0.15)" stroke-width="1" />
+                                    <g id="cone-surroundL" style="transform-origin: 50px 65px;">
+                                        <circle cx="50" cy="65" r="11" fill="none" stroke="#f59e0b" stroke-width="1.8"
+                                            filter="url(#audio-glow-surroundL)" />
+                                    </g>
+                                    <rect x="30" y="93" width="40" height="12" rx="4" fill="#020204"
+                                        stroke="rgba(255,255,255,0.15)" stroke-width="0.8" />
+                                    <rect x="32" y="95" width="36" height="8" rx="2.5" fill="#000000" />
+                                    <path d="M 20,40 L 80,40 L 88,34 L 68,18 L 32,18 L 12,34 Z"
+                                        fill="rgba(25,25,30,0.95)" stroke="#52525b" stroke-width="2" />
+                                    <text x="50" y="31" text-anchor="middle" font-size="5" font-family="monospace"
+                                        fill="#ffffff" font-weight="bold" letter-spacing="0.8">SAMSUNG</text>
+                                </svg>
+                            </div>
+                            <div class="font-mono text-center">
+                                <span
+                                    class="text-sm font-semibold text-zinc-400 tracking-wider block uppercase">Surround
+                                    L</span>
+                            </div>
+                            <div
+                                class="w-full max-w-[150px] bg-[#09090d]/90 border border-[#181822]/90 px-3.5 py-2 rounded-2xl flex flex-col gap-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.6)]">
+                                <div class="flex items-center justify-between font-mono w-full px-0.5">
+                                    <button id="mute-chan-surroundL" class="mute-chan-btn text-zinc-600 hover:text-red-500 transition-all cursor-pointer" title="Mute Channel">
+                                        <i id="mute-icon-surroundL" class="fa-solid fa-volume-high text-[8px]"></i>
+                                    </button>
+                                    <span id="val-surroundL"
+                                        class="text-xs font-black tracking-wider text-amber-500">75%</span>
+                                </div>
+                                <div class="relative w-full h-4 flex items-center">
+                                    <div class="absolute left-0 right-0 h-[5px] bg-[#14141e] rounded-full"></div>
+                                    <div id="track-surroundL"
+                                        class="absolute left-0 h-[5px] bg-gradient-to-r from-amber-600 to-amber-400 rounded-full"
+                                        style="width: 75%"></div>
+                                    <div id="thumb-surroundL"
+                                        class="absolute w-3.5 h-3.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)] pointer-events-none -translate-x-1/2 transition-all duration-75"
+                                        style="left: 75%"></div>
+                                    <input type="range" min="0" max="100" value="75"
+                                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                        id="slider-surroundL">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Channel 2: Tower L -->
+                        <div id="card-towerL"
+                            class="flex flex-col items-center justify-end gap-5 text-center group transition-all duration-300">
+                            <div id="speaker-wrapper-towerL"
+                                class="transition-all duration-100 flex items-center justify-center relative cursor-pointer"
+                                style="width: 80px; height: 210px;">
+                                <div
+                                    class="speaker-visual-bg absolute inset-0 -z-10 flex items-center justify-center pointer-events-none overflow-visible">
+                                    <div id="glow-light-towerL"
+                                        class="speaker-glow-light absolute rounded-full bg-gradient-to-r from-amber-500/30 to-amber-600/30 filter blur-xl opacity-0 transition-opacity duration-300">
+                                    </div>
+                                    <div id="waves-towerL"
+                                        class="speaker-waves absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300">
+                                        <div class="speaker-wave-ring ring-1"></div>
+                                        <div class="speaker-wave-ring ring-2"></div>
+                                        <div class="speaker-wave-ring ring-3"></div>
+                                    </div>
+                                </div>
+                                <svg viewBox="0 0 120 280" class="w-full h-full" xmlns="http://www.w3.org/2000/svg"
+                                    style="font-family: monospace;">
+                                    <defs>
+                                        <pattern id="mesh-pattern-towerL" width="4" height="4"
+                                            patternUnits="userSpaceOnUse">
+                                            <circle cx="2" cy="2" r="1" fill="#3f3f46" />
+                                        </pattern>
+                                        <filter id="audio-glow-towerL" x="-20%" y="-20%" width="140%" height="140%">
+                                            <feGaussianBlur stdDeviation="5.4" result="blur" />
+                                            <feMerge>
+                                                <feMergeNode in="blur" />
+                                                <feMergeNode in="SourceGraphic" />
+                                            </feMerge>
+                                        </filter>
+                                        <linearGradient id="glass-spec-raw-towerL" x1="0" y1="0" x2="1" y2="1">
+                                            <stop offset="0%" stop-color="rgba(255,255,255,0.45)" />
+                                            <stop offset="15%" stop-color="rgba(255,255,255,0.6)" />
+                                            <stop offset="30%" stop-color="rgba(255,255,255,0.1)" />
+                                            <stop offset="100%" stop-color="rgba(255,255,255,0)" />
+                                        </linearGradient>
+                                    </defs>
+                                    <path
+                                        d="M 10,265 L 15,270 L 105,270 L 110,265 L 110,271 L 105,276 L 15,276 L 10,271 Z"
+                                        fill="#09090b" stroke="#52525b" stroke-width="2" />
+                                    <path d="M 25,235 L 95,235 L 110,265 L 105,270 L 15,270 L 10,265 Z" fill="#141418"
+                                        stroke="#52525b" stroke-width="2" />
+                                    <path d="M 10,265 L 15,270 L 105,270 L 110,265" fill="none"
+                                        stroke="rgba(255, 255, 255, 0.35)" stroke-width="1.2" />
+                                    <line x1="25" y1="235" x2="95" y2="235" stroke="rgba(255, 255, 255, 0.2)"
+                                        stroke-width="0.8" />
+                                    <path d="M 32,235 L 58,235 L 95,270 L 70,270 Z" fill="url(#glass-spec-raw-towerL)"
+                                        opacity="0.65" />
+                                    <rect x="30" y="15" width="60" height="230" rx="4" fill="#1e1e24" stroke="#52525b"
+                                        stroke-width="2" />
+                                    <rect x="33" y="18" width="54" height="105" rx="2" fill="url(#mesh-pattern-towerL)"
+                                        stroke="#52525b" stroke-width="1.4" />
+                                    <g id="cone-towerL" style="transform-origin: 60px 65px;">
+                                        <circle cx="60" cy="45" r="16" fill="#18181b" stroke="#f59e0b"
+                                            stroke-width="1" />
+                                        <circle cx="60" cy="45" r="7" fill="#f59e0b" filter="url(#audio-glow-towerL)" />
+                                        <circle cx="60" cy="85" r="16" fill="#18181b" stroke="#f59e0b"
+                                            stroke-width="1" />
+                                        <circle cx="60" cy="85" r="7" fill="#f59e0b" filter="url(#audio-glow-towerL)" />
+                                    </g>
+                                    <line x1="30" y1="123" x2="90" y2="123" stroke="#52525b" stroke-width="3" />
+                                    <text x="60" y="236" text-anchor="middle" font-size="6" fill="#f59e0b"
+                                        letter-spacing="1">SAMSUNG</text>
+                                </svg>
+                            </div>
+                            <div class="font-mono text-center">
+                                <span class="text-sm font-semibold text-zinc-400 tracking-wider block uppercase">Tower
+                                    L</span>
+                            </div>
+                            <div
+                                class="w-full max-w-[150px] bg-[#09090d]/90 border border-[#181822]/90 px-3.5 py-2 rounded-2xl flex flex-col gap-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.6)]">
+                                <div class="flex items-center justify-between font-mono w-full px-0.5">
+                                    <button id="mute-chan-towerL" class="mute-chan-btn text-zinc-600 hover:text-red-500 transition-all cursor-pointer" title="Mute Channel">
+                                        <i id="mute-icon-towerL" class="fa-solid fa-volume-high text-[8px]"></i>
+                                    </button>
+                                    <span id="val-towerL"
+                                        class="text-xs font-black tracking-wider text-amber-500">80%</span>
+                                </div>
+                                <div class="relative w-full h-4 flex items-center">
+                                    <div class="absolute left-0 right-0 h-[5px] bg-[#14141e] rounded-full"></div>
+                                    <div id="track-towerL"
+                                        class="absolute left-0 h-[5px] bg-gradient-to-r from-amber-600 to-amber-400 rounded-full"
+                                        style="width: 80%"></div>
+                                    <div id="thumb-towerL"
+                                        class="absolute w-3.5 h-3.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)] pointer-events-none -translate-x-1/2 transition-all duration-75"
+                                        style="left: 80%"></div>
+                                    <input type="range" min="0" max="100" value="80"
+                                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                        id="slider-towerL">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Channel 3: Subwoofer -->
+                        <div id="card-subwoofer"
+                            class="flex flex-col items-center justify-end gap-5 text-center group transition-all duration-300">
+                            <div id="speaker-wrapper-subwoofer"
+                                class="transition-all duration-100 flex items-center justify-center relative cursor-pointer"
+                                style="width: 96px; height: 160px;">
+                                <div
+                                    class="speaker-visual-bg absolute inset-0 -z-10 flex items-center justify-center pointer-events-none overflow-visible">
+                                    <div id="glow-light-subwoofer"
+                                        class="speaker-glow-light absolute rounded-full bg-gradient-to-r from-amber-500/30 to-amber-600/30 filter blur-xl opacity-0 transition-opacity duration-300">
+                                    </div>
+                                    <div id="waves-subwoofer"
+                                        class="speaker-waves absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300">
+                                        <div class="speaker-wave-ring ring-1"></div>
+                                        <div class="speaker-wave-ring ring-2"></div>
+                                        <div class="speaker-wave-ring ring-3"></div>
+                                    </div>
+                                </div>
+                                <svg viewBox="0 0 160 260" class="w-full h-full" xmlns="http://www.w3.org/2000/svg"
+                                    style="font-family: monospace;">
+                                    <defs>
+                                        <pattern id="mesh-pattern-subwoofer" width="4" height="4"
+                                            patternUnits="userSpaceOnUse">
+                                            <circle cx="2" cy="2" r="1.1" fill="#3f3f46" />
+                                            <circle cx="2" cy="2" r="0.6" fill="#18181b" />
+                                        </pattern>
+                                        <filter id="audio-glow-subwoofer" x="-20%" y="-20%" width="140%" height="140%">
+                                            <feGaussianBlur stdDeviation="5.4" result="blur" />
+                                            <feMerge>
+                                                <feMergeNode in="blur" />
+                                                <feMergeNode in="SourceGraphic" />
+                                            </feMerge>
+                                        </filter>
+                                        <linearGradient id="subwoofer-cabinet-realistic-sub" x1="0%" y1="0%" x2="100%"
+                                            y2="100%">
+                                            <stop offset="0%" stop-color="#25252b" />
+                                            <stop offset="10%" stop-color="#0b0b0e" />
+                                            <stop offset="50%" stop-color="#040405" />
+                                            <stop offset="85%" stop-color="#0a0a0d" />
+                                            <stop offset="100%" stop-color="#1e1e24" />
+                                        </linearGradient>
+                                        <linearGradient id="mesh-bezel-grad-sub" x1="0%" y1="0%" x2="0%" y2="100%">
+                                            <stop offset="0%" stop-color="#4b4b52" />
+                                            <stop offset="50%" stop-color="#222227" />
+                                            <stop offset="100%" stop-color="#121215" />
+                                        </linearGradient>
+                                        <radialGradient id="mesh-shading-sub" cx="45%" cy="45%" r="55%">
+                                            <stop offset="0%" stop-color="transparent" />
+                                            <stop offset="80%" stop-color="rgba(0, 0, 0, 0.4)" />
+                                            <stop offset="100%" stop-color="rgba(0, 0, 0, 0.85)" />
+                                        </radialGradient>
+                                        <radialGradient id="funnel-gradient-sub" cx="50%" cy="50%" r="50%">
+                                            <stop offset="0%" stop-color="#010102" />
+                                            <stop offset="40%" stop-color="#08080a" />
+                                            <stop offset="65%" stop-color="#15151c" />
+                                            <stop offset="80%" stop-color="#292933" />
+                                            <stop offset="90%" stop-color="#3c3c4a" />
+                                            <stop offset="96%" stop-color="#121216" />
+                                            <stop offset="100%" stop-color="#060608" />
+                                        </radialGradient>
+                                        <linearGradient id="funnel-highlight-grad-sub" x1="0%" y1="1%" x2="0%" y2="0%">
+                                            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.45" />
+                                            <stop offset="40%" stop-color="#ffffff" stop-opacity="0.15" />
+                                            <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+                                        </linearGradient>
+                                        <linearGradient id="cabinet-highlight-sub" x1="0%" y1="0%" x2="100%" y2="0%">
+                                            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.12" />
+                                            <stop offset="3%" stop-color="#ffffff" stop-opacity="0" />
+                                            <stop offset="97%" stop-color="#ffffff" stop-opacity="0" />
+                                            <stop offset="100%" stop-color="#ffffff" stop-opacity="0.08" />
+                                        </linearGradient>
+                                    </defs>
+                                    <rect x="20" y="10" width="120" height="240" rx="6"
+                                        fill="url(#subwoofer-cabinet-realistic-sub)" stroke="#52525b"
+                                        stroke-width="2" />
+                                    <rect x="21" y="11" width="118" height="238" rx="5" fill="none"
+                                        stroke="url(#cabinet-highlight-sub)" stroke-width="1.5" />
+                                    <line x1="24" y1="12" x2="136" y2="12" stroke="#ffffff" stroke-opacity="0.25"
+                                        stroke-width="1" />
+                                    <path d="M 21,25 L 139,150 L 139,135 L 21,10 Z" fill="#ffffff" opacity="0.02" />
+                                    <g id="cone-subwoofer" style="transform-origin: 80px 72px;">
+                                        <circle cx="80" cy="72" r="52" fill="url(#mesh-bezel-grad-sub)" stroke="#52525b"
+                                            stroke-width="2" />
+                                        <circle cx="80" cy="72" r="50.5" fill="#050507" />
+                                        <circle cx="80" cy="72" r="50" fill="url(#mesh-pattern-subwoofer)" />
+                                        <circle cx="80" cy="72" r="50" fill="url(#mesh-shading-sub)" />
+                                        <!-- Bass reactive glowing neon ring -->
+                                        <circle id="subwoofer-neon-ring" cx="80" cy="72" r="51" fill="none" stroke="#f59e0b" stroke-width="0" filter="url(#audio-glow-subwoofer)" opacity="0" />
+                                    </g>
+                                    <circle cx="80" cy="192" r="42" fill="url(#funnel-gradient-sub)" stroke="#52525b"
+                                        stroke-width="2" />
+                                    <circle cx="80" cy="192" r="20" fill="#020204" stroke="#52525b" stroke-width="1" />
+                                    <!-- Bass reactive air compression waves -->
+                                    <g id="subwoofer-air-ripples">
+                                        <path id="air-ripple-1" d="M 62,204 Q 80,215 98,204" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round" opacity="0" />
+                                        <path id="air-ripple-2" d="M 52,212 Q 80,227 108,212" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" opacity="0" />
+                                    </g>
+                                    <text x="80" y="244" text-anchor="middle" font-size="6" fill="#f59e0b"
+                                        font-weight="bold" letter-spacing="1.2">SAMSUNG</text>
+                                </svg>
+                            </div>
+                            <div class="font-mono text-center">
+                                <span
+                                    class="text-sm font-semibold text-zinc-400 tracking-wider block uppercase">Subwoofer</span>
+                            </div>
+                            <div
+                                class="w-full max-w-[150px] bg-[#09090d]/90 border border-[#181822]/90 px-3.5 py-2 rounded-2xl flex flex-col gap-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.6)]">
+                                <div class="flex items-center justify-between font-mono w-full px-0.5">
+                                    <button id="mute-chan-subwoofer" class="mute-chan-btn text-zinc-600 hover:text-red-500 transition-all cursor-pointer" title="Mute Channel">
+                                        <i id="mute-icon-subwoofer" class="fa-solid fa-volume-high text-[8px]"></i>
+                                    </button>
+                                    <span id="val-subwoofer"
+                                        class="text-xs font-black tracking-wider text-amber-500">100%</span>
+                                </div>
+                                <div class="relative w-full h-4 flex items-center">
+                                    <div class="absolute left-0 right-0 h-[5px] bg-[#14141e] rounded-full"></div>
+                                    <div id="track-subwoofer"
+                                        class="absolute left-0 h-[5px] bg-gradient-to-r from-amber-600 to-amber-400 rounded-full"
+                                        style="width: 100%"></div>
+                                    <div id="thumb-subwoofer"
+                                        class="absolute w-3.5 h-3.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)] pointer-events-none -translate-x-1/2 transition-all duration-75"
+                                        style="left: 100%"></div>
+                                    <input type="range" min="0" max="100" value="100"
+                                        class="absolute inset-0 w-full h-full opacity-0 pointer-events-none"
+                                        id="slider-subwoofer" tabindex="-1" aria-disabled="true">
+                                    <!-- Transparent overlay: disabled inputs never fire click events in
+                                         browsers, so we can't detect "attempted" interaction on the real
+                                         slider. This overlay captures the click/drag attempt instead and
+                                         triggers the native Windows notification + in-app toast. -->
+                                    <div id="subwoofer-lock-overlay" class="locked-slider-overlay"
+                                        title="Subwoofer level is fixed at 100% — use the remote control"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Channel 4: Center Channel -->
+                        <div id="card-center"
+                            class="flex flex-col items-center justify-end gap-5 text-center group transition-all duration-300">
+                            <div id="speaker-wrapper-center"
+                                class="transition-all duration-100 flex items-center justify-center relative cursor-pointer"
+                                style="width: 136px; height: 78px;">
+                                <div
+                                    class="speaker-visual-bg absolute inset-0 -z-10 flex items-center justify-center pointer-events-none overflow-visible">
+                                    <div id="glow-light-center"
+                                        class="speaker-glow-light absolute rounded-full bg-gradient-to-r from-amber-500/30 to-amber-600/30 filter blur-xl opacity-0 transition-opacity duration-300">
+                                    </div>
+                                    <div id="waves-center"
+                                        class="speaker-waves absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300">
+                                        <div class="speaker-wave-ring ring-1"></div>
+                                        <div class="speaker-wave-ring ring-2"></div>
+                                        <div class="speaker-wave-ring ring-3"></div>
+                                    </div>
+                                </div>
+                                <svg viewBox="0 0 200 100" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                                    <defs>
+                                        <pattern id="mesh-pattern-center" width="4" height="4"
+                                            patternUnits="userSpaceOnUse">
+                                            <circle cx="2" cy="2" r="1" fill="#3f3f46" />
+                                        </pattern>
+                                        <filter id="audio-glow-center" x="-20%" y="-20%" width="140%" height="140%">
+                                            <feGaussianBlur stdDeviation="5.4" result="blur" />
+                                            <feMerge>
+                                                <feMergeNode in="blur" />
+                                                <feMergeNode in="SourceGraphic" />
+                                            </feMerge>
+                                        </filter>
+                                    </defs>
+                                    <rect x="10" y="15" width="180" height="70" rx="6" fill="#1e1e24" stroke="#52525b"
+                                        stroke-width="2" />
+                                    <rect x="13" y="18" width="174" height="64" rx="3" fill="url(#mesh-pattern-center)"
+                                        stroke="#52525b" stroke-width="1.4" />
+                                    <circle cx="45" cy="50" r="15" fill="#000000" stroke="rgba(255,255,255,0.1)"
+                                        stroke-width="1" />
+                                    <circle cx="155" cy="50" r="15" fill="#000000" stroke="rgba(255,255,255,0.1)"
+                                        stroke-width="1" />
+                                    <g id="cone-center" style="transform-origin: 100px 50px;">
+                                        <circle cx="100" cy="50" r="24" fill="#18181b" stroke="rgba(255,255,255,0.15)"
+                                            stroke-width="1.2" />
+                                        <circle cx="100" cy="50" r="15" fill="#f59e0b"
+                                            filter="url(#audio-glow-center)" />
+                                    </g>
+                                </svg>
+                            </div>
+                            <div class="font-mono text-center">
+                                <span class="text-sm font-semibold text-zinc-400 tracking-wider block uppercase">Center
+                                    Channel</span>
+                            </div>
+                            <div
+                                class="w-full max-w-[150px] bg-[#09090d]/90 border border-[#181822]/90 px-3.5 py-2 rounded-2xl flex flex-col gap-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.6)]">
+                                <div class="flex items-center justify-between font-mono w-full px-0.5">
+                                    <button id="mute-chan-center" class="mute-chan-btn text-zinc-600 hover:text-red-500 transition-all cursor-pointer" title="Mute Channel">
+                                        <i id="mute-icon-center" class="fa-solid fa-volume-high text-[8px]"></i>
+                                    </button>
+                                    <span id="val-center"
+                                        class="text-xs font-black tracking-wider text-amber-500">85%</span>
+                                </div>
+                                <div class="relative w-full h-4 flex items-center">
+                                    <div class="absolute left-0 right-0 h-[5px] bg-[#14141e] rounded-full"></div>
+                                    <div id="track-center"
+                                        class="absolute left-0 h-[5px] bg-gradient-to-r from-amber-600 to-amber-400 rounded-full"
+                                        style="width: 85%"></div>
+                                    <div id="thumb-center"
+                                        class="absolute w-3.5 h-3.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)] pointer-events-none -translate-x-1/2 transition-all duration-75"
+                                        style="left: 85%"></div>
+                                    <input type="range" min="0" max="100" value="85"
+                                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                        id="slider-center">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Channel 5: Tower R -->
+                        <div id="card-towerR"
+                            class="flex flex-col items-center justify-end gap-5 text-center group transition-all duration-300">
+                            <div id="speaker-wrapper-towerR"
+                                class="transition-all duration-100 flex items-center justify-center relative cursor-pointer"
+                                style="width: 80px; height: 210px;">
+                                <div
+                                    class="speaker-visual-bg absolute inset-0 -z-10 flex items-center justify-center pointer-events-none overflow-visible">
+                                    <div id="glow-light-towerR"
+                                        class="speaker-glow-light absolute rounded-full bg-gradient-to-r from-amber-500/30 to-amber-600/30 filter blur-xl opacity-0 transition-opacity duration-300">
+                                    </div>
+                                    <div id="waves-towerR"
+                                        class="speaker-waves absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300">
+                                        <div class="speaker-wave-ring ring-1"></div>
+                                        <div class="speaker-wave-ring ring-2"></div>
+                                        <div class="speaker-wave-ring ring-3"></div>
+                                    </div>
+                                </div>
+                                <svg viewBox="0 0 120 280" class="w-full h-full" xmlns="http://www.w3.org/2000/svg"
+                                    style="font-family: monospace;">
+                                    <defs>
+                                        <pattern id="mesh-pattern-towerR" width="4" height="4"
+                                            patternUnits="userSpaceOnUse">
+                                            <circle cx="2" cy="2" r="1" fill="#3f3f46" />
+                                        </pattern>
+                                        <filter id="audio-glow-towerR" x="-20%" y="-20%" width="140%" height="140%">
+                                            <feGaussianBlur stdDeviation="5.4" result="blur" />
+                                            <feMerge>
+                                                <feMergeNode in="blur" />
+                                                <feMergeNode in="SourceGraphic" />
+                                            </feMerge>
+                                        </filter>
+                                        <linearGradient id="glass-spec-raw-towerR" x1="0" y1="0" x2="1" y2="1">
+                                            <stop offset="0%" stop-color="rgba(255,255,255,0.45)" />
+                                            <stop offset="15%" stop-color="rgba(255,255,255,0.6)" />
+                                            <stop offset="30%" stop-color="rgba(255,255,255,0.1)" />
+                                            <stop offset="100%" stop-color="rgba(255,255,255,0)" />
+                                        </linearGradient>
+                                    </defs>
+                                    <path
+                                        d="M 10,265 L 15,270 L 105,270 L 110,265 L 110,271 L 105,276 L 15,276 L 10,271 Z"
+                                        fill="#09090b" stroke="#52525b" stroke-width="2" />
+                                    <path d="M 25,235 L 95,235 L 110,265 L 105,270 L 15,270 L 10,265 Z" fill="#141418"
+                                        stroke="#52525b" stroke-width="2" />
+                                    <path d="M 10,265 L 15,270 L 105,270 L 110,265" fill="none"
+                                        stroke="rgba(255, 255, 255, 0.35)" stroke-width="1.2" />
+                                    <line x1="25" y1="235" x2="95" y2="235" stroke="rgba(255, 255, 255, 0.2)"
+                                        stroke-width="0.8" />
+                                    <path d="M 32,235 L 58,235 L 95,270 L 70,270 Z" fill="url(#glass-spec-raw-towerR)"
+                                        opacity="0.65" />
+                                    <rect x="30" y="15" width="60" height="230" rx="4" fill="#1e1e24" stroke="#52525b"
+                                        stroke-width="2" />
+                                    <rect x="33" y="18" width="54" height="105" rx="2" fill="url(#mesh-pattern-towerR)"
+                                        stroke="#52525b" stroke-width="1.4" />
+                                    <g id="cone-towerR" style="transform-origin: 60px 65px;">
+                                        <circle cx="60" cy="45" r="16" fill="#18181b" stroke="#f59e0b"
+                                            stroke-width="1" />
+                                        <circle cx="60" cy="45" r="7" fill="#f59e0b" filter="url(#audio-glow-towerR)" />
+                                        <circle cx="60" cy="85" r="16" fill="#18181b" stroke="#f59e0b"
+                                            stroke-width="1" />
+                                        <circle cx="60" cy="85" r="7" fill="#f59e0b" filter="url(#audio-glow-towerR)" />
+                                    </g>
+                                    <line x1="30" y1="123" x2="90" y2="123" stroke="#52525b" stroke-width="3" />
+                                    <text x="60" y="236" text-anchor="middle" font-size="6" fill="#f59e0b"
+                                        letter-spacing="1">SAMSUNG</text>
+                                </svg>
+                            </div>
+                            <div class="font-mono text-center">
+                                <span class="text-sm font-semibold text-zinc-400 tracking-wider block uppercase">Tower
+                                    R</span>
+                            </div>
+                            <div
+                                class="w-full max-w-[150px] bg-[#09090d]/90 border border-[#181822]/90 px-3.5 py-2 rounded-2xl flex flex-col gap-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.6)]">
+                                <div class="flex items-center justify-between font-mono w-full px-0.5">
+                                    <button id="mute-chan-towerR" class="mute-chan-btn text-zinc-600 hover:text-red-500 transition-all cursor-pointer" title="Mute Channel">
+                                        <i id="mute-icon-towerR" class="fa-solid fa-volume-high text-[8px]"></i>
+                                    </button>
+                                    <span id="val-towerR"
+                                        class="text-xs font-black tracking-wider text-amber-500">80%</span>
+                                </div>
+                                <div class="relative w-full h-4 flex items-center">
+                                    <div class="absolute left-0 right-0 h-[5px] bg-[#14141e] rounded-full"></div>
+                                    <div id="track-towerR"
+                                        class="absolute left-0 h-[5px] bg-gradient-to-r from-amber-600 to-amber-400 rounded-full"
+                                        style="width: 80%"></div>
+                                    <div id="thumb-towerR"
+                                        class="absolute w-3.5 h-3.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)] pointer-events-none -translate-x-1/2 transition-all duration-75"
+                                        style="left: 80%"></div>
+                                    <input type="range" min="0" max="100" value="80"
+                                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                        id="slider-towerR">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Channel 6: Surround R -->
+                        <div id="card-surroundR"
+                            class="flex flex-col items-center justify-end gap-5 text-center group transition-all duration-300">
+                            <div id="speaker-wrapper-surroundR"
+                                class="transition-all duration-100 flex items-center justify-center relative cursor-pointer"
+                                style="width: 80px; height: 112px;">
+                                <div
+                                    class="speaker-visual-bg absolute inset-0 -z-10 flex items-center justify-center pointer-events-none overflow-visible">
+                                    <div id="glow-light-surroundR"
+                                        class="speaker-glow-light absolute rounded-full bg-gradient-to-r from-amber-500/30 to-amber-600/30 filter blur-xl opacity-0 transition-opacity duration-300">
+                                    </div>
+                                    <div id="waves-surroundR"
+                                        class="speaker-waves absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300">
+                                        <div class="speaker-wave-ring ring-1"></div>
+                                        <div class="speaker-wave-ring ring-2"></div>
+                                        <div class="speaker-wave-ring ring-3"></div>
+                                    </div>
+                                </div>
+                                <svg viewBox="0 0 100 130" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                                    <defs>
+                                        <pattern id="mesh-pattern-surroundR" width="4" height="4"
+                                            patternUnits="userSpaceOnUse">
+                                            <circle cx="2" cy="2" r="1" fill="#3f3f46" />
+                                        </pattern>
+                                        <filter id="audio-glow-surroundR" x="-20%" y="-20%" width="140%" height="140%">
+                                            <feGaussianBlur stdDeviation="5.4" result="blur" />
+                                            <feMerge>
+                                                <feMergeNode in="blur" />
+                                                <feMergeNode in="SourceGraphic" />
+                                            </feMerge>
+                                        </filter>
+                                    </defs>
+                                    <path d="M 12,109 L 20,115 L 80,115 L 88,109 L 88,112 L 80,118 L 20,118 L 12,112 Z"
+                                        fill="#040405" stroke="#52525b" stroke-width="2" />
+                                    <path d="M 20,40 L 12,34 L 12,109 L 20,115 Z" fill="rgba(20,20,25,0.95)"
+                                        stroke="#52525b" stroke-width="2" />
+                                    <path d="M 80,40 L 88,34 L 88,109 L 80,115 Z" fill="rgba(20,20,25,0.95)"
+                                        stroke="#52525b" stroke-width="2" />
+                                    <rect x="20" y="40" width="60" height="75" fill="#0c0c10" stroke="#52525b"
+                                        stroke-width="2" />
+                                    <rect x="22" y="42" width="56" height="71" rx="1"
+                                        fill="url(#mesh-pattern-surroundR)" stroke="#52525b" stroke-width="1.4" />
+                                    <circle cx="50" cy="65" r="20" fill="rgba(10,10,12,0.95)"
+                                        stroke="rgba(255,255,255,0.15)" stroke-width="1" />
+                                    <g id="cone-surroundR" style="transform-origin: 50px 65px;">
+                                        <circle cx="50" cy="65" r="11" fill="none" stroke="#f59e0b" stroke-width="1.8"
+                                            filter="url(#audio-glow-surroundR)" />
+                                    </g>
+                                    <rect x="30" y="93" width="40" height="12" rx="4" fill="#020204"
+                                        stroke="rgba(255,255,255,0.15)" stroke-width="0.8" />
+                                    <rect x="32" y="95" width="36" height="8" rx="2.5" fill="#000000" />
+                                    <path d="M 20,40 L 80,40 L 88,34 L 68,18 L 32,18 L 12,34 Z"
+                                        fill="rgba(25,25,30,0.95)" stroke="#52525b" stroke-width="2" />
+                                    <text x="50" y="31" text-anchor="middle" font-size="5" font-family="monospace"
+                                        fill="#ffffff" font-weight="bold" letter-spacing="0.8">SAMSUNG</text>
+                                </svg>
+                            </div>
+                            <div class="font-mono text-center">
+                                <span
+                                    class="text-sm font-semibold text-zinc-400 tracking-wider block uppercase">Surround
+                                    R</span>
+                            </div>
+                            <div
+                                class="w-full max-w-[150px] bg-[#09090d]/90 border border-[#181822]/90 px-3.5 py-2 rounded-2xl flex flex-col gap-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.6)]">
+                                <div class="flex items-center justify-between font-mono w-full px-0.5">
+                                    <button id="mute-chan-surroundR" class="mute-chan-btn text-zinc-600 hover:text-red-500 transition-all cursor-pointer" title="Mute Channel">
+                                        <i id="mute-icon-surroundR" class="fa-solid fa-volume-high text-[8px]"></i>
+                                    </button>
+                                    <span id="val-surroundR"
+                                        class="text-xs font-black tracking-wider text-amber-500">75%</span>
+                                </div>
+                                <div class="relative w-full h-4 flex items-center">
+                                    <div class="absolute left-0 right-0 h-[5px] bg-[#14141e] rounded-full"></div>
+                                    <div id="track-surroundR"
+                                        class="absolute left-0 h-[5px] bg-gradient-to-r from-amber-600 to-amber-400 rounded-full"
+                                        style="width: 75%"></div>
+                                    <div id="thumb-surroundR"
+                                        class="absolute w-3.5 h-3.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)] pointer-events-none -translate-x-1/2 transition-all duration-75"
+                                        style="left: 75%"></div>
+                                    <input type="range" min="0" max="100" value="75"
+                                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                        id="slider-surroundR">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Channel 7: Master Volume Column (Far Right Corner of Grid) -->
+                        <div
+                            class="flex flex-col items-center justify-end gap-5 text-center group transition-all duration-300">
+
+                            <!-- Vertical Slider Component -->
+                            <div class="relative h-[192px] w-6 flex items-center justify-center my-2">
+                                <!-- Background Track -->
+                                <div class="absolute w-[5px] top-0 bottom-0 bg-[#14141e] rounded-full"></div>
+                                <!-- Active Track -->
+                                <div id="track-master"
+                                    class="absolute w-[5px] bottom-0 bg-gradient-to-t from-amber-600 to-amber-400 rounded-full"
+                                    style="height: 85%"></div>
+                                <!-- Thumb -->
+                                <div id="thumb-master"
+                                    class="absolute w-3.5 h-3.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)] pointer-events-none -translate-x-1/2 left-1/2"
+                                    style="bottom: 85%; margin-bottom: -7px;"></div>
+                                <!-- Transparent Slider Input -->
+                                <input type="range" min="0" max="100" value="85"
+                                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" id="slider-master"
+                                    style="writing-mode: vertical-lr; direction: rtl;">
+                            </div>
+
+                            <div class="font-mono text-center">
+                                <span
+                                    class="text-sm font-semibold text-zinc-400 tracking-wider block uppercase">MASTER</span>
+                            </div>
+
+                            <div
+                                class="w-full max-w-[150px] bg-[#09090d]/90 border border-[#181822]/90 px-3.5 py-2 rounded-2xl flex flex-col gap-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.6)]">
+                                <div class="flex items-center justify-between font-mono">
+                                    <span class="text-[9px] font-bold tracking-widest text-zinc-505">GAIN</span>
+                                    <span id="val-master"
+                                        class="text-xs font-black tracking-wider text-amber-500">85%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Diagnostic Scope and Mini Player side-by-side -->
+                    <div class="flex flex-col md:flex-row gap-6 items-stretch w-full max-w-4xl mt-8 relative z-20">
+                        
+                        <!-- Diagnostic Scope (60% width on md screens) -->
+                        <div class="flex-[3] min-w-0 grid grid-cols-12 gap-4 p-4 bg-zinc-950/40 rounded-2xl border border-zinc-900/60 shadow-inner h-[112px]">
+                            <div class="col-span-5 flex flex-col justify-center font-mono text-left gap-1">
+                                <div class="flex flex-col gap-1.5 items-start">
+                                    <span class="text-[11px] font-bold text-zinc-200 uppercase tracking-wider">Diagnostic Scope</span>
+                                    <span id="systemMode"
+                                        class="text-[8px] text-zinc-300 font-bold border border-zinc-800 px-2 py-0.5 rounded bg-zinc-950/60 uppercase leading-none truncate max-w-full">Dolby Digital for a Hometheater</span>
+                                </div>
+                                <span class="text-[8px] text-zinc-550 leading-tight mt-0.5">
+                                    Binaural Synthesis Outbound Oscilloscope with multi-band phase detection.
+                                </span>
+                            </div>
+
+                            <div class="col-span-7 h-full bg-black rounded-xl border border-zinc-900 flex items-center justify-center relative overflow-hidden">
+                                <canvas id="scope-canvas" width="450" height="96" class="w-full h-full block"></canvas>
+                                <div class="absolute bottom-1 right-2 flex items-center gap-2">
+                                    <button id="btn-vis-mode" class="text-zinc-600 hover:text-zinc-300 font-mono text-[6px] uppercase flex items-center gap-1 cursor-pointer" title="Switch Visualizer Mode">
+                                        <i class="fa-solid fa-chart-simple text-[7px] text-amber-500"></i> <span id="lbl-vis-mode">Waveform</span>
+                                    </button>
+                                    <div class="w-0.5 h-0.5 rounded-full bg-zinc-800"></div>
+                                    <div class="font-mono text-[6px] text-zinc-650">AUTO-GAIN RANGE: +4.2dB</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mini Media Player (40% width on md screens) -->
+                        <div class="flex-[2] min-w-0 flex items-center gap-4 p-4 bg-zinc-950/40 rounded-2xl border border-zinc-900/60 shadow-inner h-[112px]">
+                            <!-- Album Art Thumbnail (spinning neon disc) -->
+                            <div class="w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-850 relative flex-shrink-0 flex items-center justify-center overflow-hidden shadow-md">
+                                <!-- Glowing backdrop -->
+                                <div class="absolute inset-0 bg-gradient-to-tr from-amber-500/10 to-transparent"></div>
+                                <!-- Spinning CD/Record shape -->
+                                <div id="player-record" class="w-12 h-12 rounded-full border border-zinc-800 bg-[#0f0f15] flex items-center justify-center animate-spin-slow paused-animation relative">
+                                    <!-- Grooves -->
+                                    <div class="absolute inset-1 rounded-full border border-zinc-900/50"></div>
+                                    <div class="absolute inset-2.5 rounded-full border border-zinc-900/50"></div>
+                                    <!-- Center label -->
+                                    <div class="w-4.5 h-4.5 rounded-full bg-amber-500 border border-black flex items-center justify-center shadow-inner">
+                                        <div class="w-1.5 h-1.5 rounded-full bg-black"></div>
+                                    </div>
+                                </div>
+                                <!-- Windows album art image overlay -->
+                                <img id="player-art-img" class="absolute inset-0 w-full h-full object-cover hidden transition-all duration-300" src="" alt="Album Art" />
+                            </div>
+                            
+                             <!-- Track Details & Audio Controls -->
+                             <div class="flex-1 flex flex-col justify-between h-full py-0.5 min-w-0">
+                                 <div>
+                                     <div class="flex items-center justify-between gap-2 min-w-0">
+                                         <span id="player-title" class="text-[11px] font-bold text-zinc-100 truncate tracking-wide flex-1 min-w-0">Hyperdrive Loop</span>
+                                         <span id="player-badge" class="text-[7px] font-mono text-amber-500 bg-amber-500/10 px-1 py-0.2 rounded border border-amber-500/20 font-bold flex-shrink-0">SYNTH</span>
+                                     </div>
+                                     <p id="player-artist" class="text-[9px] text-zinc-500 font-mono truncate">Virtual Studio Synth • 5.1 LFE</p>
+                                 </div>
+
+                                <!-- Mini Progress Bar -->
+                                <div class="w-full flex flex-col gap-1">
+                                    <div class="w-full h-1 bg-zinc-900 rounded-full overflow-hidden">
+                                        <div id="player-progress" class="player-progress-bar h-full bg-amber-500 w-0"></div>
+                                    </div>
+                                    <div class="flex justify-between font-mono text-[7px] text-zinc-550 leading-none">
+                                        <span id="player-current-time">0:00</span>
+                                        <span id="player-duration">1:30</span>
+                                    </div>
+                                </div>
+
+                                <!-- Playback Controls -->
+                                <div class="flex items-center justify-center gap-6 mt-0.5">
+                                    <button id="player-prev-btn" class="text-zinc-500 hover:text-zinc-200 transition-all p-1" title="Previous Track">
+                                        <i class="fa-solid fa-backward text-[10px]"></i>
+                                    </button>
+                                    <button id="player-play-btn" class="w-7 h-7 rounded-full bg-amber-500 hover:bg-amber-400 text-black flex items-center justify-center transition-all shadow-md shadow-amber-950/20" title="Play / Pause">
+                                        <i id="player-play-icon" class="fa-solid fa-play text-xs ml-0.5"></i>
+                                    </button>
+                                    <button id="player-next-btn" class="text-zinc-500 hover:text-zinc-200 transition-all p-1" title="Next Track">
+                                        <i class="fa-solid fa-forward text-[10px]"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <!-- Symmetrical Acoustic Presets Selector Bottom Center (Below Scope) -->
+                    <div
+                        class="w-full max-w-4xl bg-zinc-950/20 border border-zinc-900/60 p-4 rounded-2xl flex flex-col gap-3.5 mt-6 shadow-inner relative z-20">
+
+
+                        <!-- Bottom Row: Buttons in a single row, no-wrap, centered -->
+                        <div
+                            class="flex items-center justify-center gap-2 w-full overflow-x-auto whitespace-nowrap scrollbar-none">
+                            <button
+                                class="preset-btn px-4 py-2 rounded-xl text-[10px] font-mono font-bold uppercase transition-all duration-300 border border-zinc-900 bg-zinc-950 text-zinc-400 hover:text-zinc-200 cursor-pointer flex items-center gap-1.5"
+                                data-preset="Movie" id="preset-Movie">
+                                <i class="fa-solid fa-film text-blue-500 text-[11px]"></i>Film
+                            </button>
+                            <button
+                                class="preset-btn px-4 py-2 rounded-xl text-[10px] font-mono font-bold uppercase transition-all duration-300 border border-zinc-900 bg-zinc-950 text-zinc-400 hover:text-zinc-200 cursor-pointer flex items-center gap-1.5"
+                                data-preset="Music" id="preset-Music">
+                                <i class="fa-solid fa-music text-emerald-500 text-[11px]"></i>Music
+                            </button>
+                            <button
+                                class="preset-btn px-4 py-2 rounded-xl text-[10px] font-mono font-bold uppercase transition-all duration-300 border border-zinc-900 bg-zinc-950 text-zinc-400 hover:text-zinc-200 cursor-pointer flex items-center gap-1.5"
+                                data-preset="Game" id="preset-Game">
+                                <i class="fa-solid fa-gamepad text-purple-500 text-[11px]"></i>Gaming
+                            </button>
+                            <button
+                                class="preset-btn px-4 py-2 rounded-xl text-[10px] font-mono font-bold uppercase transition-all duration-300 border border-zinc-900 bg-zinc-950 text-zinc-400 hover:text-zinc-200 cursor-pointer flex items-center gap-1.5"
+                                data-preset="Night" id="preset-Night">
+                                <i class="fa-solid fa-moon text-amber-500 text-[11px]"></i>Night
+                            </button>
+                            <button
+                                class="preset-btn px-4 py-2 rounded-xl text-[10px] font-mono font-bold uppercase transition-all duration-300 border border-zinc-900 bg-zinc-950 text-zinc-400 hover:text-zinc-200 cursor-pointer flex items-center gap-1.5"
+                                data-preset="Concert" id="preset-Concert">
+                                <i class="fa-solid fa-guitar text-pink-500 text-[11px]"></i>Concert
+                            </button>
+                            <button
+                                class="preset-btn px-4 py-2 rounded-xl text-[10px] font-mono font-bold uppercase transition-all duration-300 border border-zinc-900 bg-zinc-950 text-zinc-400 hover:text-zinc-200 cursor-pointer flex items-center gap-1.5"
+                                data-preset="Vocal" id="preset-Vocal">
+                                <i class="fa-solid fa-comment-dots text-teal-400 text-[11px]"></i>Vocal
+                            </button>
+                            <button
+                                class="preset-btn px-4 py-2 rounded-xl text-[10px] font-mono font-bold uppercase transition-all duration-300 border border-zinc-900 bg-zinc-950 text-zinc-400 hover:text-zinc-200 cursor-pointer flex items-center gap-1.5"
+                                data-preset="Sports" id="preset-Sports">
+                                <i class="fa-solid fa-trophy text-yellow-400 text-[11px]"></i>Sports
+                            </button>
+                            <button
+                                class="preset-btn px-4 py-2 rounded-xl text-[10px] font-mono font-bold uppercase transition-all duration-300 border border-zinc-900 bg-zinc-950 text-zinc-400 hover:text-zinc-200 cursor-pointer flex items-center gap-1.5"
+                                data-preset="Club" id="preset-Club">
+                                <i class="fa-solid fa-compact-disc text-rose-500 text-[11px]"></i>Club
+                            </button>
+                            <button
+                                class="preset-btn px-4 py-2 rounded-xl text-[10px] font-mono font-bold uppercase transition-all duration-300 border border-zinc-900 bg-zinc-950 text-zinc-400 hover:text-zinc-200 cursor-pointer flex items-center gap-1.5"
+                                data-preset="User" id="preset-User">
+                                <i class="fa-solid fa-user text-sky-400 text-[11px]"></i>User
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Sub-View 2: Room Calibrations (Interactive Suite) -->
+            <div id="view-room-cal"
+                class="hidden flex-col lg:flex-row gap-8 items-stretch justify-between w-full bg-[#050508]/80 border border-zinc-900 rounded-[32px] py-10 px-8 relative overflow-hidden">
+                <div
+                    class="absolute top-0 left-1/2 -translate-x-1/2 w-[85%] h-[340px] bg-[radial-gradient(circle_at_center_top,rgba(59,130,246,0.06),transparent_70%)] pointer-events-none rounded-full blur-3xl">
+                </div>
+
+                <!-- Left Column: Holographic Room Monitor (click to position focus point) -->
+                <div
+                    class="w-full max-w-[640px] mx-auto bg-[#07080b]/90 border border-zinc-900 rounded-[24px] p-6 flex flex-col gap-4 relative z-10">
+                    <div class="border-b border-zinc-900 pb-2 flex items-center justify-between">
+                        <div>
+                            <h3
+                                class="text-sm font-bold text-white tracking-wider font-mono uppercase flex items-center gap-2">
+                                <i class="fa-solid fa-crosshairs text-amber-500"></i>
+                                <span>Acoustic Room Focus Matrix</span>
+                            </h3>
+                            <p class="text-[10px] text-zinc-550 font-mono mt-1">Click anywhere in the room layout to set
+                                the virtual sweet-spot focus point.</p>
+                        </div>
+                        <button id="toggle-calibration"
+                            class="flex items-center gap-2 px-3 py-1 rounded-lg bg-zinc-950 border border-zinc-850 hover:border-zinc-700 text-xs font-mono font-bold uppercase transition-all duration-300 cursor-pointer">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]"
+                                id="calibration-indicator"></span>
+                            <span id="calibration-btn-text" class="text-zinc-300">Active</span>
+                        </button>
+                    </div>
+
+                    <!-- Room Map SVG -->
+                    <div
+                        class="flex-1 flex items-center justify-center min-h-[320px] bg-[#030305] border border-zinc-950 rounded-2xl relative overflow-hidden group">
+                        <!-- Holographic Radar Grid -->
+                        <div
+                            class="absolute inset-0 bg-[radial-gradient(rgba(245,158,11,0.04)_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none">
+                        </div>
+
+                        <svg id="cal-svg" viewBox="0 0 400 400"
+                            class="w-full max-w-[340px] h-auto block select-none cursor-crosshair">
+                            <defs>
+                                <filter id="cal-glow" x="-20%" y="-20%" width="140%" height="140%">
+                                    <feGaussianBlur stdDeviation="4" result="blur" />
+                                    <feMerge>
+                                        <feMergeNode in="blur" />
+                                        <feMergeNode in="SourceGraphic" />
+                                    </feMerge>
+                                </filter>
+                            </defs>
+
+                            <!-- Listening Area Boundaries -->
+                            <rect x="30" y="30" width="340" height="340" rx="20" fill="none"
+                                stroke="rgba(24, 24, 37, 0.6)" stroke-width="1.5" />
+                            <circle cx="200" cy="200" r="140" fill="none" stroke="rgba(24, 24, 37, 0.4)"
+                                stroke-dasharray="6,6" stroke-width="1.2" />
+                            <circle cx="200" cy="200" r="70" fill="none" stroke="rgba(24, 24, 37, 0.3)"
+                                stroke-dasharray="4,4" stroke-width="1" />
+
+                            <!-- Holographic Connection Lines to Speakers -->
+                            <line id="line-towerL" x1="100" y1="80" x2="200" y2="240" stroke="rgba(245, 158, 11, 0.25)"
+                                stroke-width="1" stroke-dasharray="3,3" />
+                            <line id="line-towerR" x1="300" y1="80" x2="200" y2="240" stroke="rgba(245, 158, 11, 0.25)"
+                                stroke-width="1" stroke-dasharray="3,3" />
+                            <line id="line-center" x1="200" y1="60" x2="200" y2="240" stroke="rgba(245, 158, 11, 0.25)"
+                                stroke-width="1" stroke-dasharray="3,3" />
+                            <line id="line-subwoofer" x1="270" y1="60" x2="200" y2="240"
+                                stroke="rgba(245, 158, 11, 0.25)" stroke-width="1" stroke-dasharray="3,3" />
+                            <line id="line-surroundL" x1="70" y1="300" x2="200" y2="240"
+                                stroke="rgba(245, 158, 11, 0.25)" stroke-width="1" stroke-dasharray="3,3" />
+                            <line id="line-surroundR" x1="330" y1="300" x2="200" y2="240"
+                                stroke="rgba(245, 158, 11, 0.25)" stroke-width="1" stroke-dasharray="3,3" />
+
+                            <!-- Speaker Node Symbols -->
+                            <!-- Tower L -->
+                            <circle cx="100" cy="80" r="10" fill="#14141a" stroke="#52525b" stroke-width="1.5" />
+                            <circle cx="100" cy="80" r="3" fill="#f59e0b" />
+                            <text x="100" y="65" text-anchor="middle" font-size="8" fill="#a1a1aa"
+                                font-family="monospace">TWR L</text>
+
+                            <!-- Tower R -->
+                            <circle cx="300" cy="80" r="10" fill="#14141a" stroke="#52525b" stroke-width="1.5" />
+                            <circle cx="300" cy="80" r="3" fill="#f59e0b" />
+                            <text x="300" y="65" text-anchor="middle" font-size="8" fill="#a1a1aa"
+                                font-family="monospace">TWR R</text>
+
+                            <!-- Center -->
+                            <rect x="182" y="52" width="36" height="16" rx="3" fill="#14141a" stroke="#52525b"
+                                stroke-width="1.5" />
+                            <circle cx="200" cy="60" r="3.5" fill="#f59e0b" />
+                            <text x="200" y="44" text-anchor="middle" font-size="8" fill="#a1a1aa"
+                                font-family="monospace">CEN</text>
+
+                            <!-- Subwoofer -->
+                            <rect x="256" y="46" width="28" height="28" rx="4" fill="#14141a" stroke="#52525b"
+                                stroke-width="1.5" />
+                            <circle cx="270" cy="60" r="5" fill="#f59e0b" />
+                            <text x="270" y="38" text-anchor="middle" font-size="8" fill="#a1a1aa"
+                                font-family="monospace">SUB</text>
+
+                            <!-- Surround L -->
+                            <circle cx="70" cy="300" r="10" fill="#14141a" stroke="#52525b" stroke-width="1.5" />
+                            <circle cx="70" cy="300" r="3" fill="#f59e0b" />
+                            <text x="70" y="322" text-anchor="middle" font-size="8" fill="#a1a1aa"
+                                font-family="monospace">SUR L</text>
+
+                            <!-- Surround R -->
+                            <circle cx="330" cy="300" r="10" fill="#14141a" stroke="#52525b" stroke-width="1.5" />
+                            <circle cx="330" cy="300" r="3" fill="#f59e0b" />
+                            <text x="330" y="322" text-anchor="middle" font-size="8" fill="#a1a1aa"
+                                font-family="monospace">SUR R</text>
+
+                            <!-- Listener Couch Position -->
+                            <g transform="translate(170, 222)">
+                                <path d="M 5,25 L 55,25 C 58,25 60,28 60,31 L 60,38 L 0,38 L 0,31 C 0,28 2,25 5,25 Z"
+                                    fill="#181822" stroke="#3f3f46" stroke-width="1" />
+                                <rect x="5" y="10" width="50" height="15" rx="3" fill="#111118" stroke="#3f3f46"
+                                    stroke-width="1" />
+                                <!-- Cushions -->
+                                <rect x="8" y="15" width="20" height="10" rx="1" fill="#0f0f13" />
+                                <rect x="32" y="15" width="20" height="10" rx="1" fill="#0f0f13" />
+                            </g>
+                            <text x="200" y="278" text-anchor="middle" font-size="8" fill="#71717a"
+                                font-family="monospace">LISTENING COUCH</text>
+
+                            <!-- Glowing Focus Point Target (Sweet spot) -->
+                            <g id="grp-focus">
+                                <circle id="focus-glow-circle" cx="200" cy="240" r="16" fill="rgba(245, 158, 11, 0.15)"
+                                    class="animate-ping" style="transform-origin: 200px 240px;" />
+                                <circle id="focus-point" cx="200" cy="240" r="7" fill="#f59e0b" filter="url(#cal-glow)"
+                                    stroke="#ffffff" stroke-width="1.2" />
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sub-View 3: Receiver Console -->
+            <div id="view-receiver"
+                class="hidden flex-col gap-6 min-h-[460px] bg-zinc-950/20 border border-zinc-900 rounded-[32px] p-8 font-mono w-full">
+
+                <!-- AVR Display -->
+                <div
+                    class="bg-black border border-zinc-850 rounded-2xl p-5 flex items-center justify-between shadow-inner">
+                    <div>
+                        <p class="text-[9px] text-zinc-600 uppercase tracking-widest mb-1">Input Source</p>
+                        <p id="avrDisplayInput" class="text-amber-500 text-lg font-bold tracking-wider">HDMI 1 / eARC
+                        </p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[9px] text-zinc-600 uppercase tracking-widest mb-1">Sound Field</p>
+                        <p id="avrDisplayDSP" class="text-blue-400 text-lg font-bold tracking-wider">ATMOS STANDARD</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[9px] text-zinc-600 uppercase tracking-widest mb-1">Volume</p>
+                        <p id="avrDisplayVol" class="text-white text-lg font-bold tracking-wider">85%</p>
+                    </div>
+                </div>
+
+                <!-- Input Source Selection -->
+                <div>
+                    <p class="text-[10px] text-zinc-550 uppercase tracking-widest mb-3">Input Source</p>
+                    <div class="grid grid-cols-4 gap-3">
+                        <button id="btnSrcHdmi1"
+                            class="py-2.5 rounded-xl text-xs font-mono font-bold bg-amber-500 text-black uppercase transition-all">HDMI
+                            1 / eARC</button>
+                        <button id="btnSrcHdmi2"
+                            class="py-2.5 rounded-xl text-xs font-mono font-bold bg-zinc-950 border border-zinc-850 text-zinc-400 hover:text-white uppercase transition-all">HDMI
+                            2 Source</button>
+                        <button id="btnSrcOptical"
+                            class="py-2.5 rounded-xl text-xs font-mono font-bold bg-zinc-950 border border-zinc-850 text-zinc-400 hover:text-white uppercase transition-all">Optical
+                            S/PDIF</button>
+                        <button id="btnSrcBluetooth"
+                            class="py-2.5 rounded-xl text-xs font-mono font-bold bg-zinc-950 border border-zinc-850 text-zinc-400 hover:text-white uppercase transition-all">Bluetooth
+                            5.0</button>
+                    </div>
+                </div>
+
+                <!-- DSP / Sound Field Modes -->
+                <div>
+                    <p class="text-[10px] text-zinc-550 uppercase tracking-widest mb-3">Sound Field / DSP Mode</p>
+                    <div class="grid grid-cols-4 gap-3">
+                        <button id="btnDspAtmos"
+                            class="py-2 rounded-xl text-[10px] font-mono font-bold bg-amber-500 text-black uppercase transition-all">Atmos
+                            Standard</button>
+                        <button id="btnDspCinema"
+                            class="py-2 rounded-xl text-[10px] font-mono font-bold bg-zinc-950 border border-zinc-850 text-zinc-400 hover:text-white uppercase transition-all">Studio
+                            Cinema</button>
+                        <button id="btnDspDirect"
+                            class="py-2 rounded-xl text-[10px] font-mono font-bold bg-zinc-950 border border-zinc-850 text-zinc-400 hover:text-white uppercase transition-all">Pure
+                            Direct</button>
+                        <button id="btnDspGame"
+                            class="py-2 rounded-xl text-[10px] font-mono font-bold bg-zinc-950 border border-zinc-850 text-zinc-400 hover:text-white uppercase transition-all">Game
+                            Pro</button>
+                    </div>
+                </div>
+
+                <!-- DRC / Night Mode -->
+                <div
+                    class="flex items-center justify-between bg-zinc-950/40 border border-zinc-900 rounded-2xl px-5 py-4">
+                    <div>
+                        <p class="text-xs font-bold text-white uppercase tracking-wider">Dynamic Range Compression</p>
+                        <p id="lblDRC" class="text-[9px] text-zinc-550 uppercase tracking-widest mt-1">Night Mode (On)
+                        </p>
+                    </div>
+                    <button id="btnToggleDRC"
+                        class="px-4 py-1.5 rounded-lg bg-emerald-600 text-white font-mono text-[10px] font-bold uppercase transition-all">Active</button>
+                </div>
+
+                <p id="infoHelperText-receiver" class="text-[10px] text-zinc-600 tracking-wide text-center mt-auto">
+                    Receiver Console manages dynamic source profiles, hardware inputs, and ambient soundstage presets.
+                </p>
+            </div>
+
+            <!-- Sub-View 4: Settings -->
+            <div id="view-settings"
+                class="hidden flex-col gap-5 min-h-[460px] bg-zinc-950/20 border border-zinc-900 rounded-[32px] p-8 font-mono w-full">
+
+                <!-- Start with Windows -->
+                <div
+                    class="flex items-center justify-between bg-zinc-950/40 border border-zinc-900 rounded-2xl px-5 py-4">
+                    <div>
+                        <p class="text-xs font-bold text-white uppercase tracking-wider">Launch on Windows Startup</p>
+                        <p class="text-[9px] text-zinc-550 tracking-widest mt-1 uppercase">Runs minimized in the system
+                            tray on login</p>
+                    </div>
+                    <button id="toggle-startup"
+                        class="w-12 h-6 rounded-full bg-zinc-800 border border-zinc-700 relative transition-all flex-shrink-0"
+                        data-active="false">
+                        <span id="toggle-startup-knob"
+                            class="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-zinc-400 transition-all"></span>
+                    </button>
+                </div>
+
+                <!-- Windows Notifications -->
+                <div
+                    class="flex items-center justify-between bg-zinc-950/40 border border-zinc-900 rounded-2xl px-5 py-4">
+                    <div>
+                        <p class="text-xs font-bold text-white uppercase tracking-wider">Windows Notifications</p>
+                        <p class="text-[9px] text-zinc-550 tracking-widest mt-1 uppercase">Push native toast alerts for
+                            mute, profile, and device events</p>
+                    </div>
+                    <button id="toggle-notifications"
+                        class="w-12 h-6 rounded-full bg-amber-500 relative transition-all flex-shrink-0"
+                        data-active="true">
+                        <span id="toggle-notifications-knob"
+                            class="absolute top-0.5 left-6 w-5 h-5 rounded-full bg-black transition-all"></span>
+                    </button>
+                </div>
+
+                <!-- Minimize to tray -->
+                <div
+                    class="flex items-center justify-between bg-zinc-950/40 border border-zinc-900 rounded-2xl px-5 py-4">
+                    <div>
+                        <p class="text-xs font-bold text-white uppercase tracking-wider">Minimize to Tray on Close</p>
+                        <p class="text-[9px] text-zinc-550 tracking-widest mt-1 uppercase">Closing the window hides it
+                            instead of exiting</p>
+                    </div>
+                    <button id="toggle-minimize-tray"
+                        class="w-12 h-6 rounded-full bg-amber-500 relative transition-all flex-shrink-0"
+                        data-active="true">
+                        <span id="toggle-minimize-tray-knob"
+                            class="absolute top-0.5 left-6 w-5 h-5 rounded-full bg-black transition-all"></span>
+                    </button>
+                </div>
+
+                <!-- LFE Crossover -->
+                <div
+                    class="flex items-center justify-between bg-zinc-950/40 border border-zinc-900 rounded-2xl px-5 py-4">
+                    <div>
+                        <p class="text-xs font-bold text-white uppercase tracking-wider">LFE Crossover Frequency</p>
+                        <p class="text-[9px] text-zinc-550 tracking-widest mt-1 uppercase">Current: <span
+                                id="infoCrossoverVal">80 Hz</span></p>
+                    </div>
+                    <select id="set-crossover"
+                        class="bg-zinc-950 border border-zinc-800 text-zinc-300 text-xs font-mono rounded-lg px-3 py-2 uppercase focus:outline-none focus:border-amber-500">
+                        <option value="60">60 Hz</option>
+                        <option value="80" selected>80 Hz</option>
+                        <option value="100">100 Hz</option>
+                        <option value="120">120 Hz</option>
+                        <option value="150">150 Hz</option>
+                    </select>
+                </div>
+
+                <!-- Subwoofer lock info -->
+                <div class="flex items-center gap-3 bg-zinc-950/40 border border-zinc-900 rounded-2xl px-5 py-4">
+                    <i class="fa-solid fa-lock text-amber-500"></i>
+                    <p class="text-[10px] text-zinc-500 tracking-wide">
+                        Subwoofer level is permanently fixed at 100% in this app. Adjust bass output using the
+                        physical remote control that came with your Samsung home theater system.
+                    </p>
+                </div>
+
+                <p class="text-[10px] text-zinc-600 tracking-wide text-center mt-auto">
+                    Studio configuration parameters controls LFE crossovers, latency modes, and accent theme aesthetics.
+                </p>
+            </div>
+
+        </div>
+
+        <script src="app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,5 @@
+# Pyrefly configuration
+# Points to the correct Python interpreter so Pyrefly can resolve installed packages
+
+[python]
+interpreter = "C:/Users/chama/AppData/Local/Python/pythoncore-3.14-64/python.exe"

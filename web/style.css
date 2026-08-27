@@ -1,0 +1,189 @@
+/* Samsung HT-F4B3 Custom Styling overrides */
+/* Tailwinds utility classes are the primary design framework. Add custom classes here if necessary. */
+
+/* --- Speaker Solo / Isolate ("check speakers one by one") --- */
+.speaker-solo-active {
+    filter: drop-shadow(0 0 14px rgba(245, 158, 11, 0.85)) drop-shadow(0 0 28px rgba(245, 158, 11, 0.45));
+    transform: scale(1.06);
+}
+
+.speaker-solo-dimmed {
+    opacity: 0.35;
+    filter: grayscale(0.6);
+}
+
+.speaker-clicked-glow {
+    filter: drop-shadow(0 0 24px rgba(245, 158, 11, 0.95)) drop-shadow(0 0 48px rgba(245, 158, 11, 0.65)) !important;
+    transform: scale(1.04) !important;
+}
+
+.card-solo-active {
+    border-color: rgba(245, 158, 11, 0.7) !important;
+    box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.35), 0 10px 30px rgba(245, 158, 11, 0.08);
+}
+
+/* --- Locked Subwoofer Slider --- */
+.locked-slider-overlay {
+    position: absolute;
+    inset: 0;
+    cursor: not-allowed;
+    z-index: 5;
+}
+
+.locked-slider-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* --- Speaker Glow & Sound Wave Animations --- */
+.speaker-glow-light {
+    width: 120%;
+    height: 120%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.45) 0%, rgba(245, 158, 11, 0.1) 60%, transparent 80%);
+    pointer-events: none;
+    will-change: transform, opacity;
+}
+
+.speaker-waves {
+    overflow: visible;
+}
+
+.speaker-wave-ring {
+    position: absolute;
+    border: 1.5px solid rgba(245, 158, 11, 0.5);
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    transform: scale(0.6);
+    opacity: 0;
+    will-change: transform, opacity;
+}
+
+.speaker-waves .ring-1 {
+    animation: sound-wave-expand 2.4s infinite cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.speaker-waves .ring-2 {
+    animation: sound-wave-expand 2.4s infinite cubic-bezier(0.25, 0.8, 0.25, 1);
+    animation-delay: 0.8s;
+}
+.speaker-waves .ring-3 {
+    animation: sound-wave-expand 2.4s infinite cubic-bezier(0.25, 0.8, 0.25, 1);
+    animation-delay: 1.6s;
+}
+
+@keyframes sound-wave-expand {
+    0% {
+        transform: scale(0.7);
+        opacity: 0.8;
+    }
+    50% {
+        opacity: 0.45;
+    }
+    100% {
+        transform: scale(1.7);
+        opacity: 0;
+    }
+}
+
+/* --- Room Calibration Bypass Styles --- */
+.calibration-dimmed {
+    opacity: 0.25;
+    pointer-events: none;
+    filter: grayscale(0.7);
+    transition: all 0.4s ease;
+}
+
+.calibration-active-transition {
+    transition: all 0.4s ease;
+}
+
+/* --- Symmetrical Preset Button Active States --- */
+.preset-btn.active-Movie {
+    border-color: #3b82f6 !important;
+    color: #ffffff !important;
+    background-color: rgba(59, 130, 246, 0.25) !important;
+    box-shadow: 0 0 18px rgba(59, 130, 246, 0.4), inset 0 0 8px rgba(59, 130, 246, 0.3) !important;
+    text-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+}
+.preset-btn.active-Music {
+    border-color: #10b981 !important;
+    color: #ffffff !important;
+    background-color: rgba(16, 185, 129, 0.25) !important;
+    box-shadow: 0 0 18px rgba(16, 185, 129, 0.4), inset 0 0 8px rgba(16, 185, 129, 0.3) !important;
+    text-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
+}
+.preset-btn.active-Game {
+    border-color: #a855f7 !important;
+    color: #ffffff !important;
+    background-color: rgba(168, 85, 247, 0.25) !important;
+    box-shadow: 0 0 18px rgba(168, 85, 247, 0.4), inset 0 0 8px rgba(168, 85, 247, 0.3) !important;
+    text-shadow: 0 0 5px rgba(168, 85, 247, 0.5);
+}
+.preset-btn.active-Night {
+    border-color: #f59e0b !important;
+    color: #ffffff !important;
+    background-color: rgba(245, 158, 11, 0.25) !important;
+    box-shadow: 0 0 18px rgba(245, 158, 11, 0.4), inset 0 0 8px rgba(245, 158, 11, 0.3) !important;
+    text-shadow: 0 0 5px rgba(245, 158, 11, 0.5);
+}
+.preset-btn.active-Concert {
+    border-color: #ec4899 !important;
+    color: #ffffff !important;
+    background-color: rgba(236, 72, 153, 0.25) !important;
+    box-shadow: 0 0 18px rgba(236, 72, 153, 0.4), inset 0 0 8px rgba(236, 72, 153, 0.3) !important;
+    text-shadow: 0 0 5px rgba(236, 72, 153, 0.5);
+}
+.preset-btn.active-Vocal {
+    border-color: #14b8a6 !important;
+    color: #ffffff !important;
+    background-color: rgba(20, 184, 166, 0.25) !important;
+    box-shadow: 0 0 18px rgba(20, 184, 166, 0.4), inset 0 0 8px rgba(20, 184, 166, 0.3) !important;
+    text-shadow: 0 0 5px rgba(20, 184, 166, 0.5);
+}
+.preset-btn.active-Sports {
+    border-color: #eab308 !important;
+    color: #ffffff !important;
+    background-color: rgba(234, 179, 8, 0.25) !important;
+    box-shadow: 0 0 18px rgba(234, 179, 8, 0.4), inset 0 0 8px rgba(234, 179, 8, 0.3) !important;
+    text-shadow: 0 0 5px rgba(234, 179, 8, 0.5);
+}
+.preset-btn.active-Club {
+    border-color: #f43f5e !important;
+    color: #ffffff !important;
+    background-color: rgba(244, 63, 94, 0.25) !important;
+    box-shadow: 0 0 18px rgba(244, 63, 94, 0.4), inset 0 0 8px rgba(244, 63, 94, 0.3) !important;
+    text-shadow: 0 0 5px rgba(244, 63, 94, 0.5);
+}
+.preset-btn.active-User {
+    border-color: #0ea5e9 !important;
+    color: #ffffff !important;
+    background-color: rgba(14, 165, 233, 0.25) !important;
+    box-shadow: 0 0 18px rgba(14, 165, 233, 0.4), inset 0 0 8px rgba(14, 165, 233, 0.3) !important;
+    text-shadow: 0 0 5px rgba(14, 165, 233, 0.5);
+}
+
+/* --- Mini Media Player Styles --- */
+@keyframes spin-record {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin-slow {
+    animation: spin-record 12s linear infinite;
+}
+
+.paused-animation {
+    animation-play-state: paused !important;
+}
+
+.player-progress-bar {
+    transition: width 0.15s linear;
+}
+

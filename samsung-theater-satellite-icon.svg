@@ -1,0 +1,34 @@
+<svg viewBox="0 0 100 130" width="100" height="130" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="mesh-pattern" width="4" height="4" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1" fill="#3f3f46" />
+    </pattern>
+    <filter id="audio-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="5.4" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <!-- 3D Base Edge Extrusion / Feet -->
+  <path d="M 12,109 L 20,115 L 80,115 L 88,109 L 88,112 L 80,118 L 20,118 L 12,112 Z" fill="#040405" stroke="#52525b" stroke-width="2" />
+  <!-- Left Side Panel -->
+  <path d="M 20,40 L 12,34 L 12,109 L 20,115 Z" fill="rgba(20,20,25,0.95)" stroke="#52525b" stroke-width="2" />
+  <!-- Right Side Panel -->
+  <path d="M 80,40 L 88,34 L 88,109 L 80,115 Z" fill="rgba(20,20,25,0.95)" stroke="#52525b" stroke-width="2" />
+  <!-- Front Cabinet Face -->
+  <rect x="20" y="40" width="60" height="75" fill="#0c0c10" stroke="#52525b" stroke-width="2" />
+  <!-- Front Mesh Grille -->
+  <rect x="22" y="42" width="56" height="71" rx="1" fill="url(#mesh-pattern)" stroke="#52525b" stroke-width="1.4" />
+  <!-- Single driver behind mesh -->
+  <circle cx="50" cy="65" r="20" fill="rgba(10,10,12,0.95)" stroke="rgba(255,255,255,0.15)" stroke-width="1" />
+  <circle cx="50" cy="65" r="11" fill="none" stroke="#f59e0b" stroke-width="1.8" filter="url(#audio-glow)" />
+  <!-- Bass Reflex Port -->
+  <rect x="30" y="93" width="40" height="12" rx="4" fill="#020204" stroke="rgba(255,255,255,0.15)" stroke-width="0.8" />
+  <rect x="32" y="95" width="36" height="8" rx="2.5" fill="#000000" />
+  <!-- Top Slanted Face -->
+  <path d="M 20,40 L 80,40 L 88,34 L 68,18 L 32,18 L 12,34 Z" fill="rgba(25,25,30,0.95)" stroke="#52525b" stroke-width="2" />
+  <!-- brand text -->
+  <text x="50" y="31" text-anchor="middle" font-size="5" font-family="monospace" fill="#ffffff" font-weight="bold" letter-spacing="0.8">SAMSUNG</text>
+</svg>

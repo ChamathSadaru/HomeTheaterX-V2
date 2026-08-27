@@ -1,0 +1,19 @@
+# Core (existing)
+pywebview>=4.4
+pycaw>=20230407
+comtypes>=1.2.0
+sounddevice>=0.4.6
+numpy>=1.24
+pystray>=0.19.5
+Pillow>=10.0
+
+# New: native Windows toast notifications (Action Center)
+# winotify is the primary backend used by notifier.py; win11toast/plyer
+# are optional extra fallbacks (only one of the three is required).
+winotify>=1.1.0
+# win11toast>=0.34   # optional richer-toast fallback
+# plyer>=2.1.0       # optional cross-platform fallback
+
+# --- Legacy (only required if you still run sound_balance_app.py,
+#     the older CustomTkinter desktop UI that predates the web/pywebview UI) ---
+customtkinter>=5.2.0

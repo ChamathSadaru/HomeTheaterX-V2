@@ -1,0 +1,33 @@
+{
+  "notifications_enabled": true,
+  "launch_on_startup": false,
+  "last_device": "Samsung Home Theater 5.1 (HD Audio Driver for Display Audio)",
+  "crossover_hz": 80,
+  "minimize_to_tray_on_close": true,
+  "calibration_enabled": false,
+  "calibration_focus_x": 197.64705882352942,
+  "calibration_focus_y": 238.8235294117647,
+  "calibration_delays": {
+    "towerL": 68,
+    "towerR": 69,
+    "center": 65,
+    "subwoofer": 70,
+    "surroundL": 52,
+    "surroundR": 53
+  },
+  "calibration_eq": {
+    "bass": 2.0,
+    "mid": 0.0,
+    "treble": 1.5
+  },
+  "active_profile": "User",
+  "user_preset_channels": {
+    "surroundL": 100,
+    "towerL": 100,
+    "subwoofer": 100,
+    "center": 100,
+    "towerR": 100,
+    "surroundR": 100
+  },
+  "user_preset_master": 100
+}
