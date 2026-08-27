@@ -17,10 +17,7 @@
     transform: scale(1.04) !important;
 }
 
-.card-solo-active {
-    border-color: rgba(245, 158, 11, 0.7) !important;
-    box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.35), 0 10px 30px rgba(245, 158, 11, 0.08);
-}
+
 
 /* --- Locked Subwoofer Slider --- */
 .locked-slider-overlay {
@@ -46,47 +43,7 @@
     will-change: transform, opacity;
 }
 
-.speaker-waves {
-    overflow: visible;
-}
 
-.speaker-wave-ring {
-    position: absolute;
-    border: 1.5px solid rgba(245, 158, 11, 0.5);
-    border-radius: 50%;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    transform: scale(0.6);
-    opacity: 0;
-    will-change: transform, opacity;
-}
-
-.speaker-waves .ring-1 {
-    animation: sound-wave-expand 2.4s infinite cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-.speaker-waves .ring-2 {
-    animation: sound-wave-expand 2.4s infinite cubic-bezier(0.25, 0.8, 0.25, 1);
-    animation-delay: 0.8s;
-}
-.speaker-waves .ring-3 {
-    animation: sound-wave-expand 2.4s infinite cubic-bezier(0.25, 0.8, 0.25, 1);
-    animation-delay: 1.6s;
-}
-
-@keyframes sound-wave-expand {
-    0% {
-        transform: scale(0.7);
-        opacity: 0.8;
-    }
-    50% {
-        opacity: 0.45;
-    }
-    100% {
-        transform: scale(1.7);
-        opacity: 0;
-    }
-}
 
 /* --- Room Calibration Bypass Styles --- */
 .calibration-dimmed {
@@ -108,6 +65,7 @@
     box-shadow: 0 0 18px rgba(59, 130, 246, 0.4), inset 0 0 8px rgba(59, 130, 246, 0.3) !important;
     text-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
 }
+
 .preset-btn.active-Music {
     border-color: #10b981 !important;
     color: #ffffff !important;
@@ -115,6 +73,7 @@
     box-shadow: 0 0 18px rgba(16, 185, 129, 0.4), inset 0 0 8px rgba(16, 185, 129, 0.3) !important;
     text-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
 }
+
 .preset-btn.active-Game {
     border-color: #a855f7 !important;
     color: #ffffff !important;
@@ -122,6 +81,7 @@
     box-shadow: 0 0 18px rgba(168, 85, 247, 0.4), inset 0 0 8px rgba(168, 85, 247, 0.3) !important;
     text-shadow: 0 0 5px rgba(168, 85, 247, 0.5);
 }
+
 .preset-btn.active-Night {
     border-color: #f59e0b !important;
     color: #ffffff !important;
@@ -129,6 +89,7 @@
     box-shadow: 0 0 18px rgba(245, 158, 11, 0.4), inset 0 0 8px rgba(245, 158, 11, 0.3) !important;
     text-shadow: 0 0 5px rgba(245, 158, 11, 0.5);
 }
+
 .preset-btn.active-Concert {
     border-color: #ec4899 !important;
     color: #ffffff !important;
@@ -136,6 +97,7 @@
     box-shadow: 0 0 18px rgba(236, 72, 153, 0.4), inset 0 0 8px rgba(236, 72, 153, 0.3) !important;
     text-shadow: 0 0 5px rgba(236, 72, 153, 0.5);
 }
+
 .preset-btn.active-Vocal {
     border-color: #14b8a6 !important;
     color: #ffffff !important;
@@ -143,6 +105,7 @@
     box-shadow: 0 0 18px rgba(20, 184, 166, 0.4), inset 0 0 8px rgba(20, 184, 166, 0.3) !important;
     text-shadow: 0 0 5px rgba(20, 184, 166, 0.5);
 }
+
 .preset-btn.active-Sports {
     border-color: #eab308 !important;
     color: #ffffff !important;
@@ -150,6 +113,7 @@
     box-shadow: 0 0 18px rgba(234, 179, 8, 0.4), inset 0 0 8px rgba(234, 179, 8, 0.3) !important;
     text-shadow: 0 0 5px rgba(234, 179, 8, 0.5);
 }
+
 .preset-btn.active-Club {
     border-color: #f43f5e !important;
     color: #ffffff !important;
@@ -157,6 +121,7 @@
     box-shadow: 0 0 18px rgba(244, 63, 94, 0.4), inset 0 0 8px rgba(244, 63, 94, 0.3) !important;
     text-shadow: 0 0 5px rgba(244, 63, 94, 0.5);
 }
+
 .preset-btn.active-User {
     border-color: #0ea5e9 !important;
     color: #ffffff !important;
@@ -170,6 +135,7 @@
     from {
         transform: rotate(0deg);
     }
+
     to {
         transform: rotate(360deg);
     }
@@ -187,3 +153,273 @@
     transition: width 0.15s linear;
 }
 
+/* --- 8D Active Rotating State --- */
+.eightd-active {
+    border-color: rgba(245, 158, 11, 0.8) !important;
+    color: #f59e0b !important;
+    background-color: rgba(245, 158, 11, 0.1) !important;
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.35) !important;
+    transform: scale(1.05);
+}
+
+.eightd-active span {
+    animation: rotate-8d-text 4s linear infinite;
+    display: inline-block;
+}
+
+@keyframes rotate-8d-text {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+#ddl-btn {
+    position: relative;
+    overflow: hidden;
+}
+
+#ddl-btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent 35%, rgba(255, 255, 255, 0.22) 50%, transparent 65%);
+    pointer-events: none;
+}
+
+.ddl-active {
+    color: #f59e0b !important;
+    background-color: rgba(245, 158, 11, 0.1) !important;
+    border-color: rgba(245, 158, 11, 0.6) !important;
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.25) !important;
+    transform: scale(1.03);
+}
+
+.ddl-active::after {
+    animation: ddl-shimmer 3.5s infinite ease-in-out;
+}
+
+@keyframes ddl-shimmer {
+    0% {
+        left: -150%;
+    }
+
+    24% {
+        left: 150%;
+    }
+
+    100% {
+        left: 150%;
+    }
+}
+
+body {
+    opacity: 0;
+    transition: opacity 0.25s ease-in-out;
+}
+
+.eightd-mode-active .fader-card {
+    position: relative;
+    pointer-events: none;
+}
+
+.eightd-mode-active .fader-card::before {
+    content: '8D ACTIVE';
+    position: absolute;
+    inset: 0;
+    background-color: rgba(9, 9, 13, 0.55);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    border-radius: 1rem;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #f59e0b;
+    font-size: 8px;
+    font-weight: 900;
+    font-family: monospace;
+    letter-spacing: 0.15em;
+    backdrop-filter: blur(0.5px);
+    box-shadow: inset 0 0 10px rgba(245, 158, 11, 0.08);
+    animation: pulse-8d-badge 2.5s infinite ease-in-out;
+}
+
+/* Linear fader transition overrides for fluid 8D sweeps */
+.eightd-mode-active [id^="track-"],
+.eightd-mode-active [id^="thumb-"] {
+    transition: width 0.08s linear, left 0.08s linear !important;
+}
+
+@keyframes pulse-8d-badge {
+
+    0%,
+    100% {
+        border-color: rgba(245, 158, 11, 0.2);
+        color: rgba(245, 158, 11, 0.6);
+        box-shadow: inset 0 0 10px rgba(245, 158, 11, 0.05);
+    }
+
+    50% {
+        border-color: rgba(245, 158, 11, 0.55);
+        color: rgba(245, 158, 11, 0.95);
+        box-shadow: inset 0 0 15px rgba(245, 158, 11, 0.15);
+    }
+}
+
+/* --- Widget Mode Overrides --- */
+html.widget-mode,
+body.widget-mode {
+    background: #050508 !important;
+    background-color: #050508 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+}
+
+body.widget-mode > div.relative {
+    background: #050508 !important;
+    background-color: #050508 !important;
+    padding: 0 !important;
+    gap: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+body.widget-mode > div.relative > *:not(#page-studio) {
+    display: none !important;
+}
+
+body.widget-mode #page-studio {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    gap: 0 !important;
+}
+
+body.widget-mode #view-mixer {
+    display: flex !important;
+    width: 100% !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+body.widget-mode .speaker-deck-stage {
+    background: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 0 10px 0 !important;
+    min-height: auto !important;
+}
+
+body.widget-mode .speaker-deck-stage > div.absolute.top-4.right-4,
+body.widget-mode .speaker-deck-stage > div.absolute.top-6.left-6,
+body.widget-mode .speaker-deck-stage > div.pointer-events-none,
+body.widget-mode .speaker-deck-stage > div.mt-4 {
+    display: none !important;
+}
+
+body.widget-mode .speaker-deck-stage div.grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    gap: 0.5rem !important;
+    align-items: center !important;
+    width: 100% !important;
+}
+
+body.widget-mode .speaker-deck-stage div.grid > div:last-child {
+    display: none !important;
+}
+
+body.widget-mode .fader-card,
+body.widget-mode div[id^="card-"] > div.font-mono {
+    display: none !important;
+}
+
+body.widget-mode div[id^="card-"] {
+    gap: 0 !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+body.widget-mode div[id^="speaker-wrapper-"] {
+    transform: scale(0.85) !important;
+    margin: 0 auto !important;
+}
+
+body.widget-mode #view-receiver {
+    display: flex !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    justify-content: center !important;
+}
+
+body.widget-mode #infoHelperText-receiver {
+    display: none !important;
+}
+
+body.widget-mode #receiver-console-deck {
+    border-radius: 1rem !important;
+    margin: 0 !important;
+}
+
+/* Room Calibration Bypassed/OFF state styling */
+.calibration-dimmed {
+    opacity: 0.35;
+    pointer-events: none !important;
+    user-select: none;
+    filter: grayscale(1);
+    transition: all 0.3s ease;
+}
+
+/* Room Calibration Animated Audio Flow Waves */
+.cal-flow-line {
+    stroke-dasharray: 6, 6;
+    animation: cal-dash-flow 1.2s linear infinite;
+    stroke: rgba(245, 158, 11, 0.45);
+    stroke-width: 1.2;
+}
+
+@keyframes cal-dash-flow {
+    to {
+        stroke-dashoffset: -24;
+    }
+}
+
+/* Pulse animation for speaker cones in room calibration matrix */
+.speaker-pulse {
+    animation: speaker-pulse-anim 2s infinite ease-in-out;
+}
+
+@keyframes speaker-pulse-anim {
+    0%, 100% {
+        opacity: 0.7;
+    }
+    50% {
+        opacity: 1;
+    }
+}

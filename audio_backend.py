@@ -1,8 +1,8 @@
 import os
+import time
+import threading
 from ctypes import cast, POINTER
 from comtypes import CLSCTX_ALL, CoInitialize
-import numpy as np
-import sounddevice as sd
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume, IAudioMeterInformation
 
 def safe_coinit():
@@ -22,6 +22,10 @@ class AudioBackend:
         self.solo_active = False
         self.solo_channel = None
         self.solo_snapshot = {}
+        # Smooth volume ramping state
+        # key: int (channel idx) or 'master' -> threading.Event that signals stop
+        self._ramp_events = {}
+        self._ramp_lock = threading.Lock()
 
     def refresh_devices(self):
         """Fetches active audio OUTPUT devices from Pycaw (state == Active), falling back to sounddevice if empty."""
@@ -196,6 +200,86 @@ class AudioBackend:
             print(f"Error setting master volume: {e}")
             return False
 
+    # ------------------------------------------------------------------
+    # Smooth Volume Ramping
+    # ------------------------------------------------------------------
+    def _ramp_scalar(self, key, get_fn, set_fn, target_scalar, steps=12, duration_ms=200):
+        """
+        Smoothly interpolates from the current hardware value to target_scalar
+        over duration_ms milliseconds (split into `steps` equal steps).
+        Runs entirely on a daemon background thread — never blocks the caller.
+        If a ramp is already running for the same `key`, it is cancelled first.
+
+        key     : int = channel index, 'master' = master volume.
+        get_fn  : callable() -> current hardware scalar (0.0-1.0)
+        set_fn  : callable(scalar) -> writes value to hardware
+        """
+        with self._ramp_lock:
+            prev = self._ramp_events.get(key)
+            if prev:
+                prev.set()              # cancel any in-progress ramp for this key
+            stop_evt = threading.Event()
+            self._ramp_events[key] = stop_evt
+
+        def _worker():
+            try:
+                safe_coinit()
+                current = get_fn()
+                step_delay = (duration_ms / 1000.0) / steps
+                for i in range(1, steps + 1):
+                    if stop_evt.is_set():
+                        break
+                    interp = current + (target_scalar - current) * (i / steps)
+                    try:
+                        set_fn(interp)
+                    except Exception as hw_err:
+                        print(f"[ramp] hw error (key={key}): {hw_err}")
+                        break
+                    time.sleep(step_delay)
+            except Exception as e:
+                print(f"[ramp] worker error (key={key}): {e}")
+            finally:
+                with self._ramp_lock:
+                    if self._ramp_events.get(key) is stop_evt:
+                        del self._ramp_events[key]
+
+        threading.Thread(target=_worker, daemon=True).start()
+
+    def ramp_channel_volume(self, idx, val, duration_ms=200, steps=12):
+        """Smoothly fades channel `idx` to `val`% over `duration_ms` ms.
+        Non-blocking — returns immediately; the fade runs on a background thread.
+        A new call for the same channel cancels any ramp already in progress.
+        """
+        if not self.volume_interface:
+            return
+        if self.is_channel_locked(idx):
+            val = 100
+        target = val / 100.0
+        self._ramp_scalar(
+            key=idx,
+            get_fn=lambda: self.volume_interface.GetChannelVolumeLevelScalar(idx),
+            set_fn=lambda s: self.volume_interface.SetChannelVolumeLevelScalar(idx, s, None),
+            target_scalar=target,
+            steps=steps,
+            duration_ms=duration_ms,
+        )
+
+    def ramp_master_volume(self, val, duration_ms=200, steps=12):
+        """Smoothly fades master volume to `val`% over `duration_ms` ms.
+        Non-blocking — returns immediately; the fade runs on a background thread.
+        """
+        if not self.volume_interface:
+            return
+        target = val / 100.0
+        self._ramp_scalar(
+            key='master',
+            get_fn=lambda: self.volume_interface.GetMasterVolumeLevelScalar(),
+            set_fn=lambda s: self.volume_interface.SetMasterVolumeLevelScalar(s, None),
+            target_scalar=target,
+            steps=steps,
+            duration_ms=duration_ms,
+        )
+
     def get_channel_volumes(self):
         """Gets volumes for each channel as percentages (0 to 100)."""
         safe_coinit()
@@ -250,14 +334,20 @@ class AudioBackend:
             print(f"Error toggling mute: {e}")
             return False
 
-    def reset_balance(self):
-        """Resets all channel volumes to 1.0 (100%)."""
+    def reset_balance(self, smooth=True, duration_ms=250):
+        """Resets all channel volumes to 100%.
+        smooth=True  (default) → smooth ramp over duration_ms, non-blocking.
+        smooth=False → instant COM write (for internal/programmatic use).
+        """
         safe_coinit()
         if not self.volume_interface:
             return False
         try:
             for i in range(self.channel_count):
-                self.volume_interface.SetChannelVolumeLevelScalar(i, 1.0, None)
+                if smooth:
+                    self.ramp_channel_volume(i, 100, duration_ms=duration_ms, steps=12)
+                else:
+                    self.volume_interface.SetChannelVolumeLevelScalar(i, 1.0, None)
             return True
         except Exception as e:
             print(f"Error resetting balance: {e}")
@@ -294,8 +384,9 @@ class AudioBackend:
             for i in range(self.channel_count):
                 if self.is_channel_locked(i):
                     continue  # subwoofer always stays at its locked 100%
-                target = 1.0 if i == idx else 0.0
-                self.volume_interface.SetChannelVolumeLevelScalar(i, target, None)
+                target_pct = 100 if i == idx else 0
+                # Smooth 150ms ramp — eliminates the "thump" from instant 0/100% jumps
+                self.ramp_channel_volume(i, target_pct, duration_ms=150, steps=10)
             return True
         except Exception as e:
             print(f"Error starting solo on channel {idx}: {e}")
@@ -310,10 +401,12 @@ class AudioBackend:
             self.solo_snapshot = {}
             return False
         try:
-            for i, val in self.solo_snapshot.items():
+            for i, saved_scalar in self.solo_snapshot.items():
                 if self.is_channel_locked(i):
                     continue
-                self.volume_interface.SetChannelVolumeLevelScalar(i, val, None)
+                target_pct = int(round(saved_scalar * 100))
+                # Smooth 200ms fade back to the original pre-solo levels
+                self.ramp_channel_volume(i, target_pct, duration_ms=200, steps=12)
             return True
         except Exception as e:
             print(f"Error restoring channels after solo: {e}")
@@ -326,107 +419,20 @@ class AudioBackend:
     def get_solo_status(self):
         return {"active": self.solo_active, "channel": self.solo_channel}
 
-    def get_sounddevice_index(self, friendly_name):
-        """Finds matching output device index in sounddevice using substrings."""
-        try:
-            devices = sd.query_devices()
-            clean_name = friendly_name.lower().split('(')[0].strip()
-            
-            # Exact match
-            for idx, dev in enumerate(devices):
-                if dev['max_output_channels'] > 0:
-                    if dev['name'] == friendly_name:
-                        return idx
-            
-            # Substring match
-            for idx, dev in enumerate(devices):
-                if dev['max_output_channels'] > 0:
-                    dev_name_clean = dev['name'].lower().split('(')[0].strip()
-                    if clean_name in dev_name_clean or dev_name_clean in clean_name:
-                        return idx
-                        
-            default_out = sd.default.device[1]
-            return default_out if default_out is not None else 0
-        except Exception as e:
-            print(f"Error finding sounddevice index: {e}")
-            try:
-                return sd.default.device[1]
-            except Exception:
-                return 0
-
     def play_channel_test(self, channel_idx):
-        """Generates a 0.8s 440Hz test sine wave with 100ms fadeout, playing it only on target channel."""
-        if not self.current_device_name:
-            return
-        # Run in a daemon thread so the HTTP handler is not blocked
-        import threading
-        t = threading.Thread(target=self._play_channel_test_sync, args=(channel_idx,), daemon=True)
-        t.start()
-
-    def _play_channel_test_sync(self, channel_idx):
-        """Synchronous tone playback (run on a background thread)."""
-        try:
-            sd_idx = self.get_sounddevice_index(self.current_device_name)
-
-            duration = 0.8
-            sample_rate = 44100
-
-            if channel_idx == 3: # Subwoofer (Bass / LFE)
-                frequency = 60.0
-                t = np.linspace(0, duration, int(sample_rate * duration), False)
-                
-                # Generate a "dum dum" double-pulsed bass envelope
-                envelope = np.zeros(len(t))
-                p1_end = int(sample_rate * 0.35)
-                t1 = t[:p1_end]
-                envelope[:p1_end] = np.sin(np.pi * (t1 / 0.35)) ** 2
-                
-                p2_start = int(sample_rate * 0.4)
-                p2_end = int(sample_rate * 0.75)
-                t2 = t[p2_start:p2_end]
-                envelope[p2_start:p2_end] = np.sin(np.pi * ((t2 - 0.4) / 0.35)) ** 2
-                
-                tone = np.sin(2 * np.pi * frequency * t) * 0.65 * envelope
-            else:
-                frequency = 440.0
-                t = np.linspace(0, duration, int(sample_rate * duration), False)
-                tone = np.sin(2 * np.pi * frequency * t) * 0.4
-                # Fade out last 100ms to prevent clicking pops
-                fade_len = int(sample_rate * 0.1)
-                fade_out = np.linspace(1.0, 0.0, fade_len)
-                tone[-fade_len:] *= fade_out
-
-            # Create channel layout mapping
-            data = np.zeros((len(tone), self.channel_count))
-            if channel_idx < self.channel_count:
-                data[:, channel_idx] = tone
-
-            sd.play(data, sample_rate, device=sd_idx)
-            sd.wait()  # Wait inside the thread so tones don't overlap
-        except Exception as e:
-            print(f"Error playing test tone: {e}")
+        """Requests tone generator service to play a short test tone on specific channel."""
+        from services.tone_generator import play_channel_test
+        play_channel_test(channel_idx, self.channel_count, self.current_device_name)
 
     def get_profile_values(self, profile):
-        """Returns dict of preset values based on layout and profile."""
-        # Always return the full 5.1 (6 channel) profile layout,
-        # which the web server will scale down to hardware channel limits
-        if profile == "Movie":
-            return {"channels": {0: 85, 1: 85, 2: 100, 3: 100, 4: 80, 5: 80}, "master": None}
-        elif profile == "Music":
-            return {"channels": {0: 100, 1: 100, 2: 70, 3: 100, 4: 80, 5: 80}, "master": None}
-        elif profile == "Game":
-            return {"channels": {0: 90, 1: 90, 2: 85, 3: 100, 4: 95, 5: 95}, "master": None}
-        elif profile == "Night":
-            return {"channels": {0: 75, 1: 75, 2: 95, 3: 100, 4: 70, 5: 70}, "master": 30}
-        elif profile == "Concert":
-            return {"channels": {0: 100, 1: 100, 2: 80, 3: 95, 4: 75, 5: 75}, "master": None}
-        elif profile == "Vocal":
-            return {"channels": {0: 60, 1: 60, 2: 100, 3: 50, 4: 40, 5: 40}, "master": None}
-        elif profile == "Sports":
-            return {"channels": {0: 80, 1: 80, 2: 100, 3: 85, 4: 90, 5: 90}, "master": None}
-        elif profile == "Club":
-            return {"channels": {0: 90, 1: 90, 2: 80, 3: 100, 4: 85, 5: 85}, "master": None}
-        return {"channels": {}, "master": None}
+        """Returns dict of preset values based on layout and profile, loaded from config manager."""
+        import config_manager
+        profiles = config_manager.get("sound_profiles", {})
+        raw_profile = profiles.get(profile, {"channels": {}, "master": None})
+        
+        # Convert channel keys from string to int
+        channels = {int(k): v for k, v in raw_profile.get("channels", {}).items()}
+        return {"channels": channels, "master": raw_profile.get("master")}
 
     def get_audio_peak(self):
         """Returns the real-time master peak audio level from Windows output (0.0 to 1.0)."""

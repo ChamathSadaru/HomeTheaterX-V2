@@ -6,19 +6,34 @@
   "minimize_to_tray_on_close": true,
   "calibration_enabled": false,
   "calibration_focus_x": 197.64705882352942,
-  "calibration_focus_y": 238.8235294117647,
+  "calibration_focus_y": 239.41176470588235,
   "calibration_delays": {
-    "towerL": 68,
-    "towerR": 69,
-    "center": 65,
-    "subwoofer": 70,
-    "surroundL": 52,
-    "surroundR": 53
+    "towerL": 0,
+    "towerR": 0,
+    "center": 0,
+    "subwoofer": 0,
+    "surroundL": 0,
+    "surroundR": 0
+  },
+  "calibration_gains": {
+    "towerL": -2.4,
+    "towerR": -2.5,
+    "center": -2.0,
+    "subwoofer": -2.7,
+    "surroundL": -0.0,
+    "surroundR": -0.2
   },
   "calibration_eq": {
     "bass": 2.0,
     "mid": 0.0,
     "treble": 1.5
+  },
+  "calibration_mode": "steering",
+  "active_preset": null,
+  "preset_prev_state": {
+    "ddl": false,
+    "eightd": false,
+    "calibration": false
   },
   "active_profile": "User",
   "user_preset_channels": {
@@ -29,5 +44,96 @@
     "towerR": 100,
     "surroundR": 100
   },
-  "user_preset_master": 100
+  "user_preset_master": 100,
+  "access_token": "SamsungAudioscapeSecureToken7777",
+  "sound_profiles": {
+    "Movie": {
+      "channels": {
+        "0": 85,
+        "1": 85,
+        "2": 100,
+        "3": 100,
+        "4": 80,
+        "5": 80
+      },
+      "master": null
+    },
+    "Music": {
+      "channels": {
+        "0": 100,
+        "1": 100,
+        "2": 70,
+        "3": 100,
+        "4": 80,
+        "5": 80
+      },
+      "master": null
+    },
+    "Game": {
+      "channels": {
+        "0": 90,
+        "1": 90,
+        "2": 85,
+        "3": 100,
+        "4": 95,
+        "5": 95
+      },
+      "master": null
+    },
+    "Night": {
+      "channels": {
+        "0": 75,
+        "1": 75,
+        "2": 95,
+        "3": 100,
+        "4": 70,
+        "5": 70
+      },
+      "master": 30
+    },
+    "Concert": {
+      "channels": {
+        "0": 100,
+        "1": 100,
+        "2": 80,
+        "3": 95,
+        "4": 75,
+        "5": 75
+      },
+      "master": null
+    },
+    "Vocal": {
+      "channels": {
+        "0": 60,
+        "1": 60,
+        "2": 100,
+        "3": 50,
+        "4": 40,
+        "5": 40
+      },
+      "master": null
+    },
+    "Sports": {
+      "channels": {
+        "0": 80,
+        "1": 80,
+        "2": 100,
+        "3": 85,
+        "4": 90,
+        "5": 90
+      },
+      "master": null
+    },
+    "Club": {
+      "channels": {
+        "0": 90,
+        "1": 90,
+        "2": 80,
+        "3": 100,
+        "4": 85,
+        "5": 85
+      },
+      "master": null
+    }
+  }
 }

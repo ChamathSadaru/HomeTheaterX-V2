@@ -1,0 +1,8 @@
+If: inputChannelCount == 2
+# LFE (Sub) එකට Left සහ Right දෙකේම සද්දේ එකතු කරලා Copy කරනවා
+Copy: LFE=L+R
+# LFE චැනල් එකට විතරක් Low Pass Filter එකක් දාලා Bass ටික විතරක් ඉතුරු කරනවා (288Hz උඹේ කලින් Code එකේ තිබ්බ හින්දා ඒකම දැම්මා, සාමාන්‍යයෙන් 80Hz-120Hz වගේත් දානවා)
+Channel: LFE
+Filter: ON LPQ Fc 288.88 Hz Q 0.8
+EndIf:
+Preamp: -1.2 dB

@@ -1,0 +1,9 @@
+Device:       Samsung Home Theater 5.1 HD Audio Driver for Display Audio {c570f1f4-9cdc-4c7a-9230-e67f129181b2}
+Filter: ON LPQ Fc 20800 Hz Q 0.8
+Preamp: -1.2 dB
+# Include: upmixer.txt
+# Include: BassManagement.txt
+# Include: 8D.txt
+# Include: UpmixForRoomCalibration.txt
+# Include: RoomCalibration.txt
+# Include: RoomShaker.txt

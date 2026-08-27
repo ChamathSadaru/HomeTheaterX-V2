@@ -43,7 +43,7 @@ def _rate_limited(key):
 def _send_winotify(title, message):
     from winotify import Notification
     toast = Notification(
-        app_id="Samsung HT-F4B3 Audioscape",
+        app_id="HomeTheaterX",
         title=title,
         msg=message,
         icon=_ICON_PATH if os.path.exists(_ICON_PATH) else ""

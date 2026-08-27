@@ -1,0 +1,15 @@
+Preamp: -4.0 dB
+
+If: inputChannelCount == 2
+    Copy: L=L R=R C=L RL=L RR=R LFE=L+R
+    Channel: LFE
+    Filter: ON LPQ Fc 120 Hz Q 0.707
+EndIf:
+
+# Custom Echo / Multi-tap delay effects
+Channel: C
+Delay: 20.0 ms
+Channel: RL
+Delay: 40.0 ms
+Channel: RR
+Delay: 60.0 ms

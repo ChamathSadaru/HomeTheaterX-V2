@@ -1,0 +1,8 @@
+If: inputChannelCount == 2
+Copy: L=L R=R C=0.25*L+0.25*R+C+C+C+C LFE=L+R RL=L RR=R
+Channel: LFE
+Filter: ON HPQ Fc 288 Hz Q 0.8
+Channel: LFE
+Filter: ON LPQ Fc 288 Hz Q 0.8
+EndIf: 2.0 to 5.1
+Preamp: -1.2 dB

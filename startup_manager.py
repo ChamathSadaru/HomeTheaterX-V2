@@ -13,7 +13,7 @@ system-wide startup folder, so it is safe to toggle from inside the app.
 import os
 import sys
 
-APP_NAME = "SamsungHTF4B3AudioscapeController"
+APP_NAME = "HomeTheaterXController"
 _RUN_KEY_PATH = r"Software\Microsoft\Windows\CurrentVersion\Run"
 
 _IS_WINDOWS = sys.platform.startswith("win")

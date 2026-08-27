@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Samsung Virtual Acoustics Studio</title>
+    <title>HomeTheaterX</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts -->
@@ -13,6 +13,8 @@
         rel="stylesheet">
     <!-- Font Awesome Icons for high-fidelity audio controls -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom styling overrides -->
+    <link rel="stylesheet" href="style.css">
 
     <style>
         body {
@@ -123,13 +125,10 @@
     </script>
 </head>
 
-<body class="min-h-screen p-4 sm:p-8 flex flex-col justify-between select-none">
-
-
+<body class="h-screen overflow-hidden p-0 flex flex-col select-none bg-[#050508]">
 
     <!-- Immersive Mixer Console Container -->
-    <div
-        class="relative w-full max-w-6xl mx-auto bg-[#050508] border border-zinc-900 rounded-3xl p-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] flex flex-col gap-6 z-10">
+    <div class="relative w-full h-full bg-[#050508] p-5 flex flex-col gap-4 z-10">
 
         <!-- Header Row -->
         <div
@@ -146,7 +145,7 @@
                     </div>
                     <div>
                         <h2 class="text-xl font-light tracking-wider text-white font-mono flex items-center gap-2">
-                            SAMSUNG
+                            HomeTheaterX
                         </h2>
 
                     </div>
@@ -221,7 +220,7 @@
 
                 <!-- Symmetrical Speaker Deck Stage -->
                 <div
-                    class="relative speaker-deck-stage w-full rounded-[32px] border border-[#14141d]/80 py-16 px-6 mb-8 flex flex-col items-center justify-center min-h-[460px]">
+                    class="relative speaker-deck-stage w-full rounded-2xl border border-[#14141d]/80 pt-20 pb-8 px-6 mb-4 flex flex-col items-center justify-end min-h-[410px]">
 
                     <!-- Stage Monitoring Text Left Corner -->
                     <div
@@ -233,6 +232,53 @@
 
                     <!-- Fully Rounded Control Buttons Top Right Corner -->
                     <div class="absolute top-4 right-4 z-20 flex items-center gap-2">
+                        <button id="btn-preset-bassboosted"
+                            class="preset-filter-btn w-10 h-10 rounded-full bg-zinc-950 hover:bg-zinc-900 border border-zinc-850 text-zinc-400 hover:text-amber-500 flex items-center justify-center shadow-lg transition-all cursor-pointer"
+                            title="Bass Boosted Preset" data-preset="bassboosted" data-name="Bass Boosted">
+                            <i class="preset-spinner fa-solid fa-circle-notch fa-spin text-xs hidden text-amber-500"></i>
+                            <i class="preset-icon fa-solid fa-drum text-xs"></i>
+                        </button>
+                        <button id="btn-preset-tightbass"
+                            class="preset-filter-btn w-10 h-10 rounded-full bg-zinc-950 hover:bg-zinc-900 border border-zinc-850 text-zinc-400 hover:text-amber-500 flex items-center justify-center shadow-lg transition-all cursor-pointer"
+                            title="Tight Bass Preset" data-preset="tightbass" data-name="Tight Bass">
+                            <i class="preset-spinner fa-solid fa-circle-notch fa-spin text-xs hidden text-amber-500"></i>
+                            <i class="preset-icon fa-solid fa-bolt text-xs"></i>
+                        </button>
+                        <button id="btn-preset-hallvibe"
+                            class="preset-filter-btn w-10 h-10 rounded-full bg-zinc-950 hover:bg-zinc-900 border border-zinc-850 text-zinc-400 hover:text-amber-500 flex items-center justify-center shadow-lg transition-all cursor-pointer"
+                            title="Hall Vibe Preset" data-preset="hallvibe" data-name="Hall Vibe">
+                            <i class="preset-spinner fa-solid fa-circle-notch fa-spin text-xs hidden text-amber-500"></i>
+                            <i class="preset-icon fa-solid fa-building-columns text-xs"></i>
+                        </button>
+                        <button id="btn-preset-echo"
+                            class="preset-filter-btn w-10 h-10 rounded-full bg-zinc-950 hover:bg-zinc-900 border border-zinc-850 text-zinc-400 hover:text-amber-500 flex items-center justify-center shadow-lg transition-all cursor-pointer"
+                            title="Echo Preset" data-preset="echo" data-name="Echo">
+                            <i class="preset-spinner fa-solid fa-circle-notch fa-spin text-xs hidden text-amber-500"></i>
+                            <i class="preset-icon fa-solid fa-rss text-xs"></i>
+                        </button>
+                        <button id="btn-preset-upmixing"
+                            class="preset-filter-btn w-10 h-10 rounded-full bg-zinc-950 hover:bg-zinc-900 border border-zinc-850 text-zinc-400 hover:text-amber-500 flex items-center justify-center shadow-lg transition-all cursor-pointer"
+                            title="Up Mixing Preset" data-preset="upmixing" data-name="Up Mixing">
+                            <i class="preset-spinner fa-solid fa-circle-notch fa-spin text-xs hidden text-amber-500"></i>
+                            <i class="preset-icon fa-solid fa-diagram-project text-xs"></i>
+                        </button>
+                        <button id="eightd-btn"
+                            class="w-10 h-10 rounded-full bg-zinc-950 hover:bg-zinc-900 border border-zinc-850 text-zinc-400 hover:text-amber-500 flex items-center justify-center shadow-lg transition-all cursor-pointer"
+                            title="Toggle 8D Spatial Audio Rotation">
+                            <i id="eightd-spinner"
+                                class="fa-solid fa-circle-notch fa-spin text-xs hidden text-amber-500"></i>
+                            <span id="eightd-text"
+                                class="text-[10px] font-black font-mono tracking-tighter leading-none select-none">8D</span>
+                        </button>
+                        <button id="ddl-btn"
+                            class="px-4 h-10 rounded-full bg-zinc-950 hover:bg-zinc-900 border border-zinc-850 text-zinc-400 hover:text-amber-500 flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer"
+                            title="Toggle Dolby Digital Live">
+                            <i id="ddl-spinner"
+                                class="fa-solid fa-circle-notch fa-spin text-xs hidden text-amber-500"></i>
+                            <span
+                                class="text-[9px] font-black font-mono tracking-tighter leading-none select-none">DOLBY
+                                DIGITAL LIVE</span>
+                        </button>
                         <button id="test-btn"
                             class="w-10 h-10 rounded-full bg-zinc-950 hover:bg-zinc-900 border border-zinc-850 text-blue-500 hover:text-blue-400 flex items-center justify-center shadow-lg transition-all cursor-pointer"
                             title="Test Soundstage / Speakers">
@@ -269,12 +315,6 @@
                                     class="speaker-visual-bg absolute inset-0 -z-10 flex items-center justify-center pointer-events-none overflow-visible">
                                     <div id="glow-light-surroundL"
                                         class="speaker-glow-light absolute rounded-full bg-gradient-to-r from-amber-500/30 to-amber-600/30 filter blur-xl opacity-0 transition-opacity duration-300">
-                                    </div>
-                                    <div id="waves-surroundL"
-                                        class="speaker-waves absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300">
-                                        <div class="speaker-wave-ring ring-1"></div>
-                                        <div class="speaker-wave-ring ring-2"></div>
-                                        <div class="speaker-wave-ring ring-3"></div>
                                     </div>
                                 </div>
                                 <svg viewBox="0 0 100 130" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
@@ -322,9 +362,11 @@
                                     L</span>
                             </div>
                             <div
-                                class="w-full max-w-[150px] bg-[#09090d]/90 border border-[#181822]/90 px-3.5 py-2 rounded-2xl flex flex-col gap-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.6)]">
+                                class="fader-card w-full max-w-[150px] bg-[#09090d]/90 border border-[#181822]/90 px-3.5 py-2 rounded-2xl flex flex-col gap-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.6)]">
                                 <div class="flex items-center justify-between font-mono w-full px-0.5">
-                                    <button id="mute-chan-surroundL" class="mute-chan-btn text-zinc-600 hover:text-red-500 transition-all cursor-pointer" title="Mute Channel">
+                                    <button id="mute-chan-surroundL"
+                                        class="mute-chan-btn text-zinc-600 hover:text-red-500 transition-all cursor-pointer"
+                                        title="Mute Channel">
                                         <i id="mute-icon-surroundL" class="fa-solid fa-volume-high text-[8px]"></i>
                                     </button>
                                     <span id="val-surroundL"
@@ -336,7 +378,7 @@
                                         class="absolute left-0 h-[5px] bg-gradient-to-r from-amber-600 to-amber-400 rounded-full"
                                         style="width: 75%"></div>
                                     <div id="thumb-surroundL"
-                                        class="absolute w-3.5 h-3.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)] pointer-events-none -translate-x-1/2 transition-all duration-75"
+                                        class="absolute w-3.5 h-3.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)] pointer-events-none -translate-x-1/2"
                                         style="left: 75%"></div>
                                     <input type="range" min="0" max="100" value="75"
                                         class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
@@ -355,12 +397,6 @@
                                     class="speaker-visual-bg absolute inset-0 -z-10 flex items-center justify-center pointer-events-none overflow-visible">
                                     <div id="glow-light-towerL"
                                         class="speaker-glow-light absolute rounded-full bg-gradient-to-r from-amber-500/30 to-amber-600/30 filter blur-xl opacity-0 transition-opacity duration-300">
-                                    </div>
-                                    <div id="waves-towerL"
-                                        class="speaker-waves absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300">
-                                        <div class="speaker-wave-ring ring-1"></div>
-                                        <div class="speaker-wave-ring ring-2"></div>
-                                        <div class="speaker-wave-ring ring-3"></div>
                                     </div>
                                 </div>
                                 <svg viewBox="0 0 120 280" class="w-full h-full" xmlns="http://www.w3.org/2000/svg"
@@ -417,9 +453,11 @@
                                     L</span>
                             </div>
                             <div
-                                class="w-full max-w-[150px] bg-[#09090d]/90 border border-[#181822]/90 px-3.5 py-2 rounded-2xl flex flex-col gap-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.6)]">
+                                class="fader-card w-full max-w-[150px] bg-[#09090d]/90 border border-[#181822]/90 px-3.5 py-2 rounded-2xl flex flex-col gap-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.6)]">
                                 <div class="flex items-center justify-between font-mono w-full px-0.5">
-                                    <button id="mute-chan-towerL" class="mute-chan-btn text-zinc-600 hover:text-red-500 transition-all cursor-pointer" title="Mute Channel">
+                                    <button id="mute-chan-towerL"
+                                        class="mute-chan-btn text-zinc-600 hover:text-red-500 transition-all cursor-pointer"
+                                        title="Mute Channel">
                                         <i id="mute-icon-towerL" class="fa-solid fa-volume-high text-[8px]"></i>
                                     </button>
                                     <span id="val-towerL"
@@ -431,7 +469,7 @@
                                         class="absolute left-0 h-[5px] bg-gradient-to-r from-amber-600 to-amber-400 rounded-full"
                                         style="width: 80%"></div>
                                     <div id="thumb-towerL"
-                                        class="absolute w-3.5 h-3.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)] pointer-events-none -translate-x-1/2 transition-all duration-75"
+                                        class="absolute w-3.5 h-3.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)] pointer-events-none -translate-x-1/2"
                                         style="left: 80%"></div>
                                     <input type="range" min="0" max="100" value="80"
                                         class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
@@ -450,12 +488,6 @@
                                     class="speaker-visual-bg absolute inset-0 -z-10 flex items-center justify-center pointer-events-none overflow-visible">
                                     <div id="glow-light-subwoofer"
                                         class="speaker-glow-light absolute rounded-full bg-gradient-to-r from-amber-500/30 to-amber-600/30 filter blur-xl opacity-0 transition-opacity duration-300">
-                                    </div>
-                                    <div id="waves-subwoofer"
-                                        class="speaker-waves absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300">
-                                        <div class="speaker-wave-ring ring-1"></div>
-                                        <div class="speaker-wave-ring ring-2"></div>
-                                        <div class="speaker-wave-ring ring-3"></div>
                                     </div>
                                 </div>
                                 <svg viewBox="0 0 160 260" class="w-full h-full" xmlns="http://www.w3.org/2000/svg"
@@ -527,15 +559,19 @@
                                         <circle cx="80" cy="72" r="50" fill="url(#mesh-pattern-subwoofer)" />
                                         <circle cx="80" cy="72" r="50" fill="url(#mesh-shading-sub)" />
                                         <!-- Bass reactive glowing neon ring -->
-                                        <circle id="subwoofer-neon-ring" cx="80" cy="72" r="51" fill="none" stroke="#f59e0b" stroke-width="0" filter="url(#audio-glow-subwoofer)" opacity="0" />
+                                        <circle id="subwoofer-neon-ring" cx="80" cy="72" r="51" fill="none"
+                                            stroke="#f59e0b" stroke-width="0" filter="url(#audio-glow-subwoofer)"
+                                            opacity="0" />
                                     </g>
                                     <circle cx="80" cy="192" r="42" fill="url(#funnel-gradient-sub)" stroke="#52525b"
                                         stroke-width="2" />
                                     <circle cx="80" cy="192" r="20" fill="#020204" stroke="#52525b" stroke-width="1" />
                                     <!-- Bass reactive air compression waves -->
                                     <g id="subwoofer-air-ripples">
-                                        <path id="air-ripple-1" d="M 62,204 Q 80,215 98,204" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round" opacity="0" />
-                                        <path id="air-ripple-2" d="M 52,212 Q 80,227 108,212" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" opacity="0" />
+                                        <path id="air-ripple-1" d="M 62,204 Q 80,215 98,204" fill="none"
+                                            stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round" opacity="0" />
+                                        <path id="air-ripple-2" d="M 52,212 Q 80,227 108,212" fill="none"
+                                            stroke="#f59e0b" stroke-width="2" stroke-linecap="round" opacity="0" />
                                     </g>
                                     <text x="80" y="244" text-anchor="middle" font-size="6" fill="#f59e0b"
                                         font-weight="bold" letter-spacing="1.2">SAMSUNG</text>
@@ -546,9 +582,11 @@
                                     class="text-sm font-semibold text-zinc-400 tracking-wider block uppercase">Subwoofer</span>
                             </div>
                             <div
-                                class="w-full max-w-[150px] bg-[#09090d]/90 border border-[#181822]/90 px-3.5 py-2 rounded-2xl flex flex-col gap-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.6)]">
+                                class="fader-card w-full max-w-[150px] bg-[#09090d]/90 border border-[#181822]/90 px-3.5 py-2 rounded-2xl flex flex-col gap-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.6)]">
                                 <div class="flex items-center justify-between font-mono w-full px-0.5">
-                                    <button id="mute-chan-subwoofer" class="mute-chan-btn text-zinc-600 hover:text-red-500 transition-all cursor-pointer" title="Mute Channel">
+                                    <button id="mute-chan-subwoofer"
+                                        class="mute-chan-btn text-zinc-600 hover:text-red-500 transition-all cursor-pointer"
+                                        title="Mute Channel">
                                         <i id="mute-icon-subwoofer" class="fa-solid fa-volume-high text-[8px]"></i>
                                     </button>
                                     <span id="val-subwoofer"
@@ -560,7 +598,7 @@
                                         class="absolute left-0 h-[5px] bg-gradient-to-r from-amber-600 to-amber-400 rounded-full"
                                         style="width: 100%"></div>
                                     <div id="thumb-subwoofer"
-                                        class="absolute w-3.5 h-3.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)] pointer-events-none -translate-x-1/2 transition-all duration-75"
+                                        class="absolute w-3.5 h-3.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)] pointer-events-none -translate-x-1/2"
                                         style="left: 100%"></div>
                                     <input type="range" min="0" max="100" value="100"
                                         class="absolute inset-0 w-full h-full opacity-0 pointer-events-none"
@@ -585,12 +623,6 @@
                                     class="speaker-visual-bg absolute inset-0 -z-10 flex items-center justify-center pointer-events-none overflow-visible">
                                     <div id="glow-light-center"
                                         class="speaker-glow-light absolute rounded-full bg-gradient-to-r from-amber-500/30 to-amber-600/30 filter blur-xl opacity-0 transition-opacity duration-300">
-                                    </div>
-                                    <div id="waves-center"
-                                        class="speaker-waves absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300">
-                                        <div class="speaker-wave-ring ring-1"></div>
-                                        <div class="speaker-wave-ring ring-2"></div>
-                                        <div class="speaker-wave-ring ring-3"></div>
                                     </div>
                                 </div>
                                 <svg viewBox="0 0 200 100" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
@@ -628,9 +660,11 @@
                                     Channel</span>
                             </div>
                             <div
-                                class="w-full max-w-[150px] bg-[#09090d]/90 border border-[#181822]/90 px-3.5 py-2 rounded-2xl flex flex-col gap-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.6)]">
+                                class="fader-card w-full max-w-[150px] bg-[#09090d]/90 border border-[#181822]/90 px-3.5 py-2 rounded-2xl flex flex-col gap-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.6)]">
                                 <div class="flex items-center justify-between font-mono w-full px-0.5">
-                                    <button id="mute-chan-center" class="mute-chan-btn text-zinc-600 hover:text-red-500 transition-all cursor-pointer" title="Mute Channel">
+                                    <button id="mute-chan-center"
+                                        class="mute-chan-btn text-zinc-600 hover:text-red-500 transition-all cursor-pointer"
+                                        title="Mute Channel">
                                         <i id="mute-icon-center" class="fa-solid fa-volume-high text-[8px]"></i>
                                     </button>
                                     <span id="val-center"
@@ -642,7 +676,7 @@
                                         class="absolute left-0 h-[5px] bg-gradient-to-r from-amber-600 to-amber-400 rounded-full"
                                         style="width: 85%"></div>
                                     <div id="thumb-center"
-                                        class="absolute w-3.5 h-3.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)] pointer-events-none -translate-x-1/2 transition-all duration-75"
+                                        class="absolute w-3.5 h-3.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)] pointer-events-none -translate-x-1/2"
                                         style="left: 85%"></div>
                                     <input type="range" min="0" max="100" value="85"
                                         class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
@@ -661,12 +695,6 @@
                                     class="speaker-visual-bg absolute inset-0 -z-10 flex items-center justify-center pointer-events-none overflow-visible">
                                     <div id="glow-light-towerR"
                                         class="speaker-glow-light absolute rounded-full bg-gradient-to-r from-amber-500/30 to-amber-600/30 filter blur-xl opacity-0 transition-opacity duration-300">
-                                    </div>
-                                    <div id="waves-towerR"
-                                        class="speaker-waves absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300">
-                                        <div class="speaker-wave-ring ring-1"></div>
-                                        <div class="speaker-wave-ring ring-2"></div>
-                                        <div class="speaker-wave-ring ring-3"></div>
                                     </div>
                                 </div>
                                 <svg viewBox="0 0 120 280" class="w-full h-full" xmlns="http://www.w3.org/2000/svg"
@@ -723,9 +751,11 @@
                                     R</span>
                             </div>
                             <div
-                                class="w-full max-w-[150px] bg-[#09090d]/90 border border-[#181822]/90 px-3.5 py-2 rounded-2xl flex flex-col gap-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.6)]">
+                                class="fader-card w-full max-w-[150px] bg-[#09090d]/90 border border-[#181822]/90 px-3.5 py-2 rounded-2xl flex flex-col gap-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.6)]">
                                 <div class="flex items-center justify-between font-mono w-full px-0.5">
-                                    <button id="mute-chan-towerR" class="mute-chan-btn text-zinc-600 hover:text-red-500 transition-all cursor-pointer" title="Mute Channel">
+                                    <button id="mute-chan-towerR"
+                                        class="mute-chan-btn text-zinc-600 hover:text-red-500 transition-all cursor-pointer"
+                                        title="Mute Channel">
                                         <i id="mute-icon-towerR" class="fa-solid fa-volume-high text-[8px]"></i>
                                     </button>
                                     <span id="val-towerR"
@@ -737,7 +767,7 @@
                                         class="absolute left-0 h-[5px] bg-gradient-to-r from-amber-600 to-amber-400 rounded-full"
                                         style="width: 80%"></div>
                                     <div id="thumb-towerR"
-                                        class="absolute w-3.5 h-3.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)] pointer-events-none -translate-x-1/2 transition-all duration-75"
+                                        class="absolute w-3.5 h-3.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)] pointer-events-none -translate-x-1/2"
                                         style="left: 80%"></div>
                                     <input type="range" min="0" max="100" value="80"
                                         class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
@@ -756,12 +786,6 @@
                                     class="speaker-visual-bg absolute inset-0 -z-10 flex items-center justify-center pointer-events-none overflow-visible">
                                     <div id="glow-light-surroundR"
                                         class="speaker-glow-light absolute rounded-full bg-gradient-to-r from-amber-500/30 to-amber-600/30 filter blur-xl opacity-0 transition-opacity duration-300">
-                                    </div>
-                                    <div id="waves-surroundR"
-                                        class="speaker-waves absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300">
-                                        <div class="speaker-wave-ring ring-1"></div>
-                                        <div class="speaker-wave-ring ring-2"></div>
-                                        <div class="speaker-wave-ring ring-3"></div>
                                     </div>
                                 </div>
                                 <svg viewBox="0 0 100 130" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
@@ -809,9 +833,11 @@
                                     R</span>
                             </div>
                             <div
-                                class="w-full max-w-[150px] bg-[#09090d]/90 border border-[#181822]/90 px-3.5 py-2 rounded-2xl flex flex-col gap-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.6)]">
+                                class="fader-card w-full max-w-[150px] bg-[#09090d]/90 border border-[#181822]/90 px-3.5 py-2 rounded-2xl flex flex-col gap-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.6)]">
                                 <div class="flex items-center justify-between font-mono w-full px-0.5">
-                                    <button id="mute-chan-surroundR" class="mute-chan-btn text-zinc-600 hover:text-red-500 transition-all cursor-pointer" title="Mute Channel">
+                                    <button id="mute-chan-surroundR"
+                                        class="mute-chan-btn text-zinc-600 hover:text-red-500 transition-all cursor-pointer"
+                                        title="Mute Channel">
                                         <i id="mute-icon-surroundR" class="fa-solid fa-volume-high text-[8px]"></i>
                                     </button>
                                     <span id="val-surroundR"
@@ -823,7 +849,7 @@
                                         class="absolute left-0 h-[5px] bg-gradient-to-r from-amber-600 to-amber-400 rounded-full"
                                         style="width: 75%"></div>
                                     <div id="thumb-surroundR"
-                                        class="absolute w-3.5 h-3.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)] pointer-events-none -translate-x-1/2 transition-all duration-75"
+                                        class="absolute w-3.5 h-3.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)] pointer-events-none -translate-x-1/2"
                                         style="left: 75%"></div>
                                     <input type="range" min="0" max="100" value="75"
                                         class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
@@ -860,7 +886,7 @@
                             </div>
 
                             <div
-                                class="w-full max-w-[150px] bg-[#09090d]/90 border border-[#181822]/90 px-3.5 py-2 rounded-2xl flex flex-col gap-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.6)]">
+                                class="fader-card w-full max-w-[150px] bg-[#09090d]/90 border border-[#181822]/90 px-3.5 py-2 rounded-2xl flex flex-col gap-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.6)]">
                                 <div class="flex items-center justify-between font-mono">
                                     <span class="text-[9px] font-bold tracking-widest text-zinc-505">GAIN</span>
                                     <span id="val-master"
@@ -872,26 +898,34 @@
                     </div>
 
                     <!-- Diagnostic Scope and Mini Player side-by-side -->
-                    <div class="flex flex-col md:flex-row gap-6 items-stretch w-full max-w-4xl mt-8 relative z-20">
-                        
+                    <div class="flex flex-col md:flex-row gap-6 items-stretch w-full max-w-4xl mt-4 relative z-20">
+
                         <!-- Diagnostic Scope (60% width on md screens) -->
-                        <div class="flex-[3] min-w-0 grid grid-cols-12 gap-4 p-4 bg-zinc-950/40 rounded-2xl border border-zinc-900/60 shadow-inner h-[112px]">
+                        <div
+                            class="flex-[3] min-w-0 grid grid-cols-12 gap-4 p-4 bg-zinc-950/40 rounded-2xl border border-zinc-900/60 shadow-inner h-[112px]">
                             <div class="col-span-5 flex flex-col justify-center font-mono text-left gap-1">
                                 <div class="flex flex-col gap-1.5 items-start">
-                                    <span class="text-[11px] font-bold text-zinc-200 uppercase tracking-wider">Diagnostic Scope</span>
+                                    <span
+                                        class="text-[11px] font-bold text-zinc-200 uppercase tracking-wider">Diagnostic
+                                        Scope</span>
                                     <span id="systemMode"
-                                        class="text-[8px] text-zinc-300 font-bold border border-zinc-800 px-2 py-0.5 rounded bg-zinc-950/60 uppercase leading-none truncate max-w-full">Dolby Digital for a Hometheater</span>
+                                        class="text-[8px] text-zinc-300 font-bold border border-zinc-800 px-2 py-0.5 rounded bg-zinc-950/60 uppercase leading-none truncate max-w-full">Dolby
+                                        Digital for a Hometheater</span>
                                 </div>
                                 <span class="text-[8px] text-zinc-550 leading-tight mt-0.5">
                                     Binaural Synthesis Outbound Oscilloscope with multi-band phase detection.
                                 </span>
                             </div>
 
-                            <div class="col-span-7 h-full bg-black rounded-xl border border-zinc-900 flex items-center justify-center relative overflow-hidden">
+                            <div
+                                class="col-span-7 h-full bg-black rounded-xl border border-zinc-900 flex items-center justify-center relative overflow-hidden">
                                 <canvas id="scope-canvas" width="450" height="96" class="w-full h-full block"></canvas>
                                 <div class="absolute bottom-1 right-2 flex items-center gap-2">
-                                    <button id="btn-vis-mode" class="text-zinc-600 hover:text-zinc-300 font-mono text-[6px] uppercase flex items-center gap-1 cursor-pointer" title="Switch Visualizer Mode">
-                                        <i class="fa-solid fa-chart-simple text-[7px] text-amber-500"></i> <span id="lbl-vis-mode">Waveform</span>
+                                    <button id="btn-vis-mode"
+                                        class="text-zinc-600 hover:text-zinc-300 font-mono text-[6px] uppercase flex items-center gap-1 cursor-pointer"
+                                        title="Switch Visualizer Mode">
+                                        <i class="fa-solid fa-chart-simple text-[7px] text-amber-500"></i> <span
+                                            id="lbl-vis-mode">Waveform</span>
                                     </button>
                                     <div class="w-0.5 h-0.5 rounded-full bg-zinc-800"></div>
                                     <div class="font-mono text-[6px] text-zinc-650">AUTO-GAIN RANGE: +4.2dB</div>
@@ -900,39 +934,50 @@
                         </div>
 
                         <!-- Mini Media Player (40% width on md screens) -->
-                        <div class="flex-[2] min-w-0 flex items-center gap-4 p-4 bg-zinc-950/40 rounded-2xl border border-zinc-900/60 shadow-inner h-[112px]">
+                        <div
+                            class="flex-[2] min-w-0 flex items-center gap-4 p-4 bg-zinc-950/40 rounded-2xl border border-zinc-900/60 shadow-inner h-[112px]">
                             <!-- Album Art Thumbnail (spinning neon disc) -->
-                            <div class="w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-850 relative flex-shrink-0 flex items-center justify-center overflow-hidden shadow-md">
+                            <div
+                                class="w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-850 relative flex-shrink-0 flex items-center justify-center overflow-hidden shadow-md">
                                 <!-- Glowing backdrop -->
                                 <div class="absolute inset-0 bg-gradient-to-tr from-amber-500/10 to-transparent"></div>
                                 <!-- Spinning CD/Record shape -->
-                                <div id="player-record" class="w-12 h-12 rounded-full border border-zinc-800 bg-[#0f0f15] flex items-center justify-center animate-spin-slow paused-animation relative">
+                                <div id="player-record"
+                                    class="w-12 h-12 rounded-full border border-zinc-800 bg-[#0f0f15] flex items-center justify-center animate-spin-slow paused-animation relative">
                                     <!-- Grooves -->
                                     <div class="absolute inset-1 rounded-full border border-zinc-900/50"></div>
                                     <div class="absolute inset-2.5 rounded-full border border-zinc-900/50"></div>
                                     <!-- Center label -->
-                                    <div class="w-4.5 h-4.5 rounded-full bg-amber-500 border border-black flex items-center justify-center shadow-inner">
+                                    <div
+                                        class="w-4.5 h-4.5 rounded-full bg-amber-500 border border-black flex items-center justify-center shadow-inner">
                                         <div class="w-1.5 h-1.5 rounded-full bg-black"></div>
                                     </div>
                                 </div>
                                 <!-- Windows album art image overlay -->
-                                <img id="player-art-img" class="absolute inset-0 w-full h-full object-cover hidden transition-all duration-300" src="" alt="Album Art" />
+                                <img id="player-art-img"
+                                    class="absolute inset-0 w-full h-full object-cover hidden transition-all duration-300"
+                                    src="" alt="Album Art" />
                             </div>
-                            
-                             <!-- Track Details & Audio Controls -->
-                             <div class="flex-1 flex flex-col justify-between h-full py-0.5 min-w-0">
-                                 <div>
-                                     <div class="flex items-center justify-between gap-2 min-w-0">
-                                         <span id="player-title" class="text-[11px] font-bold text-zinc-100 truncate tracking-wide flex-1 min-w-0">Hyperdrive Loop</span>
-                                         <span id="player-badge" class="text-[7px] font-mono text-amber-500 bg-amber-500/10 px-1 py-0.2 rounded border border-amber-500/20 font-bold flex-shrink-0">SYNTH</span>
-                                     </div>
-                                     <p id="player-artist" class="text-[9px] text-zinc-500 font-mono truncate">Virtual Studio Synth • 5.1 LFE</p>
-                                 </div>
+
+                            <!-- Track Details & Audio Controls -->
+                            <div class="flex-1 flex flex-col justify-between h-full py-0.5 min-w-0">
+                                <div>
+                                    <div class="flex items-center justify-between gap-2 min-w-0">
+                                        <span id="player-title"
+                                            class="text-[11px] font-bold text-zinc-100 truncate tracking-wide flex-1 min-w-0">Hyperdrive
+                                            Loop</span>
+                                        <span id="player-badge"
+                                            class="text-[7px] font-mono text-amber-500 bg-amber-500/10 px-1 py-0.2 rounded border border-amber-500/20 font-bold flex-shrink-0">SYNTH</span>
+                                    </div>
+                                    <p id="player-artist" class="text-[9px] text-zinc-500 font-mono truncate">Virtual
+                                        Studio Synth • 5.1 LFE</p>
+                                </div>
 
                                 <!-- Mini Progress Bar -->
                                 <div class="w-full flex flex-col gap-1">
                                     <div class="w-full h-1 bg-zinc-900 rounded-full overflow-hidden">
-                                        <div id="player-progress" class="player-progress-bar h-full bg-amber-500 w-0"></div>
+                                        <div id="player-progress" class="player-progress-bar h-full bg-amber-500 w-0">
+                                        </div>
                                     </div>
                                     <div class="flex justify-between font-mono text-[7px] text-zinc-550 leading-none">
                                         <span id="player-current-time">0:00</span>
@@ -942,13 +987,18 @@
 
                                 <!-- Playback Controls -->
                                 <div class="flex items-center justify-center gap-6 mt-0.5">
-                                    <button id="player-prev-btn" class="text-zinc-500 hover:text-zinc-200 transition-all p-1" title="Previous Track">
+                                    <button id="player-prev-btn"
+                                        class="text-zinc-500 hover:text-zinc-200 transition-all p-1"
+                                        title="Previous Track">
                                         <i class="fa-solid fa-backward text-[10px]"></i>
                                     </button>
-                                    <button id="player-play-btn" class="w-7 h-7 rounded-full bg-amber-500 hover:bg-amber-400 text-black flex items-center justify-center transition-all shadow-md shadow-amber-950/20" title="Play / Pause">
+                                    <button id="player-play-btn"
+                                        class="w-7 h-7 rounded-full bg-amber-500 hover:bg-amber-400 text-black flex items-center justify-center transition-all shadow-md shadow-amber-950/20"
+                                        title="Play / Pause">
                                         <i id="player-play-icon" class="fa-solid fa-play text-xs ml-0.5"></i>
                                     </button>
-                                    <button id="player-next-btn" class="text-zinc-500 hover:text-zinc-200 transition-all p-1" title="Next Track">
+                                    <button id="player-next-btn"
+                                        class="text-zinc-500 hover:text-zinc-200 transition-all p-1" title="Next Track">
                                         <i class="fa-solid fa-forward text-[10px]"></i>
                                     </button>
                                 </div>
@@ -960,7 +1010,7 @@
 
                     <!-- Symmetrical Acoustic Presets Selector Bottom Center (Below Scope) -->
                     <div
-                        class="w-full max-w-4xl bg-zinc-950/20 border border-zinc-900/60 p-4 rounded-2xl flex flex-col gap-3.5 mt-6 shadow-inner relative z-20">
+                        class="w-full max-w-4xl bg-zinc-950/20 border border-zinc-900/60 p-3 rounded-2xl flex flex-col gap-2.5 mt-4 shadow-inner relative z-20">
 
 
                         <!-- Bottom Row: Buttons in a single row, no-wrap, centered -->
@@ -1019,7 +1069,7 @@
 
             <!-- Sub-View 2: Room Calibrations (Interactive Suite) -->
             <div id="view-room-cal"
-                class="hidden flex-col lg:flex-row gap-8 items-stretch justify-between w-full bg-[#050508]/80 border border-zinc-900 rounded-[32px] py-10 px-8 relative overflow-hidden">
+                class="hidden flex-col lg:flex-row gap-6 items-stretch justify-between w-full bg-[#050508]/80 border border-zinc-900 rounded-2xl py-6 px-6 relative overflow-hidden">
                 <div
                     class="absolute top-0 left-1/2 -translate-x-1/2 w-[85%] h-[340px] bg-[radial-gradient(circle_at_center_top,rgba(59,130,246,0.06),transparent_70%)] pointer-events-none rounded-full blur-3xl">
                 </div>
@@ -1038,10 +1088,32 @@
                                 the virtual sweet-spot focus point.</p>
                         </div>
                         <button id="toggle-calibration"
-                            class="flex items-center gap-2 px-3 py-1 rounded-lg bg-zinc-950 border border-zinc-850 hover:border-zinc-700 text-xs font-mono font-bold uppercase transition-all duration-300 cursor-pointer">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]"
-                                id="calibration-indicator"></span>
-                            <span id="calibration-btn-text" class="text-zinc-300">Active</span>
+                            class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-950 border border-zinc-800 hover:border-amber-500/40 text-xs font-mono font-bold uppercase transition-all duration-300 cursor-pointer">
+                            <!-- Spinner (hidden by default, shown during API call) -->
+                            <i id="cal-spinner" class="fa-solid fa-circle-notch fa-spin text-amber-500 hidden text-[9px]"></i>
+                            <!-- Status dot (hidden when spinner is visible) -->
+                            <span id="calibration-indicator"
+                                class="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.7)] transition-all duration-300"></span>
+                            <span id="calibration-btn-text" class="text-zinc-400 transition-colors duration-300">OFF</span>
+                        </button>
+                        <!-- Center Reset button -->
+                        <button id="btn-cal-center-reset"
+                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-950 border border-zinc-800 hover:border-zinc-600 text-[10px] font-mono font-bold uppercase text-zinc-500 hover:text-zinc-300 transition-all duration-300 cursor-pointer">
+                            <i class="fa-solid fa-crosshairs text-[9px]"></i>
+                            <span>Center</span>
+                        </button>
+                    </div>
+
+                    <!-- Segmented Calibration Modes Selection -->
+                    <div id="calibration-modes-container" class="flex items-center justify-center p-0.5 bg-zinc-950 border border-zinc-900 rounded-xl max-w-xs mx-auto w-full">
+                        <button id="btn-calmode-sweetspot" class="flex-1 text-center py-1 rounded-lg text-[9px] font-mono font-bold uppercase transition-all cursor-pointer text-amber-500 bg-amber-500/10 border border-amber-500/50 shadow-[0_0_12px_rgba(245,158,11,0.15)]">
+                            Sweet-Spot
+                        </button>
+                        <button id="btn-calmode-steering" class="flex-1 text-center py-1 rounded-lg text-[9px] font-mono font-bold uppercase transition-all cursor-pointer text-zinc-500 hover:text-zinc-300 border border-transparent bg-transparent">
+                            Steering
+                        </button>
+                        <button id="btn-calmode-levelonly" class="flex-1 text-center py-1 rounded-lg text-[9px] font-mono font-bold uppercase transition-all cursor-pointer text-zinc-500 hover:text-zinc-300 border border-transparent bg-transparent">
+                            Level-Only
                         </button>
                     </div>
 
@@ -1063,88 +1135,109 @@
                                         <feMergeNode in="SourceGraphic" />
                                     </feMerge>
                                 </filter>
+                                <filter id="node-shadow" x="-30%" y="-30%" width="160%" height="160%">
+                                    <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#f59e0b" flood-opacity="0.25" />
+                                </filter>
+                                <linearGradient id="speaker-body-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#24252e" />
+                                    <stop offset="50%" stop-color="#14151a" />
+                                    <stop offset="100%" stop-color="#0b0b0f" />
+                                </linearGradient>
                             </defs>
 
                             <!-- Listening Area Boundaries -->
+                            <rect x="20" y="20" width="360" height="360" rx="24" fill="none"
+                                stroke="rgba(245, 158, 11, 0.08)" stroke-width="1" />
                             <rect x="30" y="30" width="340" height="340" rx="20" fill="none"
-                                stroke="rgba(24, 24, 37, 0.6)" stroke-width="1.5" />
-                            <circle cx="200" cy="200" r="140" fill="none" stroke="rgba(24, 24, 37, 0.4)"
+                                stroke="rgba(59, 130, 246, 0.12)" stroke-width="1.5" />
+                            <circle cx="200" cy="200" r="140" fill="none" stroke="rgba(245, 158, 11, 0.08)"
                                 stroke-dasharray="6,6" stroke-width="1.2" />
-                            <circle cx="200" cy="200" r="70" fill="none" stroke="rgba(24, 24, 37, 0.3)"
+                            <circle cx="200" cy="200" r="70" fill="none" stroke="rgba(59, 130, 246, 0.06)"
                                 stroke-dasharray="4,4" stroke-width="1" />
 
                             <!-- Holographic Connection Lines to Speakers -->
-                            <line id="line-towerL" x1="100" y1="80" x2="200" y2="240" stroke="rgba(245, 158, 11, 0.25)"
-                                stroke-width="1" stroke-dasharray="3,3" />
-                            <line id="line-towerR" x1="300" y1="80" x2="200" y2="240" stroke="rgba(245, 158, 11, 0.25)"
-                                stroke-width="1" stroke-dasharray="3,3" />
-                            <line id="line-center" x1="200" y1="60" x2="200" y2="240" stroke="rgba(245, 158, 11, 0.25)"
-                                stroke-width="1" stroke-dasharray="3,3" />
-                            <line id="line-subwoofer" x1="270" y1="60" x2="200" y2="240"
-                                stroke="rgba(245, 158, 11, 0.25)" stroke-width="1" stroke-dasharray="3,3" />
-                            <line id="line-surroundL" x1="70" y1="300" x2="200" y2="240"
-                                stroke="rgba(245, 158, 11, 0.25)" stroke-width="1" stroke-dasharray="3,3" />
-                            <line id="line-surroundR" x1="330" y1="300" x2="200" y2="240"
-                                stroke="rgba(245, 158, 11, 0.25)" stroke-width="1" stroke-dasharray="3,3" />
+                            <line id="line-towerL" x1="100" y1="80" x2="200" y2="240" class="cal-flow-line" />
+                            <line id="line-towerR" x1="300" y1="80" x2="200" y2="240" class="cal-flow-line" />
+                            <line id="line-center" x1="200" y1="60" x2="200" y2="240" class="cal-flow-line" />
+                            <line id="line-subwoofer" x1="270" y1="60" x2="200" y2="240" class="cal-flow-line" />
+                            <line id="line-surroundL" x1="70" y1="300" x2="200" y2="240" class="cal-flow-line" />
+                            <line id="line-surroundR" x1="330" y1="300" x2="200" y2="240" class="cal-flow-line" />
 
                             <!-- Speaker Node Symbols -->
                             <!-- Tower L -->
-                            <circle cx="100" cy="80" r="10" fill="#14141a" stroke="#52525b" stroke-width="1.5" />
-                            <circle cx="100" cy="80" r="3" fill="#f59e0b" />
-                            <text x="100" y="65" text-anchor="middle" font-size="8" fill="#a1a1aa"
-                                font-family="monospace">TWR L</text>
+                            <g>
+                                <rect x="88" y="60" width="24" height="40" rx="4" fill="url(#speaker-body-grad)" stroke="rgba(245,158,11,0.5)" stroke-width="1.2" filter="url(#node-shadow)" />
+                                <circle cx="100" cy="70" r="6" fill="#000" stroke="rgba(245,158,11,0.3)" stroke-width="1" />
+                                <circle cx="100" cy="70" r="2" fill="#ffb020" class="speaker-pulse" />
+                                <circle cx="100" cy="86" r="6" fill="#000" stroke="rgba(245,158,11,0.3)" stroke-width="1" />
+                                <circle cx="100" cy="86" r="2.5" fill="#ffb020" class="speaker-pulse" />
+                                <text x="100" y="52" text-anchor="middle" font-size="8" fill="#a1a1aa" font-weight="bold" font-family="monospace">TWR L</text>
+                            </g>
 
                             <!-- Tower R -->
-                            <circle cx="300" cy="80" r="10" fill="#14141a" stroke="#52525b" stroke-width="1.5" />
-                            <circle cx="300" cy="80" r="3" fill="#f59e0b" />
-                            <text x="300" y="65" text-anchor="middle" font-size="8" fill="#a1a1aa"
-                                font-family="monospace">TWR R</text>
+                            <g>
+                                <rect x="288" y="60" width="24" height="40" rx="4" fill="url(#speaker-body-grad)" stroke="rgba(245,158,11,0.5)" stroke-width="1.2" filter="url(#node-shadow)" />
+                                <circle cx="300" cy="70" r="6" fill="#000" stroke="rgba(245,158,11,0.3)" stroke-width="1" />
+                                <circle cx="300" cy="70" r="2" fill="#ffb020" class="speaker-pulse" />
+                                <circle cx="300" cy="86" r="6" fill="#000" stroke="rgba(245,158,11,0.3)" stroke-width="1" />
+                                <circle cx="300" cy="86" r="2.5" fill="#ffb020" class="speaker-pulse" />
+                                <text x="300" y="52" text-anchor="middle" font-size="8" fill="#a1a1aa" font-weight="bold" font-family="monospace">TWR R</text>
+                            </g>
 
                             <!-- Center -->
-                            <rect x="182" y="52" width="36" height="16" rx="3" fill="#14141a" stroke="#52525b"
-                                stroke-width="1.5" />
-                            <circle cx="200" cy="60" r="3.5" fill="#f59e0b" />
-                            <text x="200" y="44" text-anchor="middle" font-size="8" fill="#a1a1aa"
-                                font-family="monospace">CEN</text>
+                            <g>
+                                <rect x="176" y="44" width="48" height="24" rx="4" fill="url(#speaker-body-grad)" stroke="rgba(245,158,11,0.5)" stroke-width="1.2" filter="url(#node-shadow)" />
+                                <circle cx="188" cy="56" r="5" fill="#000" stroke="rgba(245,158,11,0.3)" stroke-width="1" />
+                                <circle cx="188" cy="56" r="1.8" fill="#ffb020" />
+                                <circle cx="200" cy="56" r="2.5" fill="#ffb020" class="speaker-pulse" />
+                                <circle cx="212" cy="56" r="5" fill="#000" stroke="rgba(245,158,11,0.3)" stroke-width="1" />
+                                <circle cx="212" cy="56" r="1.8" fill="#ffb020" />
+                                <text x="200" y="36" text-anchor="middle" font-size="8" fill="#a1a1aa" font-weight="bold" font-family="monospace">CEN</text>
+                            </g>
 
                             <!-- Subwoofer -->
-                            <rect x="256" y="46" width="28" height="28" rx="4" fill="#14141a" stroke="#52525b"
-                                stroke-width="1.5" />
-                            <circle cx="270" cy="60" r="5" fill="#f59e0b" />
-                            <text x="270" y="38" text-anchor="middle" font-size="8" fill="#a1a1aa"
-                                font-family="monospace">SUB</text>
+                            <g>
+                                <rect x="254" y="44" width="32" height="32" rx="4" fill="url(#speaker-body-grad)" stroke="rgba(245,158,11,0.6)" stroke-width="1.2" filter="url(#node-shadow)" />
+                                <circle cx="270" cy="60" r="9" fill="#000" stroke="rgba(245,158,11,0.4)" stroke-width="1" />
+                                <circle cx="270" cy="60" r="4.5" fill="#ffb020" class="speaker-pulse" />
+                                <text x="270" y="36" text-anchor="middle" font-size="8" fill="#a1a1aa" font-weight="bold" font-family="monospace">SUB</text>
+                            </g>
 
                             <!-- Surround L -->
-                            <circle cx="70" cy="300" r="10" fill="#14141a" stroke="#52525b" stroke-width="1.5" />
-                            <circle cx="70" cy="300" r="3" fill="#f59e0b" />
-                            <text x="70" y="322" text-anchor="middle" font-size="8" fill="#a1a1aa"
-                                font-family="monospace">SUR L</text>
+                            <g>
+                                <rect x="58" y="280" width="24" height="28" rx="4" fill="url(#speaker-body-grad)" stroke="rgba(245,158,11,0.5)" stroke-width="1.2" filter="url(#node-shadow)" />
+                                <circle cx="70" cy="294" r="6" fill="#000" stroke="rgba(245,158,11,0.3)" stroke-width="1" />
+                                <circle cx="70" cy="294" r="2.5" fill="#ffb020" class="speaker-pulse" />
+                                <text x="70" y="322" text-anchor="middle" font-size="8" fill="#a1a1aa" font-weight="bold" font-family="monospace">SUR L</text>
+                            </g>
 
                             <!-- Surround R -->
-                            <circle cx="330" cy="300" r="10" fill="#14141a" stroke="#52525b" stroke-width="1.5" />
-                            <circle cx="330" cy="300" r="3" fill="#f59e0b" />
-                            <text x="330" y="322" text-anchor="middle" font-size="8" fill="#a1a1aa"
-                                font-family="monospace">SUR R</text>
+                            <g>
+                                <rect x="318" y="280" width="24" height="28" rx="4" fill="url(#speaker-body-grad)" stroke="rgba(245,158,11,0.5)" stroke-width="1.2" filter="url(#node-shadow)" />
+                                <circle cx="330" cy="294" r="6" fill="#000" stroke="rgba(245,158,11,0.3)" stroke-width="1" />
+                                <circle cx="330" cy="294" r="2.5" fill="#ffb020" class="speaker-pulse" />
+                                <text x="330" y="322" text-anchor="middle" font-size="8" fill="#a1a1aa" font-weight="bold" font-family="monospace">SUR R</text>
+                            </g>
 
                             <!-- Listener Couch Position -->
                             <g transform="translate(170, 222)">
                                 <path d="M 5,25 L 55,25 C 58,25 60,28 60,31 L 60,38 L 0,38 L 0,31 C 0,28 2,25 5,25 Z"
-                                    fill="#181822" stroke="#3f3f46" stroke-width="1" />
-                                <rect x="5" y="10" width="50" height="15" rx="3" fill="#111118" stroke="#3f3f46"
+                                    fill="url(#speaker-body-grad)" stroke="#4b5563" stroke-width="1.2" />
+                                <rect x="5" y="10" width="50" height="15" rx="3" fill="#0b0b0f" stroke="#4b5563"
                                     stroke-width="1" />
                                 <!-- Cushions -->
-                                <rect x="8" y="15" width="20" height="10" rx="1" fill="#0f0f13" />
-                                <rect x="32" y="15" width="20" height="10" rx="1" fill="#0f0f13" />
+                                <rect x="8" y="14" width="20" height="11" rx="1.5" fill="#14151a" stroke="rgba(245,158,11,0.06)" />
+                                <rect x="32" y="14" width="20" height="11" rx="1.5" fill="#14151a" stroke="rgba(245,158,11,0.06)" />
                             </g>
-                            <text x="200" y="278" text-anchor="middle" font-size="8" fill="#71717a"
-                                font-family="monospace">LISTENING COUCH</text>
+                            <text x="200" y="278" text-anchor="middle" font-size="8" fill="#52525b"
+                                font-family="monospace" font-weight="bold" tracking-wider>LISTENING ZONE</text>
 
                             <!-- Glowing Focus Point Target (Sweet spot) -->
                             <g id="grp-focus">
-                                <circle id="focus-glow-circle" cx="200" cy="240" r="16" fill="rgba(245, 158, 11, 0.15)"
-                                    class="animate-ping" style="transform-origin: 200px 240px;" />
-                                <circle id="focus-point" cx="200" cy="240" r="7" fill="#f59e0b" filter="url(#cal-glow)"
-                                    stroke="#ffffff" stroke-width="1.2" />
+                                <circle id="focus-glow-circle-outer" cx="200" cy="240" r="28" fill="none" stroke="rgba(245, 158, 11, 0.08)" stroke-width="2" class="animate-pulse" />
+                                <circle id="focus-glow-circle" cx="200" cy="240" r="16" fill="rgba(245, 158, 11, 0.18)" class="animate-ping" style="transform-origin: 200px 240px;" />
+                                <circle cx="200" cy="240" r="10" fill="none" stroke="#f59e0b" stroke-width="0.8" stroke-dasharray="2,2" />
+                                <circle id="focus-point" cx="200" cy="240" r="6" fill="#ffffff" filter="url(#cal-glow)" stroke="#f59e0b" stroke-width="2" />
                             </g>
                         </svg>
                     </div>
@@ -1152,85 +1245,225 @@
             </div>
 
             <!-- Sub-View 3: Receiver Console -->
-            <div id="view-receiver"
-                class="hidden flex-col gap-6 min-h-[460px] bg-zinc-950/20 border border-zinc-900 rounded-[32px] p-8 font-mono w-full">
+            <div id="view-receiver" class="hidden w-full flex-col gap-4">
+                <div id="receiver-console-deck"
+                    class="w-full bg-gradient-to-b from-zinc-900 via-zinc-955 to-zinc-950 border border-zinc-800 rounded-2xl p-5 shadow-2xl relative overflow-hidden flex flex-col gap-4">
+                    <!-- Glossy top reflection -->
+                    <div
+                        class="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none">
+                    </div>
 
-                <!-- AVR Display -->
-                <div
-                    class="bg-black border border-zinc-850 rounded-2xl p-5 flex items-center justify-between shadow-inner">
-                    <div>
-                        <p class="text-[9px] text-zinc-600 uppercase tracking-widest mb-1">Input Source</p>
-                        <p id="avrDisplayInput" class="text-amber-500 text-lg font-bold tracking-wider">HDMI 1 / eARC
-                        </p>
+                    <!-- Main Front Plate Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+
+                        <!-- Left Controller: Power & Standby -->
+                        <div
+                            class="lg:col-span-3 flex lg:flex-col items-center justify-between lg:justify-center gap-4 w-full">
+                            <!-- Power Switch Ring -->
+                            <button id="avr-power-btn"
+                                class="group w-14 h-14 rounded-full flex items-center justify-center border-2 border-zinc-700 shadow-lg bg-gradient-to-b from-zinc-800 to-zinc-900 text-zinc-500 hover:text-zinc-400 transition-all duration-300 cursor-pointer active:scale-95"
+                                title="Toggle Power Switch">
+                                <i class="fa-solid fa-power-off text-lg"></i>
+                            </button>
+
+                            <div class="text-left lg:text-center font-mono">
+                                <div class="text-[10px] font-bold text-zinc-550 uppercase tracking-widest">Main Power
+                                </div>
+                                <div id="avr-power-status" class="text-[10px] font-bold mt-1 text-zinc-600">STANDBY MODE
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Center Controller: Blue Fluorescent Display Screen -->
+                        <div class="lg:col-span-6 w-full">
+                            <div id="avr-screen"
+                                class="w-full min-h-[105px] bg-black rounded-2xl border border-zinc-850 p-4 flex flex-col justify-between shadow-inner relative transition-all duration-500">
+
+                                <!-- Screen when Power is ON -->
+                                <div id="avr-screen-on"
+                                    class="hidden flex flex-col justify-between h-full flex-1 gap-2.5">
+                                    <!-- Screen Header Indicators -->
+                                    <div
+                                        class="flex justify-between items-center text-[8px] font-mono font-bold text-amber-500/80 tracking-widest">
+                                        <span class="flex items-center gap-1.5">
+                                            <i class="fa-solid fa-compact-disc text-[9px]"></i>
+                                            <span id="avr-disp-source">BLU-RAY</span>
+                                        </span>
+                                        <span class="flex items-center gap-2">
+                                            <span id="avr-disp-surround" class="text-zinc-700">DOLBY PROLOGIC II</span>
+                                            <span id="avr-disp-boost" class="text-zinc-700">BASS+</span>
+                                        </span>
+                                    </div>
+
+                                    <!-- Main LCD Dot-Matrix Text -->
+                                    <div class="my-1.5 text-center select-none">
+                                        <span id="avr-disp-title"
+                                            class="text-md font-mono font-black tracking-widest text-amber-500 drop-shadow-[0_0_6px_rgba(245,158,11,0.65)] uppercase">
+                                            8LU-RAY READY
+                                        </span>
+                                        <div id="avr-disp-artist"
+                                            class="text-[8px] font-mono text-amber-500/60 tracking-wider mt-1 uppercase">
+                                            INSERT BLU-RAY DISC
+                                        </div>
+                                    </div>
+
+                                    <!-- Graphic Visualizer Track Slider -->
+                                    <div class="flex items-center gap-3 w-full">
+                                        <span id="avr-disp-current-time"
+                                            class="text-[8px] font-mono text-amber-500/70 select-none">0:00</span>
+                                        <div id="avr-progress-container" class="flex-1 h-1 bg-zinc-900 rounded overflow-hidden flex gap-0.5">
+                                            <!-- Glowing audio blocks representation -->
+                                            <div id="avr-disp-progress"
+                                                class="h-full bg-amber-500 shadow-[0_0_4px_#f59e0b] w-0"></div>
+                                        </div>
+                                        <canvas id="avr-vis-canvas" class="hidden flex-1 h-3 bg-transparent" width="220" height="12"></canvas>
+                                        <span id="avr-disp-duration"
+                                            class="text-[8px] font-mono text-amber-500/70 select-none">0:00</span>
+                                    </div>
+                                </div>
+
+                                <!-- Screen when Power is OFF -->
+                                <div id="avr-screen-off"
+                                    class="flex flex-col items-center justify-center min-h-[75px] font-mono">
+                                    <span
+                                        class="text-xs font-bold tracking-widest text-zinc-800 uppercase select-none">SYSTEM
+                                        SLEEP</span>
+                                    <span class="text-[9px] text-zinc-850 mt-1 uppercase select-none">Press Power to
+                                        boot</span>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Right Controller: Master Rotary Volume Dial -->
+                        <div class="lg:col-span-3 flex items-center justify-between lg:justify-center gap-6 w-full">
+                            <!-- Dial Layout -->
+                            <div class="flex flex-col items-center">
+                                <div id="avr-volume-dial"
+                                    class="w-16 h-16 rounded-full bg-gradient-to-tr from-zinc-950 via-zinc-900 to-zinc-800 border-2 border-zinc-800 shadow-xl flex items-center justify-center relative cursor-pointer select-none transition-all duration-300 hover:border-zinc-700"
+                                    style="transform: rotate(-135deg);"
+                                    title="Left click to turn UP, Right click to turn DOWN">
+                                    <!-- Index indicator -->
+                                    <div id="avr-dial-indicator"
+                                        class="absolute top-1 w-1 h-2 rounded-full bg-zinc-700 transition-colors duration-300">
+                                    </div>
+                                    <div class="w-10 h-10 rounded-full bg-zinc-950 border border-zinc-850 shadow-inner">
+                                    </div>
+                                </div>
+                                <span
+                                    class="text-[9px] font-mono text-zinc-550 tracking-wider uppercase mt-2 select-none">Volume
+                                    Dial</span>
+                            </div>
+
+                            <div class="text-right font-mono">
+                                <span class="text-[9px] text-zinc-550 uppercase tracking-widest">Master Vol</span>
+                                <div id="avr-volume-text"
+                                    class="text-xl font-extrabold tracking-wider mt-1 text-zinc-600">OFF</div>
+                            </div>
+                        </div>
+
                     </div>
-                    <div class="text-right">
-                        <p class="text-[9px] text-zinc-600 uppercase tracking-widest mb-1">Sound Field</p>
-                        <p id="avrDisplayDSP" class="text-blue-400 text-lg font-bold tracking-wider">ATMOS STANDARD</p>
+
+                    <!-- Input Selector buttons & DVD slot tray (ON state) -->
+                    <div id="avr-bottom-panel" class="hidden flex-col gap-4 border-t border-zinc-900/80 pt-5 mt-1">
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+
+                            <!-- Inputs Row -->
+                            <div class="lg:col-span-6 flex items-center gap-2 flex-wrap">
+                                <span
+                                    class="text-[9px] font-mono text-zinc-500 font-bold uppercase tracking-widest mr-2 select-none">Select
+                                    Input</span>
+
+                                <button id="avr-src-bluray"
+                                    class="avr-src-btn px-3 py-1.5 rounded-lg text-[10px] font-mono font-bold tracking-wider flex items-center gap-1.5 border border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-zinc-200 transition-all cursor-pointer">
+                                    <i class="fa-solid fa-compact-disc text-[11px]"></i>
+                                    BLU-RAY
+                                </button>
+
+                                <button id="avr-src-bluetooth"
+                                    class="avr-src-btn px-3 py-1.5 rounded-lg text-[10px] font-mono font-bold tracking-wider flex items-center gap-1.5 border border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-zinc-200 transition-all cursor-pointer">
+                                    <i class="fa-brands fa-bluetooth text-[11px]"></i>
+                                    BLUETOOTH
+                                </button>
+
+                                <button id="avr-src-fm"
+                                    class="avr-src-btn px-3 py-1.5 rounded-lg text-[10px] font-mono font-bold tracking-wider flex items-center gap-1.5 border border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-zinc-200 transition-all cursor-pointer">
+                                    <i class="fa-solid fa-radio text-[11px]"></i>
+                                    FM RADIO
+                                </button>
+
+                                <button id="avr-src-optical"
+                                    class="avr-src-btn px-3 py-1.5 rounded-lg text-[10px] font-mono font-bold tracking-wider flex items-center gap-1.5 border border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-zinc-200 transition-all cursor-pointer">
+                                    <i class="fa-solid fa-bolt text-[11px]"></i>
+                                    OPTICAL
+                                </button>
+                            </div>
+
+                            <!-- Equalizer Profile Presets -->
+                            <div class="lg:col-span-6 flex items-center justify-end gap-2 flex-wrap w-full">
+                                <span
+                                    class="text-[9px] font-mono text-zinc-500 font-bold uppercase tracking-widest mr-2 select-none">Sound
+                                    EQ</span>
+
+                                <button id="avr-eq-flat"
+                                    class="avr-eq-btn px-2.5 py-1 rounded-md text-[9px] font-mono font-bold tracking-wider border border-zinc-800/80 bg-zinc-900/50 text-zinc-500 hover:text-zinc-300 transition-all cursor-pointer">FLAT</button>
+                                <button id="avr-eq-cinema"
+                                    class="avr-eq-btn px-2.5 py-1 rounded-md text-[9px] font-mono font-bold tracking-wider border border-zinc-800/80 bg-zinc-900/50 text-zinc-500 hover:text-zinc-300 transition-all cursor-pointer">CINEMA</button>
+                                <button id="avr-eq-music"
+                                    class="avr-eq-btn px-2.5 py-1 rounded-md text-[9px] font-mono font-bold tracking-wider border border-zinc-800/80 bg-zinc-900/50 text-zinc-500 hover:text-zinc-300 transition-all cursor-pointer">MUSIC</button>
+                                <button id="avr-eq-basspro"
+                                    class="avr-eq-btn px-2.5 py-1 rounded-md text-[9px] font-mono font-bold tracking-wider border border-zinc-800/80 bg-zinc-900/50 text-zinc-500 hover:text-zinc-300 transition-all cursor-pointer">BASS-PRO</button>
+                            </div>
+
+                        </div>
+
+                        <!-- Virtual Blu-ray Tray Open Loader -->
+                        <div id="avr-tray-panel"
+                            class="hidden border-t border-zinc-900 pt-4 flex flex-col md:flex-row items-center justify-between gap-4">
+                            <div class="flex items-center gap-3">
+                                <button id="avr-btn-eject"
+                                    class="p-2 rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-300 hover:text-white flex items-center gap-2 text-[10px] font-mono font-bold uppercase transition-all cursor-pointer">
+                                    <i class="fa-solid fa-eject text-[11px]"></i>
+                                    <span id="avr-lbl-eject">Eject / Insert Disc</span>
+                                </button>
+                                <p id="avr-txt-tray" class="text-[10px] text-zinc-500 font-mono">💿 Blu-Ray Disc nested
+                                    inside slot drive.</p>
+                            </div>
+
+                            <!-- Media Player playbacks -->
+                            <div class="flex items-center gap-2">
+                                <button id="avr-btn-play"
+                                    class="p-2 rounded-full border border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white transition-all flex items-center justify-center cursor-pointer"
+                                    title="Play / Pause">
+                                    <i id="avr-icon-play" class="fa-solid fa-play text-[10px]"></i>
+                                </button>
+
+                                <button id="avr-btn-next"
+                                    class="p-2 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white active:scale-90 transition-transform flex items-center justify-center cursor-pointer"
+                                    title="Next Soundtrack">
+                                    <i class="fa-solid fa-forward text-[10px]"></i>
+                                </button>
+
+                                <div class="text-left ml-2 font-mono">
+                                    <div class="text-[8px] text-zinc-550 uppercase leading-none">Soundtrack Index</div>
+                                    <div class="text-[10px] text-zinc-300 font-bold leading-none mt-1.5"><span
+                                            id="avr-lbl-track-idx">1</span> / 7</div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
-                    <div class="text-right">
-                        <p class="text-[9px] text-zinc-600 uppercase tracking-widest mb-1">Volume</p>
-                        <p id="avrDisplayVol" class="text-white text-lg font-bold tracking-wider">85%</p>
-                    </div>
+
                 </div>
 
-                <!-- Input Source Selection -->
-                <div>
-                    <p class="text-[10px] text-zinc-550 uppercase tracking-widest mb-3">Input Source</p>
-                    <div class="grid grid-cols-4 gap-3">
-                        <button id="btnSrcHdmi1"
-                            class="py-2.5 rounded-xl text-xs font-mono font-bold bg-amber-500 text-black uppercase transition-all">HDMI
-                            1 / eARC</button>
-                        <button id="btnSrcHdmi2"
-                            class="py-2.5 rounded-xl text-xs font-mono font-bold bg-zinc-950 border border-zinc-850 text-zinc-400 hover:text-white uppercase transition-all">HDMI
-                            2 Source</button>
-                        <button id="btnSrcOptical"
-                            class="py-2.5 rounded-xl text-xs font-mono font-bold bg-zinc-950 border border-zinc-850 text-zinc-400 hover:text-white uppercase transition-all">Optical
-                            S/PDIF</button>
-                        <button id="btnSrcBluetooth"
-                            class="py-2.5 rounded-xl text-xs font-mono font-bold bg-zinc-950 border border-zinc-850 text-zinc-400 hover:text-white uppercase transition-all">Bluetooth
-                            5.0</button>
-                    </div>
-                </div>
-
-                <!-- DSP / Sound Field Modes -->
-                <div>
-                    <p class="text-[10px] text-zinc-550 uppercase tracking-widest mb-3">Sound Field / DSP Mode</p>
-                    <div class="grid grid-cols-4 gap-3">
-                        <button id="btnDspAtmos"
-                            class="py-2 rounded-xl text-[10px] font-mono font-bold bg-amber-500 text-black uppercase transition-all">Atmos
-                            Standard</button>
-                        <button id="btnDspCinema"
-                            class="py-2 rounded-xl text-[10px] font-mono font-bold bg-zinc-950 border border-zinc-850 text-zinc-400 hover:text-white uppercase transition-all">Studio
-                            Cinema</button>
-                        <button id="btnDspDirect"
-                            class="py-2 rounded-xl text-[10px] font-mono font-bold bg-zinc-950 border border-zinc-850 text-zinc-400 hover:text-white uppercase transition-all">Pure
-                            Direct</button>
-                        <button id="btnDspGame"
-                            class="py-2 rounded-xl text-[10px] font-mono font-bold bg-zinc-950 border border-zinc-850 text-zinc-400 hover:text-white uppercase transition-all">Game
-                            Pro</button>
-                    </div>
-                </div>
-
-                <!-- DRC / Night Mode -->
-                <div
-                    class="flex items-center justify-between bg-zinc-950/40 border border-zinc-900 rounded-2xl px-5 py-4">
-                    <div>
-                        <p class="text-xs font-bold text-white uppercase tracking-wider">Dynamic Range Compression</p>
-                        <p id="lblDRC" class="text-[9px] text-zinc-550 uppercase tracking-widest mt-1">Night Mode (On)
-                        </p>
-                    </div>
-                    <button id="btnToggleDRC"
-                        class="px-4 py-1.5 rounded-lg bg-emerald-600 text-white font-mono text-[10px] font-bold uppercase transition-all">Active</button>
-                </div>
-
-                <p id="infoHelperText-receiver" class="text-[10px] text-zinc-600 tracking-wide text-center mt-auto">
+                <p id="infoHelperText-receiver" class="text-[10px] text-zinc-600 tracking-wide text-center mt-2">
                     Receiver Console manages dynamic source profiles, hardware inputs, and ambient soundstage presets.
                 </p>
             </div>
 
             <!-- Sub-View 4: Settings -->
             <div id="view-settings"
-                class="hidden flex-col gap-5 min-h-[460px] bg-zinc-950/20 border border-zinc-900 rounded-[32px] p-8 font-mono w-full">
+                class="hidden flex-col gap-4 bg-zinc-950/20 border border-zinc-900 rounded-2xl p-5 font-mono w-full">
 
                 <!-- Start with Windows -->
                 <div
@@ -1314,7 +1547,7 @@
 
         </div>
 
-        <script src="app.js"></script>
+        <script type="module" src="js/app.js"></script>
 </body>
 
 </html>

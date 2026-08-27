@@ -1,0 +1,24 @@
+# =====================================================================
+# 8D Spatial Audio 5.1 Upmix Profile (100% Full Volume)
+# =====================================================================
+
+# Global Preamp - හැම එකක්ම 100% දෙනකොට සද්දේ බිඳෙන (Clipping) එක 
+# වළක්වන්න මේ Preamp එක අනිවාර්යයෙන්ම ඕනේ.
+Preamp: -4.0 dB
+
+If: inputChannelCount == 2
+
+    # [100% MAXIMUM VOLUME MAPPING]
+    # FL (L) සහ FR (R) -> 100% වැඩ.
+    # SL (RL) සහ SR (RR) -> 100% වැඩ.
+    # Center (C) -> Left එකෙන් 100% ක්ම ගන්නවා (තරංග කැපෙන්නේ නැහැ, සද්දේ උපරිමයි).
+    # LFE (Sub) -> L+R දෙකේම බේස් එක 100% ක්ම එකතු කරලා ගන්නවා.
+    Copy: L=L R=R C=L RL=L RR=R LFE=L+R
+
+    # [SUBWOOFER FILTER]
+    # සබ් එකට Clean deep bass එක විතරක් දෙන 120Hz Low Pass Filter එක.
+    Channel: LFE
+    Filter: ON LPQ Fc 120 Hz Q 0.707
+
+EndIf:
+# =====================================================================

@@ -30,11 +30,22 @@ _DEFAULTS = {
         "towerR": 20,
         "surroundR": 24
     },
+    "calibration_gains": {
+        "surroundL": 0.0,
+        "towerL": 0.0,
+        "center": 0.0,
+        "subwoofer": 0.0,
+        "towerR": 0.0,
+        "surroundR": 0.0
+    },
     "calibration_eq": {
         "bass": 2.0,
         "mid": 0.0,
         "treble": 1.5
     },
+    "calibration_mode": "sweetspot",
+    "active_preset": None,
+    "preset_prev_state": None,
     "active_profile": "Movie",
     "user_preset_channels": {
         "surroundL": 100,
@@ -44,10 +55,24 @@ _DEFAULTS = {
         "towerR": 100,
         "surroundR": 100
     },
-    "user_preset_master": 85
+    "user_preset_master": 85,
+    "access_token": "SamsungAudioscapeSecureToken7777",
+    "sound_profiles": {
+        "Movie": {"channels": {"0": 85, "1": 85, "2": 100, "3": 100, "4": 80, "5": 80}, "master": None},
+        "Music": {"channels": {"0": 100, "1": 100, "2": 70, "3": 100, "4": 80, "5": 80}, "master": None},
+        "Game": {"channels": {"0": 90, "1": 90, "2": 85, "3": 100, "4": 95, "5": 95}, "master": None},
+        "Night": {"channels": {"0": 75, "1": 75, "2": 95, "3": 100, "4": 70, "5": 70}, "master": 30},
+        "Concert": {"channels": {"0": 100, "1": 100, "2": 80, "3": 95, "4": 75, "5": 75}, "master": None},
+        "Vocal": {"channels": {"0": 60, "1": 60, "2": 100, "3": 50, "4": 40, "5": 40}, "master": None},
+        "Sports": {"channels": {"0": 80, "1": 80, "2": 100, "3": 85, "4": 90, "5": 90}, "master": None},
+        "Club": {"channels": {"0": 90, "1": 90, "2": 80, "3": 100, "4": 85, "5": 85}, "master": None}
+    }
 }
 
-_lock = threading.Lock()
+# Bug Fix #3: Use RLock so the same thread can re-acquire the lock
+# without deadlocking when _load() is called inside set()/update()
+# which then calls _save() — both of which acquire _lock.
+_lock = threading.RLock()
 _cache = None
 
 
