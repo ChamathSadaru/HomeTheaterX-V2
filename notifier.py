@@ -45,8 +45,7 @@ def _send_winotify(title, message):
     toast = Notification(
         app_id="HomeTheaterX",
         title=title,
-        msg=message,
-        icon=_ICON_PATH if os.path.exists(_ICON_PATH) else ""
+        msg=message
     )
     toast.show()
     return True
@@ -54,7 +53,7 @@ def _send_winotify(title, message):
 
 def _send_win11toast(title, message):
     from win11toast import notify as w11_notify
-    w11_notify(title, message, icon=_ICON_PATH if os.path.exists(_ICON_PATH) else None)
+    w11_notify(title, message)
     return True
 
 

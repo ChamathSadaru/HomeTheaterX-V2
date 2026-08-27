@@ -577,7 +577,88 @@ export async function resetBalance() {
 }
 
 // ------------------------------------------------------------------
-// Sequential sound sweeps
+// ------------------------------------------------------------------
+// Spoken Voice Channel Announcer (Web Audio 5.1 Multi-Channel Router)
+// ------------------------------------------------------------------
+let sweepAudioCtx = null;
+const voiceBufferCache = {};
+
+const voicePathMap = {
+  "towerL": "/audio/voice_front_left.wav",
+  "towerR": "/audio/voice_front_right.wav",
+  "center": "/audio/voice_center.wav",
+  "subwoofer": "/audio/voice_subwoofer.wav",
+  "surroundL": "/audio/voice_surround_left.wav",
+  "surroundR": "/audio/voice_surround_right.wav"
+};
+
+const discreteChannelIndex = {
+  "towerL": 0,    // Front Left
+  "towerR": 1,    // Front Right
+  "center": 2,    // Center
+  "subwoofer": 3, // LFE
+  "surroundL": 4, // Rear Left
+  "surroundR": 5  // Rear Right
+};
+
+export async function playSpokenChannelAnnouncement(channelKey) {
+  try {
+    if (!sweepAudioCtx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      sweepAudioCtx = new AudioCtx({ sampleRate: 48000 });
+    }
+    if (sweepAudioCtx.state === "suspended") {
+      await sweepAudioCtx.resume();
+    }
+
+    const wavUrl = voicePathMap[channelKey];
+    if (!wavUrl) return;
+
+    if (!voiceBufferCache[channelKey]) {
+      const res = await fetch(wavUrl);
+      const arrayBuffer = await res.arrayBuffer();
+      voiceBufferCache[channelKey] = await sweepAudioCtx.decodeAudioData(arrayBuffer);
+    }
+
+    const buffer = voiceBufferCache[channelKey];
+    const source = sweepAudioCtx.createBufferSource();
+    source.buffer = buffer;
+
+    const maxCh = sweepAudioCtx.destination.maxChannelCount || 6;
+    sweepAudioCtx.destination.channelCount = Math.min(state.channelCount || 6, maxCh);
+    sweepAudioCtx.destination.channelCountMode = "explicit";
+    sweepAudioCtx.destination.channelInterpretation = "discrete";
+
+    if (sweepAudioCtx.destination.channelCount >= 6) {
+      const merger = sweepAudioCtx.createChannelMerger(6);
+      const targetCh = discreteChannelIndex[channelKey] !== undefined ? discreteChannelIndex[channelKey] : 0;
+      source.connect(merger, 0, targetCh);
+      merger.connect(sweepAudioCtx.destination);
+    } else {
+      // Stereo fallback with clean spatial panning
+      if (sweepAudioCtx.createStereoPanner) {
+        const panner = sweepAudioCtx.createStereoPanner();
+        if (channelKey === "towerL" || channelKey === "surroundL") panner.pan.value = -0.95;
+        else if (channelKey === "towerR" || channelKey === "surroundR") panner.pan.value = 0.95;
+        else panner.pan.value = 0.0;
+        source.connect(panner);
+        panner.connect(sweepAudioCtx.destination);
+      } else {
+        source.connect(sweepAudioCtx.destination);
+      }
+    }
+
+    source.start(0);
+  } catch (err) {
+    console.warn("[Voice Announcer] Web Audio router fallback:", err);
+    const idx = channelIndexMap[channelKey];
+    if (idx !== undefined) {
+      apiPost('/api/test_channel', { channel: idx }).catch(() => {});
+    }
+  }
+}
+
+// Sequential sound sweeps (Spoken Channel Voice Diagnostics)
 // ------------------------------------------------------------------
 export async function runSequentialSweep() {
   if (state.eightd.active) {
@@ -592,13 +673,13 @@ export async function runSequentialSweep() {
     state.sweepActive = false;
     if (testIcon) testIcon.className = "fa-solid fa-volume-high text-xs";
     clearSweepHighlights();
-    showToast("Sweep Stopped", "Sequential channel check cancelled.", "brand-blue");
+    showToast("Diagnostic Sweep Stopped", "Channel voice verification cancelled.", "brand-blue");
     return;
   }
 
   state.sweepActive = true;
-  if (testIcon) testIcon.className = "fa-solid fa-circle-notch fa-spin text-xs text-blue-400";
-  showToast("Sweep Active", "Triggering sequential surround sound diagnostic sweep...", "brand-blue");
+  if (testIcon) testIcon.className = "fa-solid fa-circle-notch fa-spin text-xs text-amber-500";
+  showToast("Diagnostic Sweep Active", "Speaking channel names across 5.1 soundstage...", "amber");
 
   const sweepOrder = ["towerL", "center", "towerR", "surroundR", "surroundL", "subwoofer"];
   let currentIdx = 0;
@@ -606,20 +687,20 @@ export async function runSequentialSweep() {
   const playNextTone = async () => {
     if (!state.sweepActive) return;
     const activeKey = sweepOrder[currentIdx];
-    const idx = channelIndexMap[activeKey];
 
     clearSweepHighlights();
     const activeCard = document.getElementById(`card-${activeKey}`);
     if (activeCard) {
-      activeCard.classList.add('border-amber-500/80', 'bg-amber-950/10', 'scale-105', 'shadow-[0_0_15px_rgba(245,158,11,0.4)]');
+      activeCard.classList.add('border-amber-500/90', 'bg-amber-950/20', 'scale-105', 'shadow-[0_0_20px_rgba(245,158,11,0.5)]');
     }
 
-    await apiPost('/api/test_channel', { channel: idx });
+    // Play high-fidelity spoken voice announcement for this channel
+    await playSpokenChannelAnnouncement(activeKey);
     currentIdx = (currentIdx + 1) % sweepOrder.length;
   };
 
   await playNextTone();
-  state.sweepInterval = setInterval(playNextTone, 1400);
+  state.sweepInterval = setInterval(playNextTone, 1750);
 }
 
 export function stopSequentialSweep() {
@@ -638,7 +719,7 @@ function clearSweepHighlights() {
     if (card) {
       card.classList.remove(
         'border-purple-500/80', 'bg-purple-950/10',
-        'border-amber-500/80', 'bg-amber-950/10', 'scale-105', 'shadow-[0_0_15px_rgba(245,158,11,0.4)]'
+        'border-amber-500/80', 'bg-amber-950/10', 'border-amber-500/90', 'bg-amber-950/20', 'scale-105', 'shadow-[0_0_15px_rgba(245,158,11,0.4)]', 'shadow-[0_0_20px_rgba(245,158,11,0.5)]'
       );
     }
   });

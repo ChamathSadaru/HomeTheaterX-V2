@@ -239,24 +239,25 @@ class WebSocketManager:
     # -------------------------------------------------------------------------
 
     async def _audio_peak_loop(self):
-        """Broadcasts real-time audio output meter peak ~33fps for oscilloscope visualization."""
+        """Broadcasts real-time per-channel audio output peaks ~50fps for speaker pulsing and oscilloscope."""
         while self.running:
             try:
                 with self.clients_lock:
                     has_clients = bool(self.clients)
                 
                 if has_clients:
-                    peak = self.backend.get_audio_peak()
-                    # Only broadcast if there are listeners
+                    peak_data = self.backend.get_audio_peaks_full()
+                    # Only broadcast if there are active listeners
                     await self.broadcast({
                         "type": "audio_peak",
-                        "peak": peak
+                        "peak": peak_data.get("master", 0.0),
+                        "channel_peaks": peak_data.get("channels", {})
                     })
-                await asyncio.sleep(0.03)  # ~33 fps
+                await asyncio.sleep(0.02)  # ~50 fps buttery live rate
             except asyncio.CancelledError:
                 break
             except Exception:
-                await asyncio.sleep(0.1)
+                await asyncio.sleep(0.05)
 
     async def _media_sync_loop(self):
         """
@@ -269,14 +270,15 @@ class WebSocketManager:
                     has_clients = bool(self.clients)
 
                 if has_clients:
-                    media_data = await self._get_media_status_safe()
-                    # Broadcast update
+                    # Broadcast update if metadata, playback state, position, or thumbnail changes
+                    thumb_len = len(media_data.get("thumbnail", "") or "")
                     current_snap = (
                         media_data.get("status"),
                         media_data.get("title"),
                         media_data.get("artist"),
                         media_data.get("playback_status"),
-                        int(media_data.get("position", 0))
+                        int(media_data.get("position", 0)),
+                        thumb_len
                     )
                     
                     if current_snap != self._last_media_snapshot:

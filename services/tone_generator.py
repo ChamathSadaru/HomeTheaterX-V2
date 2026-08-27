@@ -1,11 +1,29 @@
+import os
 import threading
+import wave
 import numpy as np
 import sounddevice as sd
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+AUDIO_DIR = os.path.join(BASE_DIR, "web", "audio")
+
+VOICE_FILES = {
+    0: "voice_front_left.wav",
+    1: "voice_front_right.wav",
+    2: "voice_center.wav",
+    3: "voice_subwoofer.wav",
+    4: "voice_surround_left.wav",
+    5: "voice_surround_right.wav"
+}
 
 def get_sounddevice_index(friendly_name):
     """Finds matching output device index in sounddevice using substrings."""
     try:
         devices = sd.query_devices()
+        if not friendly_name:
+            default_out = sd.default.device[1]
+            return default_out if default_out is not None else 0
+
         clean_name = friendly_name.lower().split('(')[0].strip()
         
         # Exact match
@@ -32,10 +50,7 @@ def get_sounddevice_index(friendly_name):
 
 
 def play_channel_test(channel_idx, channel_count, current_device_name):
-    """Generates a 0.8s 440Hz test sine wave with 100ms fadeout, playing it only on target channel."""
-    if not current_device_name:
-        return
-    # Run in a daemon thread so the caller is not blocked
+    """Plays spoken voice announcement for the designated channel on a background thread."""
     t = threading.Thread(
         target=_play_channel_test_sync,
         args=(channel_idx, channel_count, current_device_name),
@@ -45,45 +60,33 @@ def play_channel_test(channel_idx, channel_count, current_device_name):
 
 
 def _play_channel_test_sync(channel_idx, channel_count, current_device_name):
-    """Synchronous tone playback (run on a background thread)."""
+    """Synchronous audio playback with multi-channel routing and safe fallback."""
     try:
+        wav_name = VOICE_FILES.get(channel_idx, "voice_center.wav")
+        wav_path = os.path.join(AUDIO_DIR, wav_name)
+        
+        if not os.path.exists(wav_path):
+            print(f"[Voice Announcer] Voice file not found: {wav_path}")
+            return
+
+        with wave.open(wav_path, "rb") as w:
+            sample_rate = w.getframerate()
+            n_frames = w.getnframes()
+            audio_bytes = w.readframes(n_frames)
+            audio_mono = np.frombuffer(audio_bytes, dtype=np.int16).astype(np.float32) / 32768.0
+
         sd_idx = get_sounddevice_index(current_device_name)
+        dev_info = sd.query_devices(sd_idx)
+        dev_channels = dev_info.get("max_output_channels", 2)
+        
+        actual_channels = max(2, min(int(channel_count or 6), int(dev_channels or 6)))
+        
+        # Multi-channel matrix
+        output_buffer = np.zeros((len(audio_mono), actual_channels), dtype=np.float32)
+        target_ch = min(int(channel_idx), actual_channels - 1)
+        output_buffer[:, target_ch] = audio_mono
 
-        duration = 0.8
-        sample_rate = 44100
-
-        if channel_idx == 3:  # Subwoofer (Bass / LFE)
-            frequency = 60.0
-            t = np.linspace(0, duration, int(sample_rate * duration), False)
-            
-            # Generate a "dum dum" double-pulsed bass envelope
-            envelope = np.zeros(len(t))
-            p1_end = int(sample_rate * 0.35)
-            t1 = t[:p1_end]
-            envelope[:p1_end] = np.sin(np.pi * (t1 / 0.35)) ** 2
-            
-            p2_start = int(sample_rate * 0.4)
-            p2_end = int(sample_rate * 0.75)
-            t2 = t[p2_start:p2_end]
-            envelope[p2_start:p2_end] = np.sin(np.pi * ((t2 - 0.4) / 0.35)) ** 2
-            
-            tone = np.sin(2 * np.pi * frequency * t) * 0.65 * envelope
-        else:
-            frequency = 440.0
-            t = np.linspace(0, duration, int(sample_rate * duration), False)
-            tone = np.sin(2 * np.pi * frequency * t) * 0.4
-            
-            # Fade out last 100ms to prevent clicking pops
-            fade_len = int(sample_rate * 0.1)
-            fade_out = np.linspace(1.0, 0.0, fade_len)
-            tone[-fade_len:] *= fade_out
-
-        # Create channel layout mapping
-        data = np.zeros((len(tone), channel_count))
-        if channel_idx < channel_count:
-            data[:, channel_idx] = tone
-
-        sd.play(data, sample_rate, device=sd_idx)
-        sd.wait()  # Wait inside the thread so tones don't overlap
+        sd.play(output_buffer, sample_rate, device=sd_idx)
+        sd.wait()
     except Exception as e:
-        print(f"Error playing test tone: {e}")
+        print(f"[Voice Announcer] Playback fallback error: {e}")

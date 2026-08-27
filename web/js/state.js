@@ -13,6 +13,14 @@ export const channelIndexMap = {
 
 export const state = {
   windowsAudioPeak: 0.0,
+  channelPeaks: {
+    "surroundL": 0.0,
+    "towerL": 0.0,
+    "subwoofer": 0.0,
+    "center": 0.0,
+    "towerR": 0.0,
+    "surroundR": 0.0
+  },
   volumes: {
     "surroundL": 75,
     "towerL": 80,

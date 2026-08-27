@@ -2,8 +2,24 @@ import os
 import time
 import threading
 from ctypes import cast, POINTER
-from comtypes import CLSCTX_ALL, CoInitialize
-from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume, IAudioMeterInformation
+from comtypes import CLSCTX_ALL, CoInitialize, IUnknown, GUID, COMMETHOD, HRESULT
+import ctypes
+from ctypes import wintypes
+from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+
+class IFullAudioMeterInformation(IUnknown):
+    _iid_ = GUID('{C02216F6-8C67-4B5B-9D00-D008E73E0064}')
+    _methods_ = [
+        COMMETHOD([], HRESULT, 'GetPeakValue',
+                  (['out'], POINTER(ctypes.c_float), 'pfPeak')),
+        COMMETHOD([], HRESULT, 'GetMeteringChannelCount',
+                  (['out'], POINTER(wintypes.UINT), 'pnChannelCount')),
+        COMMETHOD([], HRESULT, 'GetChannelsPeakValues',
+                  (['in'], wintypes.UINT, 'u32ChannelCount'),
+                  (['in'], POINTER(ctypes.c_float), 'afPeakValues')),
+        COMMETHOD([], HRESULT, 'QueryHardwareSupport',
+                  (['out'], POINTER(wintypes.DWORD), 'pdwHardwareSupportMask')),
+    ]
 
 def safe_coinit():
     try:
@@ -159,10 +175,10 @@ class AudioBackend:
             self.volume_interface = cast(interface, POINTER(IAudioEndpointVolume))
             self.channel_count = self.volume_interface.GetChannelCount()
 
-            # Activate and cache the peak meter interface
+            # Activate and cache the full per-channel peak meter interface
             try:
-                meter_iface = dev_obj.Activate(IAudioMeterInformation._iid_, CLSCTX_ALL, None)
-                self.meter_interface = cast(meter_iface, POINTER(IAudioMeterInformation))
+                meter_iface = dev_obj.Activate(IFullAudioMeterInformation._iid_, CLSCTX_ALL, None)
+                self.meter_interface = cast(meter_iface, POINTER(IFullAudioMeterInformation))
             except Exception as meter_err:
                 print(f"Could not activate peak meter for device {device_name}: {meter_err}")
                 self.meter_interface = None
@@ -479,6 +495,62 @@ class AudioBackend:
         if not hasattr(self, 'meter_interface') or not self.meter_interface:
             return 0.0
         try:
-            return self.meter_interface.GetPeakValue()
+            return float(self.meter_interface.GetPeakValue())
         except Exception:
             return 0.0
+
+    def get_audio_peaks_full(self):
+        """
+        Returns real-time master peak and per-channel peaks mapping to:
+        { 'master': float, 'channels': { 'towerL': float, 'towerR': float, 'center': float, 'subwoofer': float, 'surroundL': float, 'surroundR': float } }
+        """
+        safe_coinit()
+        if not hasattr(self, 'meter_interface') or not self.meter_interface:
+            return {"master": 0.0, "channels": {}}
+
+        try:
+            master_peak = float(self.meter_interface.GetPeakValue())
+            
+            # Read per-channel peaks from Windows Audio Engine
+            ch_count = self.meter_interface.GetMeteringChannelCount()
+            if ch_count > 0:
+                peaks_buf = (ctypes.c_float * ch_count)()
+                self.meter_interface.GetChannelsPeakValues(ch_count, peaks_buf)
+                raw_peaks = [float(p) for p in peaks_buf]
+            else:
+                raw_peaks = []
+
+            # Map raw channels (Standard Windows 5.1 layout: 0=FL, 1=FR, 2=C, 3=Sub, 4=RL, 5=RR)
+            # Or Stereo (0=L, 1=R)
+            ch_map = {}
+            if len(raw_peaks) >= 6:
+                ch_map = {
+                    "towerL": raw_peaks[0],
+                    "towerR": raw_peaks[1],
+                    "center": raw_peaks[2],
+                    "subwoofer": raw_peaks[3],
+                    "surroundL": raw_peaks[4],
+                    "surroundR": raw_peaks[5]
+                }
+            elif len(raw_peaks) >= 2:
+                ch_map = {
+                    "towerL": raw_peaks[0],
+                    "towerR": raw_peaks[1],
+                    "center": 0.0,
+                    "subwoofer": 0.0,
+                    "surroundL": 0.0,
+                    "surroundR": 0.0
+                }
+            else:
+                ch_map = {
+                    "towerL": master_peak,
+                    "towerR": master_peak,
+                    "center": master_peak,
+                    "subwoofer": master_peak,
+                    "surroundL": master_peak,
+                    "surroundR": master_peak
+                }
+
+            return {"master": master_peak, "channels": ch_map}
+        except Exception:
+            return {"master": 0.0, "channels": {}}

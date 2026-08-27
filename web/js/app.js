@@ -874,12 +874,15 @@ export function applyMediaStatus(data) {
 
     const artImg = document.getElementById("player-art-img");
     if (artImg) {
-      if (data.thumbnail && data.thumbnail !== lastWindowsMediaB64) {
-        lastWindowsMediaB64 = data.thumbnail;
-        artImg.src = "data:image/png;base64," + data.thumbnail;
+      if (data.thumbnail) {
+        if (data.thumbnail !== lastWindowsMediaB64) {
+          lastWindowsMediaB64 = data.thumbnail;
+          artImg.src = data.thumbnail.startsWith("data:") ? data.thumbnail : ("data:image/jpeg;base64," + data.thumbnail);
+        }
         artImg.classList.remove("hidden");
-      } else if (!data.thumbnail) {
+      } else {
         artImg.classList.add("hidden");
+        artImg.src = "";
         lastWindowsMediaB64 = "";
       }
     }
@@ -940,10 +943,12 @@ function animateSpeakerPulses() {
     }
     prevPeak = peak;
 
-    if (bassIntensity > currentBassGlow) {
-      currentBassGlow = bassIntensity;
+    const subChPeak = state.channelPeaks["subwoofer"] || 0.0;
+    const subEffective = Math.max(subChPeak, bassIntensity);
+    if (subEffective > currentBassGlow) {
+      currentBassGlow = subEffective;
     } else {
-      currentBassGlow = currentBassGlow * 0.83;
+      currentBassGlow = currentBassGlow * 0.85;
     }
 
     const neonRing = document.getElementById("subwoofer-neon-ring");
@@ -951,31 +956,34 @@ function animateSpeakerPulses() {
     const airRipple2 = document.getElementById("air-ripple-2");
 
     if (neonRing) {
-      neonRing.setAttribute("stroke-width", (currentBassGlow * 3.8).toFixed(1));
-      neonRing.setAttribute("opacity", (currentBassGlow * 0.95).toFixed(2));
+      neonRing.setAttribute("stroke-width", (currentBassGlow * 4.2).toFixed(1));
+      neonRing.setAttribute("opacity", (currentBassGlow * 0.98).toFixed(2));
     }
 
     if (airRipple1) {
-      airRipple1.setAttribute("opacity", (currentBassGlow * 0.90).toFixed(2));
-      airRipple1.setAttribute("transform", `translate(0, ${currentBassGlow * 8})`);
+      airRipple1.setAttribute("opacity", (currentBassGlow * 0.92).toFixed(2));
+      airRipple1.setAttribute("transform", `translate(0, ${currentBassGlow * 10})`);
     }
 
     if (airRipple2) {
-      airRipple2.setAttribute("opacity", (currentBassGlow * 0.70).toFixed(2));
-      airRipple2.setAttribute("transform", `translate(0, ${currentBassGlow * 15})`);
+      airRipple2.setAttribute("opacity", (currentBassGlow * 0.75).toFixed(2));
+      airRipple2.setAttribute("transform", `translate(0, ${currentBassGlow * 18})`);
     }
 
     ids.forEach(id => {
       const vol = state.volumes[id] / 100;
+      const rawChPeak = state.channelPeaks[id] || 0.0;
+      const chPeak = Math.max(rawChPeak, (peak > 0.03 ? peak * 0.35 : 0.0));
+
       const speaker = document.getElementById('speaker-wrapper-' + id);
       if (speaker) {
         let multiplier = 0.05;
-        let pulseValue = Math.abs(pulse);
+        let pulseValue = chPeak;
         if (id === "subwoofer") {
-          multiplier = 0.09;
-          pulseValue = currentBassGlow;
+          multiplier = 0.12;
+          pulseValue = Math.max(chPeak, currentBassGlow);
         } else if (id === "surroundL" || id === "surroundR") {
-          multiplier = 0.03;
+          multiplier = 0.04;
         }
 
         const scale = 1 + (pulseValue * vol * multiplier);
@@ -984,22 +992,21 @@ function animateSpeakerPulses() {
 
       const cone = document.getElementById('cone-' + id);
       if (cone) {
-        const driverVib = (id === "subwoofer") ? currentBassGlow : (peak > 0.015 ? peak : 0.0);
-        const vibration = 1.0 + (vol * 0.07 * driverVib * (Math.random() * 0.4 + 0.6));
-        cone.style.transform = `scale(${vibration})`;
+        const driverVib = (id === "subwoofer") ? Math.max(chPeak, currentBassGlow) : chPeak;
+        const vibration = 1.0 + (vol * 0.16 * driverVib);
+        cone.style.transform = `scale(${vibration.toFixed(3)})`;
       }
 
       const glowLight = document.getElementById('glow-light-' + id);
       if (glowLight) {
-        if (vol === 0) {
-          glowLight.style.opacity = '0';
-          glowLight.style.transform = 'scale(0.8)';
+        if (vol === 0 || chPeak < 0.008) {
+          glowLight.style.opacity = '0.05';
+          glowLight.style.transform = 'scale(0.85)';
         } else {
-          const pulseValue = (id === "subwoofer") ? currentBassGlow : Math.abs(pulse);
-          const glowOpacity = vol * 0.45 * (0.85 + pulseValue * 0.15);
-          const glowScale = 0.8 + vol * 0.4 + (pulseValue * 0.06);
-          glowLight.style.opacity = glowOpacity;
-          glowLight.style.transform = `scale(${glowScale})`;
+          const glowOpacity = Math.min(1.0, (vol * 0.3) + (chPeak * 0.7 * vol));
+          const glowScale = 0.85 + (vol * 0.3) + (chPeak * 0.2);
+          glowLight.style.opacity = glowOpacity.toFixed(2);
+          glowLight.style.transform = `scale(${glowScale.toFixed(2)})`;
         }
       }
     });

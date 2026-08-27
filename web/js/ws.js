@@ -84,6 +84,12 @@ export async function initWebSocket(handlers = {}) {
         if (typeof payload.peak === "number") {
           state.windowsAudioPeak = state.windowsAudioPeak * 0.25 + payload.peak * 0.75;
         }
+        if (payload.channel_peaks && typeof payload.channel_peaks === "object") {
+          for (const ch in payload.channel_peaks) {
+            const rawVal = payload.channel_peaks[ch] || 0.0;
+            state.channelPeaks[ch] = (state.channelPeaks[ch] || 0.0) * 0.2 + rawVal * 0.8;
+          }
+        }
       } else if (payload.type === "media_status") {
         if (handlers.onMediaUpdate && payload.data) {
           handlers.onMediaUpdate(payload.data);
