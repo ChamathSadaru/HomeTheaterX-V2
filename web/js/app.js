@@ -3,6 +3,7 @@ import { apiGet, apiPost, showToast } from './api.js';
 import { state, ids, channelIndexMap, setUserDragging, lockPollFor } from './state.js';
 import { initOscilloscope, visualizerState } from './visualizer.js';
 import { initRoomCalibrations, applyCalibrationUI } from './calibration.js';
+import { initWebSocket, sendWsMessage, isWsConnected } from './ws.js';
 import {
   initDdlToggle,
   initEightdRotation,
@@ -511,7 +512,58 @@ async function onDeviceSelected() {
   }
 }
 
+export function applyVolumeStatus(data) {
+  if (!data) return;
+  if (state.isUserDragging || state.sweepActive) return;
+  if (Date.now() < state.pollLockUntil) return;
+
+  if (typeof data.master === "number") {
+    state.volumes["master"] = data.master;
+    const masterSlider = document.getElementById("slider-master");
+    if (masterSlider) masterSlider.value = data.master;
+  }
+
+  if (typeof data.muted === "boolean") {
+    state.isSystemMuted = data.muted;
+    const sysMuteBtn = document.getElementById("mute-btn");
+    const muteIcon = document.getElementById("muteIcon");
+    if (sysMuteBtn) {
+      if (state.isSystemMuted) {
+        sysMuteBtn.className = "w-10 h-10 rounded-full bg-red-600 hover:bg-red-500 text-white flex items-center justify-center shadow-lg shadow-red-950/40 border border-red-500/20 transition-all cursor-pointer";
+        if (muteIcon) muteIcon.className = "fa-solid fa-volume-xmark text-xs";
+      } else {
+        sysMuteBtn.className = "w-10 h-10 rounded-full bg-zinc-950 hover:bg-zinc-900 border border-zinc-850 text-zinc-300 flex items-center justify-center shadow-lg transition-all cursor-pointer";
+        if (muteIcon) muteIcon.className = "fa-solid fa-volume-high text-xs";
+      }
+    }
+  }
+
+  if (data.channels) {
+    ids.forEach(id => {
+      const idx = channelIndexMap[id];
+      if (data.channels[idx] !== undefined) {
+        const val = data.channels[idx];
+        state.volumes[id] = val;
+        const slider = document.getElementById(`slider-${id}`);
+        if (slider) slider.value = val;
+
+        const muteIcon = document.getElementById("mute-icon-" + id);
+        if (muteIcon) {
+          if (val === 0) {
+            muteIcon.className = "fa-solid fa-volume-xmark text-[8px] text-red-500";
+          } else {
+            muteIcon.className = "fa-solid fa-volume-high text-[8px] text-zinc-650";
+          }
+        }
+      }
+    });
+  }
+
+  updateAllFadersUI();
+}
+
 async function pollVolumeChanges() {
+  if (isWsConnected()) return;
   if (state.isUserDragging || state.sweepActive) return;
   if (Date.now() < state.pollLockUntil) return;
   updateAppStatus();
@@ -645,19 +697,25 @@ function initMediaPlayer() {
 
 function togglePlay() {
   if (windowsMediaActive) {
-    apiPost("/api/media/control", { action: "play_pause" });
+    if (!sendWsMessage({ type: "media_control", action: "play_pause" })) {
+      apiPost("/api/media/control", { action: "play_pause" });
+    }
   }
 }
 
 function playPrev() {
   if (windowsMediaActive) {
-    apiPost("/api/media/control", { action: "previous" });
+    if (!sendWsMessage({ type: "media_control", action: "previous" })) {
+      apiPost("/api/media/control", { action: "previous" });
+    }
   }
 }
 
 function playNext() {
   if (windowsMediaActive) {
-    apiPost("/api/media/control", { action: "next" });
+    if (!sendWsMessage({ type: "media_control", action: "next" })) {
+      apiPost("/api/media/control", { action: "next" });
+    }
   }
 }
 
@@ -694,87 +752,96 @@ function resetPlayerUI() {
   lastWindowsMediaB64 = "";
 }
 
-async function pollWindowsMedia() {
-  try {
-    const data = await apiGet("/api/media/status");
-    if (data && data.status === "success") {
-      windowsMediaActive = true;
+export function applyMediaStatus(data) {
+  if (!data) return;
 
-      const titleEl = document.getElementById("player-title");
-      const artistEl = document.getElementById("player-artist");
-      const badgeEl = document.getElementById("player-badge");
+  if (data.status === "success") {
+    windowsMediaActive = true;
 
-      if (titleEl) titleEl.innerText = data.title || "Unknown Title";
-      if (artistEl) {
-        const sourceName = data.source ? data.source.split('.').pop() : "System";
-        artistEl.innerText = `${data.artist || "Unknown Artist"} • ${sourceName}`;
-      }
+    const titleEl = document.getElementById("player-title");
+    const artistEl = document.getElementById("player-artist");
+    const badgeEl = document.getElementById("player-badge");
 
-      if (badgeEl) {
-        badgeEl.innerText = "SYSTEM";
-        badgeEl.className = "text-[7px] font-mono text-blue-400 bg-blue-500/10 px-1 py-0.2 rounded border border-blue-500/20 font-bold flex-shrink-0";
-      }
+    if (titleEl) titleEl.innerText = data.title || "Unknown Title";
+    if (artistEl) {
+      const sourceName = data.source ? data.source.split('.').pop() : "System";
+      artistEl.innerText = `${data.artist || "Unknown Artist"} • ${sourceName}`;
+    }
 
-      const isPlaying = data.playback_status === 4;
-      window.mediaPlayerIsPlaying = isPlaying;
+    if (badgeEl) {
+      badgeEl.innerText = "SYSTEM";
+      badgeEl.className = "text-[7px] font-mono text-blue-400 bg-blue-500/10 px-1 py-0.2 rounded border border-blue-500/20 font-bold flex-shrink-0";
+    }
 
-      const playIcon = document.getElementById("player-play-icon");
-      if (playIcon) {
-        if (isPlaying) {
-          playIcon.className = "fa-solid fa-pause text-xs";
-        } else {
-          playIcon.className = "fa-solid fa-play text-xs ml-0.5";
-        }
-      }
+    const isPlaying = data.playback_status === 4;
+    window.mediaPlayerIsPlaying = isPlaying;
 
-      const record = document.getElementById("player-record");
-      if (record) {
-        if (isPlaying) {
-          record.classList.remove("paused-animation");
-        } else {
-          record.classList.add("paused-animation");
-        }
-      }
-
-      const progressBar = document.getElementById("player-progress");
-      const currentTimeEl = document.getElementById("player-current-time");
-      const durationTimeEl = document.getElementById("player-duration");
-
-      const pos = data.position || 0;
-      const dur = data.duration || 1;
-      const percent = (pos / dur) * 100;
-      if (progressBar) progressBar.style.width = Math.min(100, Math.max(0, percent)) + "%";
-
-      const formatTime = (seconds) => {
-        const m = Math.floor(seconds / 60);
-        const s = Math.floor(seconds % 60).toString().padStart(2, "0");
-        return `${m}:${s}`;
-      };
-
-      if (currentTimeEl) currentTimeEl.innerText = formatTime(pos);
-      if (durationTimeEl) durationTimeEl.innerText = formatTime(dur);
-
-      const artImg = document.getElementById("player-art-img");
-      if (artImg) {
-        if (data.thumbnail && data.thumbnail !== lastWindowsMediaB64) {
-          lastWindowsMediaB64 = data.thumbnail;
-          artImg.src = "data:image/png;base64," + data.thumbnail;
-          artImg.classList.remove("hidden");
-        } else if (!data.thumbnail) {
-          artImg.classList.add("hidden");
-          lastWindowsMediaB64 = "";
-        }
-      }
-
-      if (avrState.power && (avrState.source === "BLUETOOTH" || avrState.source === "OPTICAL")) {
-        updateAVRConsoleUI();
-      }
-
-    } else {
-      if (windowsMediaActive) {
-        resetPlayerUI();
+    const playIcon = document.getElementById("player-play-icon");
+    if (playIcon) {
+      if (isPlaying) {
+        playIcon.className = "fa-solid fa-pause text-xs";
+      } else {
+        playIcon.className = "fa-solid fa-play text-xs ml-0.5";
       }
     }
+
+    const record = document.getElementById("player-record");
+    if (record) {
+      if (isPlaying) {
+        record.classList.remove("paused-animation");
+      } else {
+        record.classList.add("paused-animation");
+      }
+    }
+
+    const progressBar = document.getElementById("player-progress");
+    const currentTimeEl = document.getElementById("player-current-time");
+    const durationTimeEl = document.getElementById("player-duration");
+
+    const pos = data.position || 0;
+    const dur = data.duration || 1;
+    const percent = (pos / dur) * 100;
+    if (progressBar) progressBar.style.width = Math.min(100, Math.max(0, percent)) + "%";
+
+    const formatTime = (seconds) => {
+      const m = Math.floor(seconds / 60);
+      const s = Math.floor(seconds % 60).toString().padStart(2, "0");
+      return `${m}:${s}`;
+    };
+
+    if (currentTimeEl) currentTimeEl.innerText = formatTime(pos);
+    if (durationTimeEl) durationTimeEl.innerText = formatTime(dur);
+
+    const artImg = document.getElementById("player-art-img");
+    if (artImg) {
+      if (data.thumbnail && data.thumbnail !== lastWindowsMediaB64) {
+        lastWindowsMediaB64 = data.thumbnail;
+        artImg.src = "data:image/png;base64," + data.thumbnail;
+        artImg.classList.remove("hidden");
+      } else if (!data.thumbnail) {
+        artImg.classList.add("hidden");
+        lastWindowsMediaB64 = "";
+      }
+    }
+
+    if (avrState.power && (avrState.source === "BLUETOOTH" || avrState.source === "OPTICAL")) {
+      updateAVRConsoleUI();
+    }
+
+  } else {
+    if (windowsMediaActive) {
+      resetPlayerUI();
+    }
+  }
+}
+
+async function pollWindowsMedia() {
+  // If WebSocket is actively connected, skip redundant HTTP requests
+  if (isWsConnected()) return;
+
+  try {
+    const data = await apiGet("/api/media/status");
+    applyMediaStatus(data);
   } catch (err) {
     console.error("Error polling Windows media status:", err);
   }
@@ -1074,23 +1141,44 @@ function initTabsNavigation() {
 }
 
 function initWindowsAudioSync() {
-  const eventSource = new EventSource("/api/audio_stream");
-
-  eventSource.onmessage = function (event) {
-    try {
-      const data = JSON.parse(event.data);
-      if (data && typeof data.peak === "number") {
-        state.windowsAudioPeak = state.windowsAudioPeak * 0.25 + data.peak * 0.75;
+  // Initialize real-time WebSocket connection
+  initWebSocket({
+    onMediaUpdate: (mediaData) => {
+      applyMediaStatus(mediaData);
+    },
+    onVolumeUpdate: (volData) => {
+      applyVolumeStatus(volData);
+    },
+    onFullStatus: (fullData) => {
+      if (fullData.media) {
+        applyMediaStatus(fullData.media);
       }
-    } catch (e) {
-      console.error("Audio stream parse error:", e);
+      applyVolumeStatus({
+        master: fullData.master,
+        muted: fullData.muted,
+        channels: fullData.channels
+      });
     }
-  };
+  });
 
-  eventSource.onerror = function (e) {
-    eventSource.close();
-    setTimeout(initWindowsAudioSync, 3000);
-  };
+  // Fallback SSE listener only if WebSockets are unsupported
+  if (!window.WebSocket) {
+    try {
+      const eventSource = new EventSource("/api/audio_stream");
+      eventSource.onmessage = function (event) {
+        try {
+          const data = JSON.parse(event.data);
+          if (data && typeof data.peak === "number") {
+            state.windowsAudioPeak = state.windowsAudioPeak * 0.25 + data.peak * 0.75;
+          }
+        } catch (e) {}
+      };
+      eventSource.onerror = function () {
+        eventSource.close();
+        setTimeout(initWindowsAudioSync, 3000);
+      };
+    } catch (sseErr) {}
+  }
 }
 
 // DOMContentLoaded Bootstrap

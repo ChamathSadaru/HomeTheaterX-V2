@@ -17,6 +17,7 @@ class AudioControlHandler(BaseHTTPRequestHandler):
     # Injected dependencies from web_server.py
     backend = None
     ui_manager = None
+    ws_manager = None
     get_ddl_state = None
     set_ddl_state = None
     notify_fn = None
@@ -98,6 +99,11 @@ class AudioControlHandler(BaseHTTPRequestHandler):
 
             if path_only == "/api/connect":
                 self._send_json({"status": "success", "authenticated": True, "message": "Connected to HomeTheaterX Backend successfully."}, 200)
+                return
+
+            if path_only == "/api/ws_info":
+                ws_port = self.ws_manager.port if self.ws_manager else 5010
+                self._send_json({"status": "success", "ws_port": ws_port}, 200)
                 return
 
             if path_only == "/api/status":

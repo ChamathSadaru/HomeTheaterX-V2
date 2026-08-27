@@ -9,6 +9,7 @@ import notifier
 import startup_manager
 from services import dolby_service, ui_service, apo_service
 from services.api_handler import AudioControlHandler
+from services.websocket_service import WebSocketManager
 
 # Initialize shared backend instance
 backend = AudioBackend()
@@ -33,6 +34,7 @@ PORT = 5000
 server_instance = None
 cached_ddl_state = False
 ui_manager = None
+ws_manager = None
 
 
 def notify_if_enabled(title, message, dedupe_key=None):
@@ -64,14 +66,19 @@ def get_local_ip():
 
 
 def init_server():
-    global PORT, server_instance
+    global PORT, server_instance, ws_manager
     dolby_service.async_check_dolby(update_ddl_callback)
     
+    # Initialize and start WebSocket server on PORT + 10 (e.g. 5010)
+    ws_manager = WebSocketManager(backend, config_manager, host="0.0.0.0", port=PORT + 10)
+    ws_manager.start()
+
     # Inject dependencies into the API Handler
     AudioControlHandler.backend = backend
     AudioControlHandler.get_ddl_state = staticmethod(lambda: cached_ddl_state)
     AudioControlHandler.set_ddl_state = staticmethod(set_ddl_state)
     AudioControlHandler.notify_fn = staticmethod(notify_if_enabled)
+    AudioControlHandler.ws_manager = ws_manager
 
     for attempt in range(5):
         try:

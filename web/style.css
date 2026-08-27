@@ -220,7 +220,7 @@
 }
 
 body {
-    opacity: 0;
+    opacity: 1;
     transition: opacity 0.25s ease-in-out;
 }
 
