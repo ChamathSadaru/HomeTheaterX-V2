@@ -447,6 +447,15 @@ class AudioControlHandler(BaseHTTPRequestHandler):
                     response = {"status": "error", "message": "No active GUI manager"}
                     status_code = 400
 
+            elif path_only == "/api/window/toggle_fullscreen":
+                if self.ui_manager:
+                    result = self.ui_manager.toggle_fullscreen()
+                    response = result
+                    status_code = 200 if result.get("status") == "success" else 400
+                else:
+                    response = {"status": "error", "message": "No active GUI manager"}
+                    status_code = 400
+
             elif path_only == "/api/test_channel":
                 ch = data.get("channel")
                 if ch is not None:

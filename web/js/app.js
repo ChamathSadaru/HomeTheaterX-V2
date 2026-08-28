@@ -1529,6 +1529,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
   checkScreenCount();
 
+  const fullscreenBtn = document.getElementById("win-fullscreen-btn");
+  const fullscreenIcon = document.getElementById("win-fullscreen-icon");
+  if (fullscreenBtn) {
+    fullscreenBtn.addEventListener("click", async () => {
+      try {
+        const res = await apiPost("/api/window/toggle_fullscreen");
+        if (res && res.status === "success" && res.fullscreen !== undefined) {
+          if (fullscreenIcon) {
+            fullscreenIcon.className = res.fullscreen ? "fa-solid fa-compress text-[11px]" : "fa-solid fa-expand text-[11px]";
+          }
+          fullscreenBtn.title = res.fullscreen ? "Exit Fullscreen" : "Toggle Fullscreen";
+        }
+      } catch (err) {
+        console.error("Failed to toggle window fullscreen:", err);
+      }
+    });
+  }
+
   const minBtn = document.getElementById("win-min-btn");
   if (minBtn) {
     minBtn.addEventListener("click", () => {

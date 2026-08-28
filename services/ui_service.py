@@ -16,6 +16,11 @@ class UIManager:
         self.window = None
         self.tray_icon = None
         self.splash_root = None
+        self._is_fullscreen = False
+        self._orig_w = 1152
+        self._orig_h = 870
+        self._orig_x = None
+        self._orig_y = None
 
     def generate_tray_icon_image(self, muted=False):
         try:
@@ -171,23 +176,29 @@ class UIManager:
                 pass
 
     def create_gui_window(self, port):
+        win_w = 1152
+        win_h = 840
         x = None
         y = None
         try:
             screens = webview.screens
             if screens:
                 primary = next((s for s in screens if s.x == 0 and s.y == 0), screens[0])
-                x = int(primary.x + (primary.width - 1152) / 2)
-                y = int(primary.y + (primary.height - 870) / 2)
+                if primary.height < 880:
+                    win_h = max(600, int(primary.height * 0.92))
+                    win_w = min(1152, max(960, int(primary.width * 0.92)))
+                x = int(primary.x + (primary.width - win_w) / 2)
+                y = int(primary.y + (primary.height - win_h) / 2)
         except Exception as scr_err:
             print(f"Failed to query monitor coordinates: {scr_err}")
 
         self.window = webview.create_window(
             title="HomeTheaterX",
             url=f"http://localhost:{port}",
-            width=1152,
-            height=870,
-            resizable=False,
+            width=win_w,
+            height=win_h,
+            min_size=(960, 600),
+            resizable=True,
             frameless=True,
             easy_drag=False,
             x=x,
@@ -251,4 +262,55 @@ class UIManager:
             }
         except Exception as e:
             print(f"[UIManager] Failed to move window between screens: {e}")
+            return {"status": "error", "message": str(e)}
+
+    def toggle_fullscreen(self):
+        """Toggles fullscreen / maximize state of the pywebview application window."""
+        if not self.window:
+            return {"status": "error", "message": "No active window"}
+
+        try:
+            if self._is_fullscreen:
+                # Restore windowed bounds
+                try:
+                    self.window.restore()
+                except Exception:
+                    pass
+                try:
+                    if hasattr(self.window, "toggle_fullscreen") and getattr(self.window, "fullscreen", False):
+                        self.window.toggle_fullscreen()
+                except Exception:
+                    pass
+                try:
+                    self.window.resize(self._orig_w, self._orig_h)
+                    if self._orig_x is not None and self._orig_y is not None:
+                        self.window.move(self._orig_x, self._orig_y)
+                except Exception:
+                    pass
+                self._is_fullscreen = False
+            else:
+                # Save previous bounds
+                self._orig_w = getattr(self.window, "width", 1152) or 1152
+                self._orig_h = getattr(self.window, "height", 870) or 870
+                self._orig_x = getattr(self.window, "x", 0) or 0
+                self._orig_y = getattr(self.window, "y", 0) or 0
+
+                # Maximize / Fullscreen
+                try:
+                    self.window.maximize()
+                except Exception:
+                    pass
+                try:
+                    if hasattr(self.window, "toggle_fullscreen"):
+                        self.window.toggle_fullscreen()
+                except Exception:
+                    pass
+                self._is_fullscreen = True
+
+            return {
+                "status": "success",
+                "fullscreen": self._is_fullscreen
+            }
+        except Exception as e:
+            print(f"[UIManager] Failed to toggle fullscreen: {e}")
             return {"status": "error", "message": str(e)}

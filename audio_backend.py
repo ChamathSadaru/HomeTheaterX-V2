@@ -336,28 +336,41 @@ class AudioBackend:
         )
 
     def get_channel_volumes(self):
-        """Gets volumes for each channel as percentages (0 to 100)."""
+        """Returns array of channel volumes (0 to 100). Subwoofer is locked to 100% on 5.1 layouts."""
         safe_coinit()
         if not self.volume_interface:
             return []
         try:
+            # Always get live channel count directly from Windows endpoint
+            actual_count = self.volume_interface.GetChannelCount()
+            self.channel_count = actual_count
+            if actual_count <= 0:
+                return []
+
             volumes = []
-            for i in range(self.channel_count):
-                if self.channel_count == 6 and i == 3:
-                    # Lock subwoofer at 1.0 (100%) in hardware. Only issue the
-                    # COM write when it has actually drifted (e.g. another app,
-                    # or Windows itself, changed it) instead of on every single
-                    # 600ms poll tick - avoids unnecessary COM churn / clicks.
-                    current = self.volume_interface.GetChannelVolumeLevelScalar(3)
-                    if round(current, 3) != 1.0:
-                        self.volume_interface.SetChannelVolumeLevelScalar(3, 1.0, None)
+            for i in range(actual_count):
+                if actual_count == 6 and i == 3:
+                    # Lock subwoofer at 1.0 (100%) in hardware for 5.1 setups
+                    try:
+                        current = self.volume_interface.GetChannelVolumeLevelScalar(3)
+                        if round(current, 3) != 1.0:
+                            self.volume_interface.SetChannelVolumeLevelScalar(3, 1.0, None)
+                    except Exception:
+                        pass
                     volumes.append(100)
                 else:
-                    val = self.volume_interface.GetChannelVolumeLevelScalar(i)
-                    volumes.append(int(round(val * 100)))
+                    try:
+                        val = self.volume_interface.GetChannelVolumeLevelScalar(i)
+                        volumes.append(int(round(val * 100)))
+                    except Exception:
+                        # Fallback for devices without per-channel volume scalars (e.g. some Bluetooth/USB DACs)
+                        try:
+                            master_val = self.volume_interface.GetMasterVolumeLevelScalar()
+                            volumes.append(int(round(master_val * 100)))
+                        except Exception:
+                            volumes.append(100)
             return volumes
-        except Exception as e:
-            print(f"Error reading channel volumes: {e}")
+        except Exception:
             return []
 
     def set_channel_volume(self, idx, val):
@@ -365,14 +378,19 @@ class AudioBackend:
         safe_coinit()
         if not self.volume_interface:
             return False
-        # Lock subwoofer at 100% for 5.1 layouts
-        if self.channel_count == 6 and idx == 3:
-            val = 100
         try:
+            actual_count = self.volume_interface.GetChannelCount()
+            self.channel_count = actual_count
+            if idx < 0 or idx >= actual_count:
+                return False
+
+            # Lock subwoofer at 100% for 5.1 layouts
+            if actual_count == 6 and idx == 3:
+                val = 100
+
             self.volume_interface.SetChannelVolumeLevelScalar(idx, val / 100.0, None)
             return True
-        except Exception as e:
-            print(f"Error setting channel {idx} volume: {e}")
+        except Exception:
             return False
 
     def toggle_mute(self):
