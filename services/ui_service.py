@@ -265,46 +265,69 @@ class UIManager:
             return {"status": "error", "message": str(e)}
 
     def toggle_fullscreen(self):
-        """Toggles fullscreen / maximize state of the pywebview application window."""
+        """Toggles fullscreen / maximized state on the monitor where the window currently resides."""
         if not self.window:
             return {"status": "error", "message": "No active window"}
 
         try:
+            screens = webview.screens
+            win_x = getattr(self.window, "x", 0) or 0
+            win_y = getattr(self.window, "y", 0) or 0
+            win_w = getattr(self.window, "width", 1152) or 1152
+            win_h = getattr(self.window, "height", 840) or 840
+
+            center_x = win_x + win_w / 2
+            center_y = win_y + win_h / 2
+
+            # Identify the specific screen the window is currently displayed on
+            current_screen = None
+            if screens:
+                for scr in screens:
+                    if scr.x <= center_x < scr.x + scr.width and scr.y <= center_y < scr.y + scr.height:
+                        current_screen = scr
+                        break
+                if not current_screen:
+                    current_screen = screens[0]
+
             if self._is_fullscreen:
-                # Restore windowed bounds
+                # Restore windowed bounds on the same screen
+                restore_w = getattr(self, "_orig_w", 1152) or 1152
+                restore_h = getattr(self, "_orig_h", 840) or 840
+                restore_x = getattr(self, "_orig_x", None)
+                restore_y = getattr(self, "_orig_y", None)
+
+                if current_screen and (restore_x is None or restore_y is None):
+                    restore_x = int(current_screen.x + (current_screen.width - restore_w) / 2)
+                    restore_y = int(current_screen.y + (current_screen.height - restore_h) / 2)
+
                 try:
-                    self.window.restore()
+                    self.window.resize(restore_w, restore_h)
+                    if restore_x is not None and restore_y is not None:
+                        self.window.move(restore_x, restore_y)
                 except Exception:
                     pass
-                try:
-                    if hasattr(self.window, "toggle_fullscreen") and getattr(self.window, "fullscreen", False):
-                        self.window.toggle_fullscreen()
-                except Exception:
-                    pass
-                try:
-                    self.window.resize(self._orig_w, self._orig_h)
-                    if self._orig_x is not None and self._orig_y is not None:
-                        self.window.move(self._orig_x, self._orig_y)
-                except Exception:
-                    pass
+
                 self._is_fullscreen = False
             else:
-                # Save previous bounds
-                self._orig_w = getattr(self.window, "width", 1152) or 1152
-                self._orig_h = getattr(self.window, "height", 870) or 870
-                self._orig_x = getattr(self.window, "x", 0) or 0
-                self._orig_y = getattr(self.window, "y", 0) or 0
+                # Save current windowed bounds
+                self._orig_w = win_w
+                self._orig_h = win_h
+                self._orig_x = win_x
+                self._orig_y = win_y
 
-                # Maximize / Fullscreen
-                try:
-                    self.window.maximize()
-                except Exception:
-                    pass
-                try:
-                    if hasattr(self.window, "toggle_fullscreen"):
-                        self.window.toggle_fullscreen()
-                except Exception:
-                    pass
+                # Expand to fill the CURRENT monitor completely
+                if current_screen:
+                    try:
+                        self.window.move(int(current_screen.x), int(current_screen.y))
+                        self.window.resize(int(current_screen.width), int(current_screen.height))
+                    except Exception:
+                        pass
+                else:
+                    try:
+                        self.window.maximize()
+                    except Exception:
+                        pass
+
                 self._is_fullscreen = True
 
             return {

@@ -55,12 +55,16 @@ function animateScope() {
   const amp = state.isSystemMuted ? 0 : Math.max(idleAmp, activeAmp);
   const volumeFactor = state.volumes["master"] / 100;
 
+  const isGlass = document.body.classList.contains("glass-mode-active");
+  const mainNeonColor = isGlass ? "#38bdf8" : "#f59e0b";
+  const shadowNeonColor = isGlass ? "rgba(56, 189, 248, 0.75)" : "rgba(245, 158, 11, 0.75)";
+
   if (visualizerState.mode === "waveform") {
     // 1. Phosphor Ambient Neon Glow Underlay
     scopeCtx.save();
     scopeCtx.shadowBlur = 12;
-    scopeCtx.shadowColor = "rgba(245, 158, 11, 0.75)";
-    scopeCtx.strokeStyle = "#f59e0b";
+    scopeCtx.shadowColor = shadowNeonColor;
+    scopeCtx.strokeStyle = mainNeonColor;
     scopeCtx.lineWidth = 3.2;
     scopeCtx.lineCap = "round";
     scopeCtx.lineJoin = "round";
@@ -92,7 +96,7 @@ function animateScope() {
 
     // 2. Inner Razor-Sharp Core Laser Line
     scopeCtx.save();
-    scopeCtx.strokeStyle = "#fffbeb";
+    scopeCtx.strokeStyle = isGlass ? "#f0f9ff" : "#fffbeb";
     scopeCtx.lineWidth = 1.2;
     scopeCtx.lineCap = "round";
     scopeCtx.lineJoin = "round";
@@ -133,7 +137,7 @@ function animateScope() {
       const y = height - targetHeight;
 
       // Bar Body
-      scopeCtx.fillStyle = "#f59e0b";
+      scopeCtx.fillStyle = mainNeonColor;
       scopeCtx.fillRect(x, y, barWidth, targetHeight);
 
       // Top Peak Hold Cap

@@ -94,7 +94,7 @@
         }
 
         .mesh-pattern {
-            background-image: radial-gradient(#27272a 1px, transparent 1px);
+            background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px);
             background-size: 16px 16px;
         }
 
@@ -102,6 +102,254 @@
             background-color: #050508;
             background-image: radial-gradient(#14141e 1.5px, transparent 1.5px);
             background-size: 10px 10px;
+            border: 1px solid rgba(20, 20, 29, 0.8);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.8);
+            transition: background-color 0.35s ease, border-color 0.35s ease, backdrop-filter 0.35s ease;
+        }
+
+        .fader-card {
+            background: #09090d;
+            border: 1px solid #181822;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+            transition: background-color 0.35s ease, border-color 0.35s ease;
+        }
+
+        .apple-glass-card {
+            background: #07070b;
+            border: 1px solid rgba(39, 39, 42, 0.6);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+            transition: background-color 0.35s ease, border-color 0.35s ease;
+        }
+
+        /* Active Frosted Glass Mode - Pure Electric Ice Cyan Liquid Glass */
+        body.glass-mode-active .speaker-deck-stage {
+            background-color: rgba(10, 12, 20, 0.42) !important;
+            background-image: none !important; /* Strips dot pattern in glass mode */
+            backdrop-filter: blur(12px) saturate(160%) !important;
+            -webkit-backdrop-filter: blur(12px) saturate(160%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.16) !important;
+            box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.22), 0 20px 40px -10px rgba(0, 0, 0, 0.5) !important;
+        }
+
+        body.glass-mode-active .fader-card {
+            background: rgba(255, 255, 255, 0.07) !important;
+            backdrop-filter: blur(14px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(14px) saturate(180%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.18) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.26), 0 8px 20px rgba(0, 0, 0, 0.35) !important;
+        }
+        body.glass-mode-active .fader-card:hover {
+            background: rgba(255, 255, 255, 0.12) !important;
+            border-color: rgba(56, 189, 248, 0.40) !important;
+        }
+
+        /* Ice Cyan Volume Percent & Sliders */
+        body.glass-mode-active [id^="val-"] {
+            color: #38bdf8 !important;
+        }
+        body.glass-mode-active [id^="track-"] {
+            background: linear-gradient(to right, #0284c7, #38bdf8) !important;
+            box-shadow: 0 0 8px rgba(56, 189, 248, 0.5) !important;
+        }
+        body.glass-mode-active [id^="thumb-"] {
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.85), 0 0 4px #ffffff !important;
+        }
+
+        /* Ice Cyan Speaker Cone Outlines, Fills, Neon Rings & Air Ripples */
+        body.glass-mode-active [id^="cone-"] circle,
+        body.glass-mode-active [id^="cone-"] path,
+        body.glass-mode-active #subwoofer-neon-ring,
+        body.glass-mode-active #subwoofer-air-ripples path {
+            stroke: #38bdf8 !important;
+        }
+        body.glass-mode-active #cone-center circle:last-child,
+        body.glass-mode-active #cone-towerL circle:nth-child(2),
+        body.glass-mode-active #cone-towerL circle:nth-child(4),
+        body.glass-mode-active #cone-towerR circle:nth-child(2),
+        body.glass-mode-active #cone-towerR circle:nth-child(4) {
+            fill: #38bdf8 !important;
+            filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.8)) !important;
+        }
+        body.glass-mode-active #cone-center circle:first-child,
+        body.glass-mode-active #cone-towerL circle:nth-child(1),
+        body.glass-mode-active #cone-towerL circle:nth-child(3),
+        body.glass-mode-active #cone-towerR circle:nth-child(1),
+        body.glass-mode-active #cone-towerR circle:nth-child(3) {
+            stroke: rgba(56, 189, 248, 0.6) !important;
+        }
+
+        /* Atmospheric Ambient Spotlight & Speaker Backlight in Electric Ice Cyan */
+        body.glass-mode-active #stage-spotlight-glow {
+            background: radial-gradient(circle at center top, rgba(56, 189, 248, 0.16) 0%, rgba(2, 132, 199, 0.08) 45%, transparent 75%) !important;
+            opacity: 1 !important;
+        }
+        body.glass-mode-active .speaker-glow-light {
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.50) 0%, rgba(2, 132, 199, 0.25) 45%, transparent 75%) !important;
+            filter: blur(24px) !important;
+        }
+
+        /* Glass Scope & Player Cards */
+        body.glass-mode-active .apple-glass-card,
+        body.glass-mode-active #scope-card,
+        body.glass-mode-active #player-card {
+            background: rgba(255, 255, 255, 0.07) !important;
+            backdrop-filter: blur(16px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.18) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 12px 32px rgba(0, 0, 0, 0.35) !important;
+        }
+
+        body.glass-mode-active #player-art-wrap {
+            background: rgba(255, 255, 255, 0.10) !important;
+            border: 1px solid rgba(255, 255, 255, 0.22) !important;
+            backdrop-filter: blur(12px) !important;
+        }
+
+        body.glass-mode-active #player-card > div:last-child {
+            background: rgba(255, 255, 255, 0.08) !important;
+            border: 1px solid rgba(255, 255, 255, 0.18) !important;
+            backdrop-filter: blur(12px) !important;
+        }
+
+        body.glass-mode-active #scope-card > div:nth-child(2) {
+            background: rgba(0, 0, 0, 0.35) !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            backdrop-filter: blur(12px) !important;
+        }
+
+        /* Glass Window Control Buttons */
+        body.glass-mode-active #win-screen-btn,
+        body.glass-mode-active #win-fullscreen-btn,
+        body.glass-mode-active #win-min-btn {
+            background: rgba(255, 255, 255, 0.08) !important;
+            backdrop-filter: blur(14px) !important;
+            -webkit-backdrop-filter: blur(14px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.18) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 4px 12px rgba(0,0,0,0.3) !important;
+        }
+        body.glass-mode-active #win-screen-btn:hover,
+        body.glass-mode-active #win-fullscreen-btn:hover,
+        body.glass-mode-active #win-min-btn:hover {
+            background: rgba(255, 255, 255, 0.16) !important;
+            border-color: rgba(56, 189, 248, 0.5) !important;
+        }
+        body.glass-mode-active #win-close-btn {
+            background: rgba(239, 68, 68, 0.20) !important;
+            backdrop-filter: blur(14px) !important;
+            -webkit-backdrop-filter: blur(14px) !important;
+            border: 1px solid rgba(239, 68, 68, 0.35) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 12px rgba(239, 68, 68, 0.2) !important;
+        }
+
+        /* Glass Navigation Tabs (Active = Electric Ice Cyan) */
+        body.glass-mode-active #tab-studio {
+            background: rgba(14, 165, 233, 0.88) !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(255, 255, 255, 0.35) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 0 20px rgba(56, 189, 248, 0.45) !important;
+        }
+        body.glass-mode-active #tab-room-cal,
+        body.glass-mode-active #tab-receiver,
+        body.glass-mode-active #tab-settings {
+            background: rgba(255, 255, 255, 0.08) !important;
+            backdrop-filter: blur(14px) !important;
+            -webkit-backdrop-filter: blur(14px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.16) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 14px rgba(0,0,0,0.25) !important;
+        }
+        body.glass-mode-active #tab-room-cal:hover,
+        body.glass-mode-active #tab-receiver:hover,
+        body.glass-mode-active #tab-settings:hover {
+            background: rgba(255, 255, 255, 0.15) !important;
+            border-color: rgba(56, 189, 248, 0.4) !important;
+        }
+
+        /* Glass Stage Top-Right Circular & Action Buttons */
+        body.glass-mode-active .preset-filter-btn,
+        body.glass-mode-active #eightd-btn,
+        body.glass-mode-active #ddl-btn,
+        body.glass-mode-active #test-btn,
+        body.glass-mode-active #reset-btn {
+            background: rgba(255, 255, 255, 0.08) !important;
+            backdrop-filter: blur(14px) !important;
+            -webkit-backdrop-filter: blur(14px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.18) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24), 0 6px 16px rgba(0,0,0,0.35) !important;
+        }
+        body.glass-mode-active .preset-filter-btn:hover,
+        body.glass-mode-active #eightd-btn:hover,
+        body.glass-mode-active #ddl-btn:hover,
+        body.glass-mode-active #test-btn:hover,
+        body.glass-mode-active #reset-btn:hover {
+            background: rgba(255, 255, 255, 0.16) !important;
+            border-color: rgba(56, 189, 248, 0.6) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 0 16px rgba(56, 189, 248, 0.35) !important;
+        }
+        body.glass-mode-active #mute-btn {
+            background: rgba(220, 38, 38, 0.75) !important;
+            backdrop-filter: blur(14px) !important;
+            -webkit-backdrop-filter: blur(14px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 6px 20px rgba(220, 38, 38, 0.4) !important;
+        }
+
+        /* Glass Presets Pills */
+        body.glass-mode-active .preset-btn {
+            background: rgba(255, 255, 255, 0.08) !important;
+            backdrop-filter: blur(14px) !important;
+            -webkit-backdrop-filter: blur(14px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.16) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 12px rgba(0,0,0,0.2) !important;
+        }
+        body.glass-mode-active .preset-btn:hover {
+            background: rgba(255, 255, 255, 0.16) !important;
+            border-color: rgba(56, 189, 248, 0.4) !important;
+        }
+        body.glass-mode-active .preset-btn.active-preset {
+            background: rgba(56, 189, 248, 0.22) !important;
+            border-color: rgba(56, 189, 248, 0.75) !important;
+            color: #ffffff !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 0 16px rgba(56, 189, 248, 0.45) !important;
+        }
+
+        /* Glass Media Transport Buttons & Dynamic Colors */
+        body.glass-mode-active #player-prev-btn,
+        body.glass-mode-active #player-next-btn {
+            background: rgba(255, 255, 255, 0.08) !important;
+            backdrop-filter: blur(14px) !important;
+            -webkit-backdrop-filter: blur(14px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.16) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 12px rgba(0,0,0,0.3) !important;
+        }
+        body.glass-mode-active #player-play-btn {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.95), rgba(2, 132, 199, 0.95)) !important;
+            backdrop-filter: blur(14px) !important;
+            -webkit-backdrop-filter: blur(14px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.35) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 0 20px rgba(56, 189, 248, 0.45) !important;
+            color: #ffffff !important;
+        }
+        body.glass-mode-active #player-play-icon {
+            color: #ffffff !important;
+        }
+        body.glass-mode-active .mini-eq-bar {
+            background-color: #38bdf8 !important;
+            box-shadow: 0 0 6px #38bdf8 !important;
+        }
+        body.glass-mode-active .text-amber-500 {
+            color: #38bdf8 !important;
+        }
+
+        /* Glass Sub-Views & Settings */
+        body.glass-mode-active #view-settings > div,
+        body.glass-mode-active #view-room-cal,
+        body.glass-mode-active #view-room-cal > div,
+        body.glass-mode-active #receiver-console-deck {
+            background: rgba(10, 12, 20, 0.50) !important;
+            backdrop-filter: blur(16px) saturate(160%) !important;
+            -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.14) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 12px 32px rgba(0, 0, 0, 0.5) !important;
         }
 
         /* 720p & Compact Screen Responsive Adaptations */
@@ -177,14 +425,21 @@
     </script>
 </head>
 
-<body class="h-screen overflow-hidden p-0 flex flex-col select-none bg-[#050508]">
+<body class="h-screen overflow-hidden p-0 flex flex-col select-none bg-[#050508] relative">
+
+    <!-- Dynamic Apple Liquid Frosted Wallpaper Ambient Background Layer -->
+    <div id="wallpaper-bg-layer" class="fixed inset-0 pointer-events-none overflow-hidden z-0 transition-opacity duration-700 opacity-0">
+        <div id="wallpaper-bg-img" class="w-full h-full bg-cover bg-center scale-110 blur-[32px] saturate-200 brightness-80" style="background-image: url('/api/wallpaper');"></div>
+        <!-- Ultra-Premium Apple Frosted Glass Tint -->
+        <div class="absolute inset-0 bg-gradient-to-b from-black/25 via-black/35 to-black/55 backdrop-blur-[2px]"></div>
+    </div>
 
     <!-- Immersive Mixer Console Container -->
-    <div class="relative w-full h-full bg-[#050508] p-5 flex flex-col gap-4 z-10">
+    <div class="relative w-full h-full bg-transparent p-5 flex flex-col gap-3 z-10 max-w-[1700px] mx-auto overflow-y-auto scrollbar-none justify-between">
 
         <!-- Header Row -->
         <div
-            class="flex flex-col md:flex-row items-start md:items-center justify-between pb-4 border-b border-zinc-900 gap-4 flex-shrink-0">
+            class="flex flex-col md:flex-row items-start md:items-center justify-between pb-4 border-b border-zinc-900/80 gap-4 flex-shrink-0 w-full">
             <div>
                 <div class="flex items-center gap-3">
                     <div class="p-2 rounded-lg bg-zinc-950 border border-zinc-900">
@@ -261,7 +516,7 @@
 
                 <!-- Symmetrical Speaker Deck Stage -->
                 <div
-                    class="relative speaker-deck-stage w-full rounded-2xl border border-[#14141d]/80 pt-20 pb-8 px-6 mb-4 flex flex-col items-center justify-end min-h-[410px]">
+                    class="relative speaker-deck-stage w-full rounded-2xl border border-white/10 pt-20 pb-8 px-6 mb-4 flex flex-col items-center justify-end min-h-[410px] shadow-2xl backdrop-blur-xl">
 
                     <!-- Stage Monitoring Text Left Corner -->
                     <div id="lbl-stage-monitor"
@@ -343,8 +598,8 @@
                     </div>
 
                     <!-- Spotlight Top Glow -->
-                    <div
-                        class="absolute top-0 left-1/2 -translate-x-1/2 w-[85%] h-[340px] bg-[radial-gradient(circle_at_center_top,rgba(245,158,11,0.07),transparent_70%)] pointer-events-none rounded-full blur-3xl">
+                    <div id="stage-spotlight-glow"
+                        class="absolute top-0 left-1/2 -translate-x-1/2 w-[85%] h-[340px] bg-[radial-gradient(circle_at_center_top,rgba(245,158,11,0.07),transparent_70%)] pointer-events-none rounded-full blur-3xl transition-all duration-500">
                     </div>
 
                     <!-- Speakers Grid (6 channels centered) -->
@@ -904,7 +1159,7 @@
 
                         <!-- Diagnostic Scope (50% Width) -->
                         <div id="scope-card"
-                            class="w-full min-w-0 grid grid-cols-12 gap-3.5 p-3.5 bg-zinc-950/40 rounded-2xl border border-zinc-900/60 shadow-inner h-[112px]">
+                            class="w-full min-w-0 grid grid-cols-12 gap-3.5 p-3.5 apple-glass-card rounded-2xl h-[112px]">
                             <div class="col-span-5 flex flex-col justify-center font-mono text-left gap-1">
                                 <div class="flex flex-col gap-1.5 items-start">
                                     <span class="text-xs font-bold text-zinc-100 uppercase tracking-wider">Diagnostic
@@ -919,7 +1174,7 @@
                             </div>
 
                             <div
-                                class="col-span-7 h-full bg-black rounded-xl border border-zinc-900 flex items-center justify-center relative overflow-hidden">
+                                class="col-span-7 h-full bg-black/80 rounded-xl border border-white/10 flex items-center justify-center relative overflow-hidden backdrop-blur-md">
                                 <canvas id="scope-canvas" width="450" height="96" class="w-full h-full block"></canvas>
                                 <div class="absolute bottom-1 right-2 flex items-center gap-2">
                                     <button id="btn-vis-mode"
@@ -936,11 +1191,11 @@
 
                         <!-- Mini Media Player (50% Width) -->
                         <div id="player-card"
-                            class="w-full min-w-0 flex items-center justify-between gap-4 p-3.5 bg-zinc-950/40 rounded-2xl border border-zinc-900/60 shadow-inner h-[112px] relative overflow-hidden">
+                            class="w-full min-w-0 flex items-center justify-between gap-4 p-3.5 apple-glass-card rounded-2xl h-[112px] relative overflow-hidden">
 
                             <!-- Left: Album Art / Vinyl Disc with Ambient Glow -->
                             <div id="player-art-wrap"
-                                class="w-18 h-18 rounded-2xl bg-zinc-950 border border-zinc-800 relative flex-shrink-0 flex items-center justify-center overflow-hidden shadow-lg group">
+                                class="w-18 h-18 rounded-2xl bg-zinc-950/80 border border-white/10 relative flex-shrink-0 flex items-center justify-center overflow-hidden shadow-lg group backdrop-blur-md">
                                 <div class="absolute inset-0 bg-gradient-to-tr from-amber-500/15 to-transparent"></div>
                                 <!-- Spinning Vinyl Disc (Fallback) -->
                                 <div id="player-record"
@@ -995,9 +1250,9 @@
 
                             <!-- Right: Sleek Floating Glassmorphic Transport Controls -->
                             <div
-                                class="flex items-center gap-1.5 flex-shrink-0 bg-zinc-950/70 p-1.5 rounded-2xl border border-zinc-850/80 shadow-md">
+                                class="flex items-center gap-1.5 flex-shrink-0 bg-zinc-950/70 p-1.5 rounded-2xl border border-white/10 shadow-md backdrop-blur-md">
                                 <button id="player-prev-btn"
-                                    class="w-8 h-8 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-white flex items-center justify-center transition-all cursor-pointer"
+                                    class="w-8 h-8 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-white/10 text-zinc-400 hover:text-white flex items-center justify-center transition-all cursor-pointer"
                                     title="Previous Track">
                                     <i class="fa-solid fa-backward-step text-[11px]"></i>
                                 </button>
@@ -1007,7 +1262,7 @@
                                     <i id="player-play-icon" class="fa-solid fa-play text-xs ml-0.5"></i>
                                 </button>
                                 <button id="player-next-btn"
-                                    class="w-8 h-8 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-white flex items-center justify-center transition-all cursor-pointer"
+                                    class="w-8 h-8 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-white/10 text-zinc-400 hover:text-white flex items-center justify-center transition-all cursor-pointer"
                                     title="Next Track">
                                     <i class="fa-solid fa-forward-step text-[11px]"></i>
                                 </button>
@@ -1019,7 +1274,7 @@
 
                     <!-- Symmetrical Acoustic Presets Selector Bottom Center (Below Scope) -->
                     <div
-                        class="w-full max-w-4xl bg-zinc-950/20 border border-zinc-900/60 p-3 rounded-2xl flex flex-col gap-2.5 mt-4 shadow-inner relative z-20">
+                        class="w-full max-w-4xl apple-glass-card p-3 rounded-2xl flex flex-col gap-2.5 mt-4 relative z-20">
 
 
                         <!-- Bottom Row: Buttons in a single row, no-wrap, centered -->
@@ -1563,6 +1818,21 @@
                         data-active="true">
                         <span id="toggle-minimize-tray-knob"
                             class="absolute top-0.5 left-6 w-5 h-5 rounded-full bg-black transition-all"></span>
+                    </button>
+                </div>
+
+                <!-- Frosted Wallpaper Ambient Background -->
+                <div
+                    class="flex items-center justify-between bg-zinc-950/40 border border-zinc-900 rounded-2xl px-5 py-4">
+                    <div>
+                        <p class="text-xs font-bold text-white uppercase tracking-wider">Frosted Desktop Wallpaper Glass</p>
+                        <p class="text-[9px] text-zinc-550 tracking-widest mt-1 uppercase">Blurs your active Windows desktop wallpaper as a dynamic ambient backdrop</p>
+                    </div>
+                    <button id="toggle-wallpaper"
+                        class="w-12 h-6 rounded-full bg-zinc-800 border border-zinc-700 relative transition-all flex-shrink-0"
+                        data-active="false">
+                        <span id="toggle-wallpaper-knob"
+                            class="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-zinc-400 transition-all"></span>
                     </button>
                 </div>
 

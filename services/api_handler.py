@@ -111,6 +111,25 @@ class AudioControlHandler(BaseHTTPRequestHandler):
                 self._send_json({"status": "success", "screen_count": count}, 200)
                 return
 
+            if path_only == "/api/wallpaper":
+                appdata = os.environ.get('APPDATA', '')
+                wp_path = os.path.join(appdata, 'Microsoft', 'Windows', 'Themes', 'TranscodedWallpaper')
+                if os.path.exists(wp_path):
+                    try:
+                        with open(wp_path, "rb") as f:
+                            wp_data = f.read()
+                        self.send_response(200)
+                        self.send_header("Content-Type", "image/jpeg")
+                        self.send_header("Content-Length", str(len(wp_data)))
+                        self.send_header("Cache-Control", "public, max-age=60")
+                        self.end_headers()
+                        self.wfile.write(wp_data)
+                        return
+                    except Exception as err:
+                        print(f"Error streaming wallpaper: {err}")
+                self.send_error(404, "Wallpaper Not Available")
+                return
+
             if path_only == "/api/status":
                 master_vol, muted = self.backend.get_master_volume()
                 channel_vols = self.backend.get_channel_volumes()

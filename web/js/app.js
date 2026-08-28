@@ -1190,6 +1190,40 @@ async function initAppSettings() {
       }
     });
   }
+
+  const wpEnabled = localStorage.getItem("frosted_wallpaper_enabled") === "true";
+  setToggleUI("toggle-wallpaper", "toggle-wallpaper-knob", wpEnabled);
+  const wpLayer = document.getElementById("wallpaper-bg-layer");
+  if (wpLayer) {
+    wpLayer.style.opacity = wpEnabled ? "1" : "0";
+  }
+  if (wpEnabled) {
+    document.body.classList.add("glass-mode-active");
+  } else {
+    document.body.classList.remove("glass-mode-active");
+  }
+
+  const wpBtn = document.getElementById("toggle-wallpaper");
+  if (wpBtn) {
+    wpBtn.addEventListener("click", () => {
+      const newState = wpBtn.dataset.active !== "true";
+      localStorage.setItem("frosted_wallpaper_enabled", newState ? "true" : "false");
+      setToggleUI("toggle-wallpaper", "toggle-wallpaper-knob", newState);
+      if (wpLayer) {
+        wpLayer.style.opacity = newState ? "1" : "0";
+      }
+      if (newState) {
+        document.body.classList.add("glass-mode-active");
+      } else {
+        document.body.classList.remove("glass-mode-active");
+      }
+      showToast(
+        "Frosted Glass " + (newState ? "Active" : "Off"),
+        newState ? "Desktop wallpaper ambient glass backdrop enabled." : "Solid black studio backdrop restored.",
+        "brand-amber"
+      );
+    });
+  }
 }
 
 function initTabsNavigation() {
