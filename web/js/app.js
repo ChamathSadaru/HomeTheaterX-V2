@@ -917,7 +917,52 @@ let pulseAngle = 0;
 let peakHistory = [];
 const historyLen = 12;
 let currentBassGlow = 0.0;
-let prevPeak = 0.0;
+// ------------------------------------------------------------------
+// 90Hz Biquad Low-Pass Filter & Sub-Bass Transient Flux Engine
+// ------------------------------------------------------------------
+class LowPassBassDetector {
+  constructor(cutoffHz = 90, sampleRate = 60) {
+    const omega = 2 * Math.PI * cutoffHz / sampleRate;
+    const alpha = Math.sin(omega) / (2 * 0.707);
+    const cosw = Math.cos(omega);
+    const a0 = 1 + alpha;
+
+    this.b0 = ((1 - cosw) / 2) / a0;
+    this.b1 = (1 - cosw) / a0;
+    this.b2 = ((1 - cosw) / 2) / a0;
+    this.a1 = (-2 * cosw) / a0;
+    this.a2 = (1 - alpha) / a0;
+
+    this.x1 = 0; this.x2 = 0;
+    this.y1 = 0; this.y2 = 0;
+
+    this.history = [];
+    this.historyLen = 18;
+  }
+
+  process(sample) {
+    const y = this.b0 * sample + this.b1 * this.x1 + this.b2 * this.x2 - this.a1 * this.y1 - this.a2 * this.y2;
+    this.x2 = this.x1;
+    this.x1 = sample;
+    this.y2 = this.y1;
+    this.y1 = y;
+
+    const filteredBass = Math.max(0, y);
+
+    this.history.push(filteredBass);
+    if (this.history.length > this.historyLen) {
+      this.history.shift();
+    }
+    const avgFloor = this.history.reduce((a, b) => a + b, 0) / this.history.length;
+
+    // Transient Onset Flux (Kick Drum / 808 bass spike isolation)
+    const flux = Math.max(0, filteredBass - avgFloor);
+    const intensity = Math.min(1.0, (filteredBass * 0.65) + (flux * 3.2));
+    return intensity;
+  }
+}
+
+const bassDetector = new LowPassBassDetector(90, 60);
 
 function animateSpeakerPulses() {
   if (!state.isSystemMuted) {
@@ -927,28 +972,21 @@ function animateSpeakerPulses() {
     const peak = Math.max(state.windowsAudioPeak, localPeak);
     const pulse = peak > 0.015 ? peak : Math.sin(pulseAngle) * 0.15;
 
-    peakHistory.push(peak);
-    if (peakHistory.length > historyLen) {
-      peakHistory.shift();
-    }
-    const averagePeak = peakHistory.reduce((sum, p) => sum + p, 0) / peakHistory.length;
+    // Isolate pure sub-bass (<90Hz) using the Low-Pass Filter
+    const rawSub = state.channelPeaks["subwoofer"] || 0.0;
+    const isMultiChannel = (state.channelCount || 6) > 2;
 
-    let bassIntensity = 0.0;
-    const derivative = peak - prevPeak;
-    if (peak > 0.18 && derivative > 0.08) {
-      const threshold = 1.25;
-      if (peak > averagePeak * threshold) {
-        bassIntensity = Math.min(1.0, (peak - averagePeak * threshold) * 6 + 0.4);
-      }
-    }
-    prevPeak = peak;
-
-    const subChPeak = state.channelPeaks["subwoofer"] || 0.0;
-    const subEffective = Math.max(subChPeak, bassIntensity);
-    if (subEffective > currentBassGlow) {
-      currentBassGlow = subEffective;
+    let trueBassEnergy = 0.0;
+    if (isMultiChannel && rawSub > 0.005) {
+      trueBassEnergy = rawSub;
     } else {
-      currentBassGlow = currentBassGlow * 0.85;
+      trueBassEnergy = bassDetector.process(peak);
+    }
+
+    if (trueBassEnergy > currentBassGlow) {
+      currentBassGlow = trueBassEnergy;
+    } else {
+      currentBassGlow = currentBassGlow * 0.84;
     }
 
     const neonRing = document.getElementById("subwoofer-neon-ring");
