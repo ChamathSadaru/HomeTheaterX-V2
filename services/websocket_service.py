@@ -262,7 +262,7 @@ class WebSocketManager:
     async def _media_sync_loop(self):
         """
         Periodically polls Windows System Media Transport and broadcasts
-        playback, track metadata, and position updates when changes occur.
+        playback, track metadata, position, and artwork updates when changes occur.
         """
         while self.running:
             try:
@@ -270,7 +270,7 @@ class WebSocketManager:
                     has_clients = bool(self.clients)
 
                 if has_clients:
-                    # Broadcast update if metadata, playback state, position, or thumbnail changes
+                    media_data = await self._get_media_status_safe()
                     thumb_len = len(media_data.get("thumbnail", "") or "")
                     current_snap = (
                         media_data.get("status"),
@@ -287,11 +287,12 @@ class WebSocketManager:
                             "type": "media_status",
                             "data": media_data
                         })
-                await asyncio.sleep(0.4)
+                await asyncio.sleep(0.35)
             except asyncio.CancelledError:
                 break
-            except Exception:
-                await asyncio.sleep(1.0)
+            except Exception as e:
+                print(f"[WebSocket] Media sync loop error: {e}")
+                await asyncio.sleep(0.8)
 
     async def _volume_sync_loop(self):
         """
