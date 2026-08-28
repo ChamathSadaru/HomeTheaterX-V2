@@ -9,9 +9,15 @@ every setting reset back to defaults each time the app launched.
 
 import json
 import os
+import sys
 import threading
 
-_CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
+if getattr(sys, 'frozen', False):
+    _APP_DIR = os.path.dirname(sys.executable)
+else:
+    _APP_DIR = os.path.dirname(os.path.abspath(__file__))
+
+_CONFIG_PATH = os.path.join(_APP_DIR, "config.json")
 
 _DEFAULTS = {
     "notifications_enabled": True,

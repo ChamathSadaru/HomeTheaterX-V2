@@ -4,6 +4,11 @@ import threading
 import time
 from http.server import ThreadingHTTPServer
 
+if sys.stdout is None:
+    sys.stdout = open(os.devnull, "w")
+if sys.stderr is None:
+    sys.stderr = open(os.devnull, "w")
+
 from audio_backend import AudioBackend
 import config_manager
 import notifier
@@ -15,7 +20,10 @@ from services.websocket_service import WebSocketManager
 # Initialize shared backend instance
 backend = AudioBackend()
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+    BASE_DIR = sys._MEIPASS
+else:
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 WEB_DIR = os.path.join(BASE_DIR, "web")
 
 # Load initial devices and select default (or last-used) output device

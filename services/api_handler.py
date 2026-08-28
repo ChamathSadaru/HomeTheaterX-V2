@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import threading
 import traceback
@@ -10,7 +11,10 @@ import config_manager
 import startup_manager
 from services import apo_service, dolby_service, media_service
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+    BASE_DIR = sys._MEIPASS
+else:
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 WEB_DIR = os.path.join(BASE_DIR, "web")
 
 class AudioControlHandler(BaseHTTPRequestHandler):

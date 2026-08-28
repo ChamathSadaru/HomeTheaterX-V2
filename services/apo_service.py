@@ -1,6 +1,12 @@
 import os
+import sys
 import shutil
 import time
+
+def _get_apo_template_dir():
+    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, "apo")
+    return os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "apo")
 
 # Maps app-internal speaker names → Equalizer APO channel identifiers
 APO_CHANNEL_MAP = {
@@ -125,8 +131,7 @@ def set_room_calibration_state(enabled):
     """
     # Note: relative path calculation changed because we are inside the services/ subdirectory
     local_upmix_template = os.path.normpath(os.path.join(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-        "apo", "UpmixForRoomCalibration.txt"
+        _get_apo_template_dir(), "UpmixForRoomCalibration.txt"
     ))
     prod_upmix_path = os.path.join(APO_CONFIG_DIR, "UpmixForRoomCalibration.txt")
     prod_cal_path = os.path.join(APO_CONFIG_DIR, "RoomCalibration.txt")
@@ -185,7 +190,7 @@ def set_preset_state(preset_name, enabled):
     prod_path = os.path.join(APO_CONFIG_DIR, filename)
     if enabled and not os.path.exists(prod_path):
         try:
-            local_preset_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "apo", filename)
+            local_preset_path = os.path.join(_get_apo_template_dir(), filename)
             if os.path.exists(local_preset_path):
                 shutil.copy2(local_preset_path, prod_path)
             else:
