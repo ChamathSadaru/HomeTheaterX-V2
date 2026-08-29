@@ -1,6 +1,6 @@
 {
   "notifications_enabled": true,
-  "launch_on_startup": true,
+  "launch_on_startup": false,
   "last_device": "Samsung Home Theater 5.1 (HD Audio Driver for Display Audio)",
   "crossover_hz": 80,
   "minimize_to_tray_on_close": true,

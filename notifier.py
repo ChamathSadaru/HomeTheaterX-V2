@@ -27,7 +27,12 @@ _last_sent = {}
 _RATE_LIMIT_SECONDS = 2.5
 _lock = threading.Lock()
 
-_ICON_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Splash.jpg")
+if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+    _BASE_DIR = sys._MEIPASS
+else:
+    _BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+_ICON_PATH = os.path.join(_BASE_DIR, "Icon.ico")
 
 
 def _rate_limited(key):
@@ -45,7 +50,8 @@ def _send_winotify(title, message):
     toast = Notification(
         app_id="HomeTheaterX",
         title=title,
-        msg=message
+        msg=message,
+        icon=_ICON_PATH if os.path.exists(_ICON_PATH) else None
     )
     toast.show()
     return True

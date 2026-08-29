@@ -1,4 +1,4 @@
-﻿# -*- mode: python ; coding: utf-8 -*-
+# -*- mode: python ; coding: utf-8 -*-
 
 import os
 import sys
@@ -9,7 +9,7 @@ added_files = [
     ('web', 'web'),
     ('apo', 'apo'),
     ('Splash.jpg', '.'),
-    ('samsung.ico', '.'),
+    ('Icon.ico', '.'),
 ]
 
 hidden_imports = [
@@ -79,5 +79,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='samsung.ico',
+    icon='Icon.ico',
 )

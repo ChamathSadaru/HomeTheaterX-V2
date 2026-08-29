@@ -43,6 +43,8 @@ class AudioControlHandler(BaseHTTPRequestHandler):
         preventing directory-traversal escapes."""
         if url_path == "/":
             candidate = os.path.join(WEB_DIR, "index.html")
+        elif url_path.lstrip("/") in ("favicon.ico", "icon.ico"):
+            candidate = os.path.join(BASE_DIR, "Icon.ico")
         elif url_path.lstrip("/") == "samsung_splash.jpg":
             candidate = os.path.join(BASE_DIR, "Splash.jpg")
         else:

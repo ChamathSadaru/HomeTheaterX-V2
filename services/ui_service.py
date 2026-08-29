@@ -24,6 +24,21 @@ class UIManager:
 
     def generate_tray_icon_image(self, muted=False):
         try:
+            if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+                base_dir = sys._MEIPASS
+            else:
+                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            icon_file = os.path.join(base_dir, "Icon.ico")
+            if os.path.exists(icon_file):
+                img = Image.open(icon_file).convert("RGBA").resize((64, 64), Image.Resampling.LANCZOS)
+                if muted:
+                    draw = ImageDraw.Draw(img)
+                    draw.line([(6, 6), (58, 58)], fill=(239, 68, 68, 255), width=5)
+                    draw.line([(6, 58), (58, 6)], fill=(239, 68, 68, 255), width=5)
+                return img
+        except Exception as e:
+            print(f"Error loading Icon.ico for tray: {e}")
+        try:
             img = Image.new("RGBA", (64, 64), color=(0, 0, 0, 0))
             draw = ImageDraw.Draw(img)
             ring_color = (220, 60, 60, 255) if muted else (212, 175, 55, 255)
