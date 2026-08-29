@@ -9,6 +9,12 @@ if sys.stdout is None:
 if sys.stderr is None:
     sys.stderr = open(os.devnull, "w")
 
+try:
+    import ctypes
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("Chamathz.HomeTheaterX.AudioEngine.2.0")
+except Exception:
+    pass
+
 from audio_backend import AudioBackend
 import config_manager
 import notifier
@@ -176,7 +182,7 @@ def main():
 
         window.events.loaded += on_window_loaded
         
-        icon_path = os.path.join(BASE_DIR, "web", "logo.ico")
+        icon_path = os.path.join(BASE_DIR, "Icon.ico")
         if not os.path.exists(icon_path):
             icon_path = None
 
